@@ -1,0 +1,10 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Minimal, print-friendly tweaks */
+@media print {
+  @page { margin: 12mm; }
+  button, a[href] { display: none !important; }
+  html, body { background: #ffffff; }
+}
