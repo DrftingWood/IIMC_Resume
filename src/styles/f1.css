@@ -1,0 +1,240 @@
+:root {
+  --c-text: #000000;
+  --c-bg: #ffffff;
+  --c-section: #bfbfbf;
+  --c-colheader: #bfbfbf;
+  --c-tagline: #d9d9d9;
+  --c-border: #000000;
+}
+
+.f1-page {
+  width: 210mm;
+  min-height: 297mm;
+  padding: 0.3in;
+  background: var(--c-bg);
+  color: var(--c-text);
+  font-family: 'Calibri', 'Carlito', 'Arial', sans-serif;
+  font-size: 8.5pt;
+  line-height: 1.15;
+  margin: 0 auto;
+  box-sizing: border-box;
+  font-style: normal !important;
+}
+
+.f1-page * {
+  font-style: normal !important;
+  box-sizing: border-box;
+}
+
+/* Header band */
+.f1-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 0 4pt 0;
+}
+
+.f1-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8pt;
+}
+
+.f1-logo {
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
+}
+
+.f1-logo-placeholder {
+  width: 50px;
+  height: 50px;
+  border: 0.5pt solid #000;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 7pt;
+  font-weight: bold;
+  text-align: center;
+  line-height: 1;
+}
+
+.f1-inst-hindi {
+  font-weight: bold;
+  font-size: 11pt;
+}
+
+.f1-inst-eng {
+  font-weight: bold;
+  font-size: 7.5pt;
+}
+
+.f1-header-right {
+  text-align: right;
+}
+
+.f1-name {
+  font-weight: bold;
+  font-size: 16pt;
+  line-height: 1.1;
+}
+
+.f1-mbaid {
+  font-weight: bold;
+  font-size: 10pt;
+}
+
+/* Tagline row */
+.f1-tagline-row {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.f1-tagline-row td {
+  background: var(--c-tagline);
+  border: 0.5pt solid var(--c-border);
+  font-weight: bold;
+  font-size: 8pt;
+  text-transform: uppercase;
+  text-align: center;
+  padding: 2pt 6pt;
+  width: 33.333%;
+}
+
+/* Section header bar */
+.f1-section-bar {
+  background: var(--c-section);
+  font-weight: bold;
+  font-size: 9pt;
+  text-transform: uppercase;
+  padding: 2pt 6pt;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 0.5pt solid var(--c-border);
+  border-bottom: none;
+}
+
+.f1-section-bar-right {
+  font-weight: bold;
+  font-size: 9pt;
+}
+
+/* Tables generic */
+.f1-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.f1-table th,
+.f1-table td {
+  border: 0.5pt solid var(--c-border);
+  padding: 2pt 6pt;
+  vertical-align: middle;
+  text-align: left;
+  font-size: 8.5pt;
+  font-weight: normal;
+}
+
+.f1-table th {
+  background: var(--c-colheader);
+  font-size: 8.5pt;
+  font-weight: bold;
+  text-align: center;
+}
+
+.f1-cell-center {
+  text-align: center;
+}
+
+.f1-cell-bold {
+  font-weight: bold;
+}
+
+.f1-cell-year {
+  text-align: center;
+  font-size: 8pt;
+  white-space: nowrap;
+}
+
+/* Category cell (left column in 3-col group tables) */
+.f1-category {
+  text-align: center;
+  font-weight: bold;
+  font-size: 8.5pt;
+  width: 18%;
+}
+
+.f1-bullet-cell {
+  font-size: 8.5pt;
+}
+
+/* Industry experience specifics */
+.f1-vertical {
+  width: 28px;
+  text-align: center;
+  background: #fff;
+}
+
+.f1-vertical span {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  display: inline-block;
+  white-space: nowrap;
+  font-weight: bold;
+  font-size: 8.5pt;
+  text-transform: capitalize;
+}
+
+.f1-exp-headrow td {
+  background: var(--c-section);
+  font-weight: bold;
+  text-transform: uppercase;
+  text-align: center;
+  font-size: 8.5pt;
+}
+
+.f1-exp-sublabel {
+  text-align: center;
+  font-weight: bold;
+  font-size: 8.5pt;
+  width: 18%;
+}
+
+/* Bullets */
+.f1-bullet {
+  margin: 0;
+  padding: 0;
+}
+
+.f1-bullet::before {
+  content: '• ';
+}
+
+/* Footer */
+.f1-footer {
+  text-align: center;
+  font-size: 8.5pt;
+  padding-top: 4pt;
+}
+
+/* Bold inline */
+.f1-page strong {
+  font-weight: bold;
+}
+
+/* Ordinal superscript */
+.f1-page sup {
+  font-size: 0.7em;
+  vertical-align: super;
+  line-height: 0;
+}
+
+/* Bordered preview wrapper (screen only) */
+.f1-screen-wrap {
+  box-shadow: 0 0 0 1px #d1d5db, 0 4px 12px rgba(0, 0, 0, 0.08);
+  background: #fff;
+}
