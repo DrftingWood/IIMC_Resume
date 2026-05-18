@@ -63,23 +63,24 @@
   line-height: 1.15;
 }
 
-/* Tagline row (BLACK borders explicitly, different from rest of resume) */
+/* Tagline row — flex so we get true white gaps between cells and a gap
+   below before the first section starts */
 .f1-tagline-row {
+  display: flex;
+  gap: 3pt;
+  margin-bottom: 3pt;
   width: 100%;
-  border-collapse: collapse;
-  table-layout: fixed;
 }
 
-.f1-tagline-row td {
+.f1-tagline {
+  flex: 1 1 0;
   background: var(--c-darkbar);
   color: var(--c-white);
-  border: 0.3pt solid var(--c-border);
   font-weight: bold;
   font-size: 11pt;
   text-transform: uppercase;
   text-align: center;
   padding: 2pt 6pt;
-  width: 33.333%;
 }
 
 /* Section header bar — dark with white text */
@@ -165,12 +166,12 @@
 
 /* Industry experience specifics */
 .f1-vertical {
-  width: 0.5cm;
+  width: 0.4cm;
   background: var(--c-lightbar);
   padding: 0 !important;
   vertical-align: middle;
   text-align: center;
-  height: 1px; /* enables height:100% on inner flex */
+  height: 1px;
 }
 
 .f1-vertical-inner {
@@ -178,8 +179,8 @@
   align-items: center;
   justify-content: center;
   height: 100%;
-  min-height: 2em;
   width: 100%;
+  padding: 0;
 }
 
 .f1-vertical-inner span {
@@ -188,6 +189,7 @@
   white-space: nowrap;
   font-weight: bold;
   font-size: 9pt;
+  line-height: 1;
 }
 
 /* Firm header row inside Industry Experience: full-width light-grey banner

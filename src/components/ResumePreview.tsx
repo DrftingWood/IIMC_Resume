@@ -59,15 +59,11 @@ function HeaderBand({ data }: { data: ResumeData }) {
 
 function TaglineRow({ taglines }: { taglines: [string, string, string] }) {
   return (
-    <table className="f1-tagline-row">
-      <tbody>
-        <tr>
-          {taglines.map((t, i) => (
-            <td key={i}>{t}</td>
-          ))}
-        </tr>
-      </tbody>
-    </table>
+    <div className="f1-tagline-row">
+      {taglines.map((t, i) => (
+        <div key={i} className="f1-tagline">{t}</div>
+      ))}
+    </div>
   );
 }
 
@@ -221,7 +217,7 @@ function IndustryTable({ entries }: { entries: ExperienceEntry[] }) {
   return (
     <table className="f1-table">
       <colgroup>
-        <col style={{ width: '0.5cm' }} />
+        <col style={{ width: '0.4cm' }} />
         <col style={{ width: '15%' }} />
         <col style={{ width: '80%' }} />
       </colgroup>
