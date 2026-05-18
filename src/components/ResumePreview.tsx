@@ -147,53 +147,69 @@ function IndustryTable({ entries }: { entries: ExperienceEntry[] }) {
     return <table className="f1-table"><tbody></tbody></table>;
   }
 
+  // Group consecutive entries by type so vertical Intern/Full-Time stays
+  // uninterrupted across firms of the same type.
+  const groups: { type: string; entries: ExperienceEntry[] }[] = [];
+  for (const e of entries) {
+    const last = groups[groups.length - 1];
+    if (last && last.type === e.type) last.entries.push(e);
+    else groups.push({ type: e.type, entries: [e] });
+  }
+
   const rows: React.ReactNode[] = [];
 
-  entries.forEach((entry, ei) => {
-    // Bullet-row count for this firm (drives vertical-label rowSpan)
-    const firmBulletRowCount = entry.subSections.reduce(
-      (n, s) => n + Math.max(s.bullets.length, 1),
-      0
-    );
+  groups.forEach((grp, gi) => {
+    // Rows in this type-group = (firm banner row + sub-section bullet rows) per entry
+    let typeRowCount = 0;
+    for (const e of grp.entries) {
+      typeRowCount += 1; // firm banner row
+      for (const s of e.subSections) {
+        typeRowCount += Math.max(s.bullets.length, 1);
+      }
+    }
 
-    // Firm banner — full width, cuts across the vertical column
-    rows.push(
-      <tr key={`e${ei}-head`}>
-        <td className="f1-firm-banner-cell" colSpan={3}>
-          <div className="f1-firm-banner">
-            <span>{entry.firm}</span>
-            <span>{entry.role}</span>
-            <span>{entry.dates}</span>
-          </div>
-        </td>
-      </tr>
-    );
+    let isFirstRowOfType = true;
 
-    let firstBulletRowOfFirm = true;
-
-    entry.subSections.forEach((sub, si) => {
-      const bullets = sub.bullets.length ? sub.bullets : [''];
-      bullets.forEach((b, bi) => {
-        rows.push(
-          <tr key={`e${ei}-s${si}-b${bi}`}>
-            {firstBulletRowOfFirm && (
-              <td className="f1-vertical" rowSpan={firmBulletRowCount}>
-                <span>{entry.type}</span>
-              </td>
-            )}
-            {bi === 0 && (
-              <td className="f1-exp-sublabel" rowSpan={bullets.length}>
-                {sub.label.split('\n').map((line, li) => (
-                  <div key={li}>{line}</div>
-                ))}
-              </td>
-            )}
-            <td className="f1-bullet-cell">
-              <span className="f1-bullet">{renderInline(b)}</span>
+    grp.entries.forEach((entry, ei) => {
+      // Firm banner row: spans the sub-label + bullet columns only
+      rows.push(
+        <tr key={`g${gi}-e${ei}-head`}>
+          {isFirstRowOfType && (
+            <td className="f1-vertical" rowSpan={typeRowCount}>
+              <div className="f1-vertical-inner">
+                <span>{grp.type}</span>
+              </div>
             </td>
-          </tr>
-        );
-        firstBulletRowOfFirm = false;
+          )}
+          <td className="f1-firm-banner-cell" colSpan={2}>
+            <div className="f1-firm-banner">
+              <span>{entry.firm}</span>
+              <span>{entry.role}</span>
+              <span>{entry.dates}</span>
+            </div>
+          </td>
+        </tr>
+      );
+      isFirstRowOfType = false;
+
+      entry.subSections.forEach((sub, si) => {
+        const bullets = sub.bullets.length ? sub.bullets : [''];
+        bullets.forEach((b, bi) => {
+          rows.push(
+            <tr key={`g${gi}-e${ei}-s${si}-b${bi}`}>
+              {bi === 0 && (
+                <td className="f1-exp-sublabel" rowSpan={bullets.length}>
+                  {sub.label.split('\n').map((line, li) => (
+                    <div key={li}>{line}</div>
+                  ))}
+                </td>
+              )}
+              <td className="f1-bullet-cell">
+                <span className="f1-bullet">{renderInline(b)}</span>
+              </td>
+            </tr>
+          );
+        });
       });
     });
   });

@@ -140,11 +140,12 @@
   white-space: nowrap;
 }
 
-/* Education: all four columns centered, data rows light-grey */
+/* Education: all four columns centered, data rows light-grey + bold */
 .f1-edu td {
   text-align: center;
   vertical-align: middle;
   background: var(--c-lightbar);
+  font-weight: bold;
 }
 
 /* Sub-category cells (left column in 3-col tables) */
@@ -164,20 +165,28 @@
 /* Industry experience specifics */
 .f1-vertical {
   width: 0.5cm;
-  text-align: center;
+  background: var(--c-lightbar);
+  padding: 0 !important;
   vertical-align: middle;
-  background: var(--c-white);
-  padding: 2pt 0 !important;
+  text-align: center;
+  height: 1px; /* enables height:100% on inner flex */
 }
 
-.f1-vertical span {
+.f1-vertical-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 2em;
+  width: 100%;
+}
+
+.f1-vertical-inner span {
   writing-mode: vertical-rl;
   transform: rotate(180deg);
-  display: inline-block;
   white-space: nowrap;
   font-weight: bold;
   font-size: 9pt;
-  text-align: center;
 }
 
 /* Firm header row inside Industry Experience: full-width light-grey banner
