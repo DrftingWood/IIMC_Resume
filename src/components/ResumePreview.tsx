@@ -112,8 +112,8 @@ function BulletGroupTable({ groups }: { groups: BulletGroup[] }) {
     <table className="f1-table">
       <colgroup>
         <col style={{ width: '15%' }} />
-        <col style={{ width: '80%' }} />
-        <col style={{ width: '5%' }} />
+        <col style={{ width: '79%' }} />
+        <col style={{ width: '6%' }} />
       </colgroup>
       <tbody>
         {groups.flatMap((g, gi) =>
@@ -220,8 +220,8 @@ function IndustryTable({ entries }: { entries: ExperienceEntry[] }) {
   return (
     <table className="f1-table">
       <colgroup>
-        <col style={{ width: '0.3cm' }} />
-        <col style={{ width: 'calc(15% - 0.3cm)' }} />
+        <col style={{ width: '0.35cm' }} />
+        <col style={{ width: 'calc(15% - 0.35cm)' }} />
         <col style={{ width: '85%' }} />
       </colgroup>
       <tbody>{rows}</tbody>
@@ -234,8 +234,8 @@ function PositionsTable({ data }: { data: ResumeData }) {
     <table className="f1-table">
       <colgroup>
         <col style={{ width: '15%' }} />
-        <col style={{ width: '80%' }} />
-        <col style={{ width: '5%' }} />
+        <col style={{ width: '79%' }} />
+        <col style={{ width: '6%' }} />
       </colgroup>
       <tbody>
         {data.positions.flatMap((p, pi) =>
