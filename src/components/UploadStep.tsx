@@ -53,7 +53,10 @@ export default function UploadStep({
             <span className="text-slate-700 font-medium">Resume Editor</span>
           </div>
           <p className="mt-3 text-sm text-slate-500">
-            Edit your F1 placement resume and export a pixel-faithful PDF.
+            Edit your placement resume and export a pixel-faithful PDF.
+          </p>
+          <p className="mt-1 text-xs text-slate-400">
+            Works best with the IIM Calcutta resume template.
           </p>
         </div>
 
@@ -74,7 +77,7 @@ export default function UploadStep({
           >
             <UploadIcon className="w-7 h-7 text-slate-400" />
             <div className="text-sm font-semibold text-slate-800">
-              {busy ? 'Parsing your PDF…' : 'Drop your F1 PDF here'}
+              {busy ? 'Parsing your PDF…' : 'Drop your resume here'}
             </div>
             {!busy && (
               <div className="text-xs text-slate-500">
