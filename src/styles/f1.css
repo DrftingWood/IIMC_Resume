@@ -15,8 +15,8 @@
   background: var(--c-bg);
   color: var(--c-text);
   font-family: 'Calibri', 'Carlito', 'Arial', sans-serif;
-  font-size: 9.75pt;
-  line-height: 1.25;
+  font-size: 10pt;
+  line-height: 1.18;
   margin: 0 auto;
   box-sizing: border-box;
   font-style: normal !important;
@@ -116,12 +116,12 @@
 .f1-table th,
 .f1-table td {
   border: 0.6pt solid var(--c-border);
-  padding: 1.5pt 5pt;
+  padding: 1pt 3pt;
   vertical-align: middle;
   text-align: left;
-  font-size: 9.75pt;
+  font-size: 10pt;
   font-weight: normal;
-  line-height: 1.22;
+  line-height: 1.18;
 }
 
 .f1-table th {
@@ -163,13 +163,14 @@
 }
 
 .f1-bullet-cell {
-  font-size: 9.75pt;
+  font-size: 10pt;
   vertical-align: middle;
   text-align: justify;
   text-justify: inter-word;
-  text-align-last: left;
+  /* Stretch the LAST line too so a single-line bullet still reaches the
+     right edge of its cell instead of leaving a wide gap to the year. */
+  text-align-last: justify;
   hyphens: none;
-  word-spacing: 0.01em;
 }
 
 /* Continuation row: bullet that shares a sub-category with the row
@@ -249,12 +250,12 @@
   align-items: center;
   justify-content: center;
   height: 100%;
-  min-height: 1.5em;
-  padding: 1.5pt 4pt;
+  min-height: 1.4em;
+  padding: 1pt 3pt;
   text-align: center;
   font-weight: bold;
-  font-size: 9pt;
-  line-height: 1.15;
+  font-size: 9.25pt;
+  line-height: 1.12;
 }
 
 /* Bullets — tiny raised • + small gap */
