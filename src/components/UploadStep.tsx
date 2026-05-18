@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { extractPlainText } from '@/lib/pdfExtract';
+import { extractLines } from '@/lib/pdfExtract';
 import { parseResume } from '@/lib/parser';
 import { emptyResume, type ResumeData } from '@/types/resume';
 import { SAMPLE } from '@/lib/sample';
@@ -18,8 +18,8 @@ export default function UploadStep({
     setBusy(true);
     setErr(null);
     try {
-      const text = await extractPlainText(file);
-      const parsed = parseResume(text);
+      const lines = await extractLines(file);
+      const parsed = parseResume(lines);
       const merged: ResumeData = { ...emptyResume(), ...parsed } as ResumeData;
       if (!merged.taglines) merged.taglines = ['', '', ''];
       onReady(merged, { warnBoldLost: true });

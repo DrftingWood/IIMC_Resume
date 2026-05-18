@@ -1,12 +1,23 @@
 import * as pdfjsLib from 'pdfjs-dist';
 
-// Worker is copied to public/ by scripts/copy-pdf-worker.mjs
 pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
 
 export interface TextItem {
   str: string;
   x: number;
   y: number;
+  width: number;
+  height: number;
+  fontName: string;
+}
+
+export interface PdfLine {
+  y: number;
+  startX: number;
+  endX: number;
+  height: number;
+  items: TextItem[];
+  text: string;
 }
 
 export async function extractTextItems(file: File): Promise<TextItem[]> {
@@ -18,35 +29,76 @@ export async function extractTextItems(file: File): Promise<TextItem[]> {
     const content = await page.getTextContent();
     for (const it of content.items as any[]) {
       if (typeof it.str !== 'string') continue;
-      // transform: [a, b, c, d, e, f] -> x = e, y = f
       const x = it.transform?.[4] ?? 0;
       const y = it.transform?.[5] ?? 0;
-      items.push({ str: it.str, x, y });
+      const height = Math.abs(it.transform?.[3] ?? it.height ?? 10);
+      const width = it.width ?? 0;
+      items.push({
+        str: it.str,
+        x,
+        y,
+        width,
+        height,
+        fontName: it.fontName ?? '',
+      });
     }
   }
   return items;
 }
 
-export async function extractPlainText(file: File): Promise<string> {
+/** Group items into visual lines by y coordinate (with small tolerance). */
+export async function extractLines(file: File): Promise<PdfLine[]> {
   const items = await extractTextItems(file);
-  // Group by line (similar y), sort each line by x.
-  if (!items.length) return '';
-  const lines = new Map<number, TextItem[]>();
-  for (const it of items) {
-    const key = Math.round(it.y);
-    let arr = lines.get(key);
-    if (!arr) {
-      arr = [];
-      lines.set(key, arr);
+  if (!items.length) return [];
+
+  const sorted = [...items].sort((a, b) => b.y - a.y);
+  const lines: PdfLine[] = [];
+  const TOL = 2.5;
+
+  for (const it of sorted) {
+    if (!it.str.trim() && it.str !== ' ') {
+      // keep spaces (they matter for joining) but skip empty
+      if (it.str === '') continue;
     }
-    arr.push(it);
+    const existing = lines.find((l) => Math.abs(l.y - it.y) <= TOL);
+    if (existing) {
+      existing.items.push(it);
+      existing.startX = Math.min(existing.startX, it.x);
+      existing.endX = Math.max(existing.endX, it.x + it.width);
+      existing.height = Math.max(existing.height, it.height);
+    } else {
+      lines.push({
+        y: it.y,
+        startX: it.x,
+        endX: it.x + it.width,
+        height: it.height,
+        items: [it],
+        text: '',
+      });
+    }
   }
-  const sortedKeys = [...lines.keys()].sort((a, b) => b - a);
-  const out: string[] = [];
-  for (const k of sortedKeys) {
-    const row = lines.get(k)!;
-    row.sort((a, b) => a.x - b.x);
-    out.push(row.map((r) => r.str).join('  '));
+
+  // Sort items left-to-right per line and build text
+  for (const ln of lines) {
+    ln.items.sort((a, b) => a.x - b.x);
+    let prevEnd = -Infinity;
+    let buf = '';
+    for (const it of ln.items) {
+      if (buf && it.x - prevEnd > 1.5 && !/\s$/.test(buf) && !/^\s/.test(it.str)) {
+        buf += ' ';
+      }
+      buf += it.str;
+      prevEnd = it.x + it.width;
+    }
+    ln.text = buf.replace(/\s+/g, ' ').trim();
   }
-  return out.join('\n');
+
+  // Filter out fully empty lines
+  return lines.filter((l) => l.text.length > 0).sort((a, b) => b.y - a.y);
+}
+
+/** Backwards-compat plain-text extractor (no longer used by the parser). */
+export async function extractPlainText(file: File): Promise<string> {
+  const lines = await extractLines(file);
+  return lines.map((l) => l.text).join('\n');
 }
