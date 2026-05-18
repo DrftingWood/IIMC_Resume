@@ -90,7 +90,7 @@
   background: var(--c-darkbar);
   color: var(--c-white);
   font-weight: bold;
-  font-size: 9.5pt;
+  font-size: 10pt;
   text-transform: uppercase;
   padding: 1pt 6pt;
   display: flex;
@@ -103,7 +103,7 @@
 
 .f1-section-bar-right {
   font-weight: bold;
-  font-size: 9.5pt;
+  font-size: 10pt;
 }
 
 /* Tables — grey thin borders everywhere except taglines */
@@ -142,7 +142,7 @@
 .f1-cell-year {
   text-align: center;
   vertical-align: middle;
-  font-size: 9pt;
+  font-size: 9.5pt;
   white-space: nowrap;
   padding-left: 2pt !important;
   padding-right: 2pt !important;
@@ -213,7 +213,7 @@
   transform: rotate(180deg);
   white-space: nowrap;
   font-weight: bold;
-  font-size: 9pt;
+  font-size: 9.5pt;
   line-height: 1;
 }
 
@@ -231,7 +231,7 @@
   align-items: center;
   padding: 1.5pt 6pt;
   font-weight: bold;
-  font-size: 9pt;
+  font-size: 9.5pt;
   text-transform: uppercase;
 }
 
