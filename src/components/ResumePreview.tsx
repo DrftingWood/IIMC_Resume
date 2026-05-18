@@ -46,8 +46,8 @@ function HeaderBand({ data }: { data: ResumeData }) {
   return (
     <div className="f1-header">
       <div>
-        <div className="f1-inst-hindi">भारतीय प्रबंध संस्थान कलकत्ता</div>
         <div className="f1-inst-eng">Indian Institute of Management Calcutta</div>
+        <div className="f1-inst-hindi">भारतीय प्रबंध संस्थान कलकत्ता</div>
       </div>
       <div className="f1-header-right">
         <div className="f1-name">{data.name || ' '}</div>
