@@ -164,9 +164,16 @@
   vertical-align: middle;
 }
 
+/* Continuation row: bullet that shares a sub-category with the row
+   above — remove the top border so consecutive points within a
+   sub-category appear as one flowing list */
+.f1-table tr.f1-continuation > td {
+  border-top: none;
+}
+
 /* Industry experience specifics */
 .f1-vertical {
-  width: 0.4cm;
+  width: 0.2cm;
   background: var(--c-lightbar);
   padding: 0 !important;
   vertical-align: middle;

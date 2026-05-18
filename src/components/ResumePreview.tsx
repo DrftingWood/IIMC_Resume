@@ -118,7 +118,7 @@ function BulletGroupTable({ groups }: { groups: BulletGroup[] }) {
       <tbody>
         {groups.flatMap((g, gi) =>
           g.bullets.map((b, bi) => (
-            <tr key={`${gi}-${bi}`}>
+            <tr key={`${gi}-${bi}`} className={bi > 0 ? 'f1-continuation' : ''}>
               {bi === 0 && (
                 <td className="f1-category" rowSpan={g.bullets.length}>
                   <div className="f1-label-inner">
@@ -194,7 +194,10 @@ function IndustryTable({ entries }: { entries: ExperienceEntry[] }) {
         const bullets = sub.bullets.length ? sub.bullets : [''];
         bullets.forEach((b, bi) => {
           rows.push(
-            <tr key={`g${gi}-e${ei}-s${si}-b${bi}`}>
+            <tr
+              key={`g${gi}-e${ei}-s${si}-b${bi}`}
+              className={bi > 0 ? 'f1-continuation' : ''}
+            >
               {bi === 0 && (
                 <td className="f1-exp-sublabel" rowSpan={bullets.length}>
                   <div className="f1-label-inner">
@@ -217,9 +220,9 @@ function IndustryTable({ entries }: { entries: ExperienceEntry[] }) {
   return (
     <table className="f1-table">
       <colgroup>
-        <col style={{ width: '0.4cm' }} />
-        <col style={{ width: '15%' }} />
-        <col style={{ width: '80%' }} />
+        <col style={{ width: '0.2cm' }} />
+        <col style={{ width: 'calc(15% - 0.2cm)' }} />
+        <col style={{ width: '85%' }} />
       </colgroup>
       <tbody>{rows}</tbody>
     </table>
@@ -237,7 +240,7 @@ function PositionsTable({ data }: { data: ResumeData }) {
       <tbody>
         {data.positions.flatMap((p, pi) =>
           p.bullets.map((b, bi) => (
-            <tr key={`${pi}-${bi}`}>
+            <tr key={`${pi}-${bi}`} className={bi > 0 ? 'f1-continuation' : ''}>
               {bi === 0 && (
                 <td className="f1-category" rowSpan={p.bullets.length}>
                   <div className="f1-label-inner">
