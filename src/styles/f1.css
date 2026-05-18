@@ -173,11 +173,15 @@
 
 /* Continuation row: bullet that shares a sub-category with the row
    above — drop the dividing line BOTH on its top and on the previous
-   row's bottom so border-collapse doesn't leave one side visible. */
-.f1-table tr.f1-continuation > td {
+   row's bottom so border-collapse doesn't leave one side visible.
+   We exclude rowspan'd cells (the sub-category label) because their
+   visual bottom edge sits at the LAST spanned row, not at this row's
+   bottom — removing border-bottom on those cells erases the bottom of
+   the sub-category block entirely. */
+.f1-table tr.f1-continuation > td:not([rowspan]) {
   border-top: none;
 }
-.f1-table tr:has(+ tr.f1-continuation) > td {
+.f1-table tr:has(+ tr.f1-continuation) > td:not([rowspan]) {
   border-bottom: none;
 }
 
@@ -234,7 +238,8 @@
   text-align: center;
 }
 .f1-firm-banner > :nth-child(3) {
-  text-align: right;
+  /* Center the dates within their grid column (was right-aligned). */
+  text-align: center;
   text-transform: none;
 }
 
