@@ -178,7 +178,7 @@
   text-justify: inter-word;
   text-align-last: justify;
   hyphens: none;
-  padding-left: 3pt !important;
+  padding-left: 6pt !important;
 }
 
 /* Continuation row: bullet that shares a sub-category with the row
@@ -275,14 +275,14 @@
   line-height: 1.1;
 }
 
-/* Bullets — small • placed close to the cell edge with a tight gap
-   so the first word starts at roughly the same x as in the source PDF. */
+/* Bullets — small • inset from the cell edge with a comfortable gap
+   to the first word, matching the spacing in the source PDF. */
 .f1-bullet::before {
   content: '\2022';
-  font-size: 0.65em;
+  font-size: 0.7em;
   vertical-align: 0.15em;
-  margin-left: -1pt;
-  margin-right: 3pt;
+  margin-left: 0;
+  margin-right: 5pt;
   display: inline-block;
 }
 
