@@ -140,10 +140,11 @@
   white-space: nowrap;
 }
 
-/* Education: all four columns centered */
+/* Education: all four columns centered, data rows light-grey */
 .f1-edu td {
   text-align: center;
   vertical-align: middle;
+  background: var(--c-lightbar);
 }
 
 /* Sub-category cells (left column in 3-col tables) */
@@ -152,6 +153,7 @@
   font-weight: bold;
   font-size: 9pt;
   vertical-align: middle;
+  background: var(--c-lightbar);
 }
 
 .f1-bullet-cell {
@@ -163,6 +165,7 @@
 .f1-vertical {
   width: 0.5cm;
   text-align: center;
+  vertical-align: middle;
   background: var(--c-white);
   padding: 2pt 0 !important;
 }
@@ -174,6 +177,7 @@
   white-space: nowrap;
   font-weight: bold;
   font-size: 9pt;
+  text-align: center;
 }
 
 /* Firm header row inside Industry Experience: full-width light-grey banner
@@ -209,6 +213,7 @@
   font-weight: bold;
   font-size: 9pt;
   vertical-align: middle;
+  background: var(--c-lightbar);
 }
 
 /* Bullets — tiny raised • + small gap */
