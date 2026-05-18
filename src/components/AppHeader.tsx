@@ -11,11 +11,14 @@ export default function AppHeader({
   const [tipOpen, setTipOpen] = useState(false);
   return (
     <header className="no-print bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/70 border-b border-slate-200 px-5 py-3 flex items-center justify-between">
-      <div className="flex items-center gap-2">
+      <div className="flex flex-col">
         <div className="brand-mark text-base sm:text-lg flex items-baseline gap-1.5">
           <span>IIM</span>
           <span className="brand-mark__accent">C</span>
           <span className="text-slate-700 font-medium">Resume Editor</span>
+        </div>
+        <div className="text-[10px] text-slate-500 mt-0.5">
+          Made by Abhishek Acharya, Case Collective, IIM C
         </div>
       </div>
       <div className="flex items-center gap-2">

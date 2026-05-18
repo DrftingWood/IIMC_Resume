@@ -144,11 +144,12 @@
 }
 
 .f1-cell-year {
-  text-align: center;
-  vertical-align: middle;
+  text-align: center !important;
+  vertical-align: middle !important;
   font-size: 9.5pt;
   white-space: nowrap;
   padding: 1.5pt 2pt !important;
+  letter-spacing: 0.01em;
 }
 
 /* Education: all four columns centered, data rows light-grey */

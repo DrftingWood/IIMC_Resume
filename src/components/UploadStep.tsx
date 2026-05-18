@@ -58,6 +58,9 @@ export default function UploadStep({
           <p className="mt-1 text-xs text-slate-400">
             Works best with the IIM Calcutta resume template.
           </p>
+          <p className="mt-2 text-[11px] text-slate-400">
+            Made by Abhishek Acharya, Case Collective, IIM C
+          </p>
         </div>
 
         <div className="bg-white rounded-2xl shadow-[0_1px_2px_rgba(15,23,42,0.06),0_8px_24px_rgba(15,23,42,0.06)] border border-slate-200/70 p-6 sm:p-8">
