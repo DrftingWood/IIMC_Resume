@@ -61,11 +61,14 @@ function splitYearTail(text: string): { text: string; year: string } {
   return { text: text.slice(0, m.index).trim(), year: m[1].trim() };
 }
 
-/** Split a list of items into clusters separated by large x-gaps.
- *  Used to recover the 3-cell tagline row from a single PdfLine. */
+/** Split items into clusters separated by large x-gaps. Pure-space
+ *  items (which the IIM-C template uses as wide column-padding) are
+ *  filtered out before computing gaps so the cell boundaries appear as
+ *  genuine large gaps between content items. */
 function splitByLargeGaps(items: TextItem[], gapThreshold = 20): string[] {
-  if (!items.length) return [];
-  const sorted = [...items].sort((a, b) => a.x - b.x);
+  const contentItems = items.filter((it) => it.str.trim().length > 0);
+  if (!contentItems.length) return [];
+  const sorted = [...contentItems].sort((a, b) => a.x - b.x);
   const clusters: TextItem[][] = [[sorted[0]]];
   for (let i = 1; i < sorted.length; i++) {
     const gap = sorted[i].x - (sorted[i - 1].x + sorted[i - 1].width);
@@ -73,6 +76,37 @@ function splitByLargeGaps(items: TextItem[], gapThreshold = 20): string[] {
     else clusters[clusters.length - 1].push(sorted[i]);
   }
   return clusters.map(joinItems);
+}
+
+/** Split items into up to N clusters by picking the N-1 largest x-gaps
+ *  (≥ gapThreshold). Returns at most N strings. */
+function splitByTopGaps(
+  items: TextItem[],
+  maxClusters: number,
+  gapThreshold = 15
+): string[] {
+  const contentItems = items.filter((it) => it.str.trim().length > 0);
+  if (!contentItems.length) return [];
+  const sorted = [...contentItems].sort((a, b) => a.x - b.x);
+  const gaps: { idx: number; gap: number }[] = [];
+  for (let i = 1; i < sorted.length; i++) {
+    const g = sorted[i].x - (sorted[i - 1].x + sorted[i - 1].width);
+    gaps.push({ idx: i, gap: g });
+  }
+  const splits = gaps
+    .filter((g) => g.gap > gapThreshold)
+    .sort((a, b) => b.gap - a.gap)
+    .slice(0, maxClusters - 1)
+    .map((g) => g.idx)
+    .sort((a, b) => a - b);
+  const out: string[] = [];
+  let prev = 0;
+  for (const s of splits) {
+    out.push(joinItems(sorted.slice(prev, s)));
+    prev = s;
+  }
+  out.push(joinItems(sorted.slice(prev)));
+  return out;
 }
 
 /* ----------------------------- section split ----------------------------- */
@@ -129,45 +163,108 @@ function splitSections(allLines: PdfLine[]): {
 
 /* --------------------- column detection per-section ---------------------- */
 
-function findBulletX(lines: PdfLine[]): number | null {
-  const xs: number[] = [];
+interface BulletXResult {
+  x: number;
+  glyphMode: boolean;
+}
+
+function findBulletXInfo(lines: PdfLine[]): BulletXResult | null {
+  // Try the bullet glyph first.
+  const glyphXs: number[] = [];
   for (const l of lines) {
     for (const it of l.items) {
-      if (BULLET_GLYPH_RE.test(it.str.trim())) xs.push(it.x);
+      if (BULLET_GLYPH_RE.test(it.str.trim())) glyphXs.push(it.x);
     }
   }
-  if (!xs.length) return null;
-  xs.sort((a, b) => a - b);
-  return xs[Math.floor(xs.length / 2)];
+  if (glyphXs.length >= 3) {
+    glyphXs.sort((a, b) => a - b);
+    return { x: glyphXs[Math.floor(glyphXs.length / 2)], glyphMode: true };
+  }
+
+  // Fallback: the LaTeX template renders bullets as vector paths, so the
+  // text stream starts directly with the bullet text. Recover the bullet
+  // column by clustering "candidate" x positions:
+  //   - every line's startX (a pure-bullet line contributes its startX)
+  //   - the x of the item that sits AFTER the biggest internal gap in
+  //     each line (a label+bullet line contributes the post-gap x)
+  const candidates: number[] = [];
+  for (const l of lines) {
+    candidates.push(l.startX);
+    const sorted = [...l.items].sort((a, b) => a.x - b.x);
+    let maxGap = 0;
+    let postGapX = 0;
+    for (let i = 1; i < sorted.length; i++) {
+      const gap = sorted[i].x - (sorted[i - 1].x + sorted[i - 1].width);
+      if (gap > maxGap) {
+        maxGap = gap;
+        postGapX = sorted[i].x;
+      }
+    }
+    if (maxGap > 20) candidates.push(postGapX);
+  }
+  if (candidates.length < 3) return null;
+
+  // 5pt histogram, return the densest bin's center.
+  const bins = new Map<number, number>();
+  for (const x of candidates) {
+    const b = Math.round(x / 5) * 5;
+    bins.set(b, (bins.get(b) ?? 0) + 1);
+  }
+  let bestBin = 0;
+  let bestCount = 0;
+  for (const [b, c] of bins) {
+    if (c > bestCount) {
+      bestCount = c;
+      bestBin = b;
+    }
+  }
+  return bestCount >= 2 ? { x: bestBin, glyphMode: false } : null;
+}
+
+function findBulletX(lines: PdfLine[]): number | null {
+  return findBulletXInfo(lines)?.x ?? null;
 }
 
 function findYearX(lines: PdfLine[]): number {
-  // Prefer the leftmost x of items that look like year tokens.
+  // Use the 70th-percentile endX as a robust "right edge" — using max is
+  // brittle because pdfjs occasionally reports an anomalous endX (a
+  // single overflowing item) that inflates the threshold and pushes real
+  // year tokens out of the right column.
+  const ends = lines.map((l) => l.endX).sort((a, b) => a - b);
+  if (!ends.length) return Infinity;
+  const robustEnd = ends[Math.floor(ends.length * 0.7)] ?? ends[ends.length - 1];
+  const rightThreshold = robustEnd * 0.85;
+
+  // Year tokens at the right edge only. "10" / "12" / "18" inside bullet
+  // text also match YEAR_TOKEN_RE, so we filter by x >= rightThreshold.
   const yearXs: number[] = [];
   for (const l of lines) {
     for (const it of l.items) {
-      if (YEAR_TOKEN_RE.test(it.str.trim())) yearXs.push(it.x);
+      if (YEAR_TOKEN_RE.test(it.str.trim()) && it.x >= rightThreshold) {
+        yearXs.push(it.x);
+      }
     }
   }
-  if (yearXs.length >= 3) {
+  if (yearXs.length >= 1) {
     return Math.min(...yearXs) - 4;
   }
-  // Fallback: 30pt strip at the right edge.
-  let maxEndX = 0;
-  for (const l of lines) maxEndX = Math.max(maxEndX, l.endX);
-  return maxEndX === 0 ? Infinity : maxEndX - 30;
+  return Infinity;
 }
 
 function findLineHeight(lines: PdfLine[]): number {
-  if (lines.length < 2) return 12;
-  const deltas: number[] = [];
-  for (let i = 1; i < lines.length; i++) {
-    const d = lines[i - 1].y - lines[i].y;
-    if (d > 2 && d < 40) deltas.push(d);
+  // The label-vs-bullet interleaving distorts y-delta medians, so derive
+  // line height from the median item font height times a 1.4 line-spacing
+  // factor (typical for the IIM-C body font).
+  const hs: number[] = [];
+  for (const l of lines) {
+    for (const it of l.items) {
+      if (it.str.trim().length > 0 && it.height > 0) hs.push(it.height);
+    }
   }
-  if (!deltas.length) return 12;
-  deltas.sort((a, b) => a - b);
-  return deltas[Math.floor(deltas.length / 2)];
+  if (!hs.length) return 12;
+  hs.sort((a, b) => a - b);
+  const medHeight = hs[Math.floor(hs.length / 2)];
+  return medHeight * 1.4;
 }
 
 /* ----------------------- per-line column classification ------------------ */
@@ -183,6 +280,8 @@ interface RowParts {
   hasBulletGlyph: boolean;
 }
 
+const ORPHAN_SUPERSCRIPT_RE = /^(?:nd|rd|th|st)(?:\s+(?:nd|rd|th|st))*$/i;
+
 function classifyLines(lines: PdfLine[], bulletX: number, yearX: number): RowParts[] {
   const TOL = 6;
   return lines.map((l) => {
@@ -195,13 +294,18 @@ function classifyLines(lines: PdfLine[], bulletX: number, yearX: number): RowPar
       else if (center >= bulletX - TOL) midItems.push(it);
       else leftItems.push(it);
     }
+    let midText = joinItems(midItems);
+    // Stray superscript orphans: pdfjs sometimes places "nd" / "rd" / "th"
+    // on their own y-line a few pt above the digit. They land in the
+    // mid-column with no real content; ignore.
+    if (midText && ORPHAN_SUPERSCRIPT_RE.test(midText.trim())) midText = '';
     return {
       y: l.y,
       leftItems,
       midItems,
       rightItems,
       leftText: joinItems(leftItems),
-      midText: joinItems(midItems),
+      midText,
       rightText: joinItems(rightItems),
       hasBulletGlyph: startsWithBullet(midItems),
     };
@@ -254,14 +358,16 @@ function parseHeader(lines: PdfLine[]): {
   });
 
   for (const l of taglineLineCandidates) {
-    const parts = splitByLargeGaps(l.items, 20);
+    // The tagline cells are 3 distinct items separated by 50-60pt wide
+    // space-only items. splitByTopGaps filters spaces and uses the 2
+    // largest item-to-item gaps as cluster boundaries.
+    const parts = splitByTopGaps(l.items, 3, 15);
     if (parts.length >= 3) {
       t1 = parts[0];
       t2 = parts[1];
       t3 = parts.slice(2).join(' ');
       break;
     }
-    // also try whitespace-based fallback on the joined text
     const wsParts = l.text.split(/\s{2,}/).map((s) => s.trim()).filter(Boolean);
     if (wsParts.length >= 3) {
       t1 = wsParts[0];
@@ -332,11 +438,15 @@ function makeCellIdxFinder(cells: LabelCell[]): (y: number) => number {
 
 function parseBulletTable(lines: PdfLine[]): BulletGroup[] {
   if (!lines.length) return [];
-  const bulletX = findBulletX(lines);
-  if (bulletX == null) return [];
+  const info = findBulletXInfo(lines);
+  if (!info) return [];
+  const { x: bulletX, glyphMode } = info;
   const yearX = findYearX(lines);
   const lineHeight = findLineHeight(lines);
-  const sameLabelGap = lineHeight * 1.7;
+  // Within a label cell, fragments are at ~1.0 * line-height. Between
+  // cells, fragments are separated by ~1.5+ line-heights. 1.15 is a safe
+  // bracket value.
+  const sameLabelGap = lineHeight * 1.15;
 
   const rows = classifyLines(lines, bulletX, yearX);
 
@@ -365,7 +475,12 @@ function parseBulletTable(lines: PdfLine[]): BulletGroup[] {
         : '';
 
     if (r.midText) {
-      if (r.hasBulletGlyph) {
+      // When the • glyph is not in the PDF text stream (LaTeX template),
+      // we can't distinguish a new bullet from a wrapped continuation by
+      // glyph alone. The IIM-C template has single-line bullets, so we
+      // treat every mid-column line as a new bullet.
+      const isNewBullet = r.hasBulletGlyph || !glyphMode;
+      if (isNewBullet) {
         const stripped = stripBulletGlyph(r.midText);
         let { text, year } = splitYearTail(stripped);
         if (!year && yearFromRight) year = yearFromRight;
@@ -401,11 +516,12 @@ function parseBulletTable(lines: PdfLine[]): BulletGroup[] {
 
 function parsePositions(lines: PdfLine[]): PositionEntry[] {
   if (!lines.length) return [];
-  const bulletX = findBulletX(lines);
-  if (bulletX == null) return [];
+  const info = findBulletXInfo(lines);
+  if (!info) return [];
+  const { x: bulletX, glyphMode } = info;
   const yearX = findYearX(lines);
   const lineHeight = findLineHeight(lines);
-  const sameLabelGap = lineHeight * 1.7;
+  const sameLabelGap = lineHeight * 1.15;
 
   const rows = classifyLines(lines, bulletX, yearX);
   const cells = buildLabelCells(rows, sameLabelGap);
@@ -431,7 +547,8 @@ function parsePositions(lines: PdfLine[]): PositionEntry[] {
 
     if (r.midText) {
       const stripped = stripBulletGlyph(r.midText);
-      if (r.hasBulletGlyph || lastBulletIdx[idx] < 0) {
+      const isNewBullet = r.hasBulletGlyph || !glyphMode || lastBulletIdx[idx] < 0;
+      if (isNewBullet) {
         entry.bullets.push(stripped);
         lastBulletIdx[idx] = entry.bullets.length - 1;
       } else {
@@ -465,11 +582,12 @@ function parseIndustry(lines: PdfLine[], headerRest: string): {
     return true;
   });
 
-  const bulletX = findBulletX(bodyLines);
-  if (bulletX == null) return { entries: [], rightText };
+  const info = findBulletXInfo(bodyLines);
+  if (!info) return { entries: [], rightText };
+  const { x: bulletX, glyphMode } = info;
   const yearX = findYearX(bodyLines);
   const lineHeight = findLineHeight(bodyLines);
-  const sameLabelGap = lineHeight * 1.7;
+  const sameLabelGap = lineHeight * 1.15;
 
   const rows = classifyLines(bodyLines, bulletX, yearX);
 
@@ -491,33 +609,37 @@ function parseIndustry(lines: PdfLine[], headerRest: string): {
   }
 
   const entries: ExperienceEntry[] = blocks.map((block, i) => {
-    // Parse the banner: firm + role + dates separated by big x-gaps.
+    // Banner: firm | role | dates. The 3 cells are joined into one
+    // PdfLine but separated by very wide pure-space items. splitByTopGaps
+    // filters those and picks the 2 widest item-to-item gaps as the cell
+    // boundaries.
     const allItems = [
       ...block.banner.leftItems,
       ...block.banner.midItems,
       ...block.banner.rightItems,
-    ].sort((a, b) => a.x - b.x);
+    ];
     const fullBanner = joinItems(allItems);
     const dm = fullBanner.match(DATE_RANGE_RE)!;
     const dates = dm[0];
 
-    // Items excluding the date range
-    const dateItems = new Set<TextItem>();
-    let datesAccum = '';
-    for (let k = allItems.length - 1; k >= 0; k--) {
-      datesAccum = (allItems[k].str + ' ' + datesAccum).trim();
-      dateItems.add(allItems[k]);
-      if (datesAccum.replace(/\s+/g, '').includes(dates.replace(/\s+/g, ''))) break;
-    }
-    const beforeItems = allItems.filter((it) => !dateItems.has(it));
-    const segments = splitByLargeGaps(beforeItems, 12);
+    const bannerCells = splitByTopGaps(allItems, 3, 15);
     let firm = '';
     let role = '';
-    if (segments.length >= 2) {
-      firm = segments[0];
-      role = segments.slice(1).join(' ');
+    if (bannerCells.length >= 3) {
+      firm = bannerCells[0];
+      role = bannerCells[1];
+      // bannerCells[2] is the date range (already captured in `dates`)
+    } else if (bannerCells.length === 2) {
+      firm = bannerCells[0];
+      const rest = bannerCells[1];
+      // If cells[1] is the dates, treat firm as is. Otherwise it's role.
+      if (DATE_RANGE_RE.test(rest)) {
+        // firm | dates — no role rendered.
+      } else {
+        role = rest;
+      }
     } else {
-      firm = segments[0] ?? '';
+      firm = fullBanner.replace(DATE_RANGE_RE, '').trim();
     }
 
     // Apply two-pass within this firm block.
@@ -536,7 +658,8 @@ function parseIndustry(lines: PdfLine[], headerRest: string): {
       const idx = findIdx(r.y);
       const sub = subSections[idx];
       const stripped = stripBulletGlyph(r.midText);
-      if (r.hasBulletGlyph || lastBulletIdx[idx] < 0) {
+      const isNewBullet = r.hasBulletGlyph || !glyphMode || lastBulletIdx[idx] < 0;
+      if (isNewBullet) {
         sub.bullets.push(stripped);
         lastBulletIdx[idx] = sub.bullets.length - 1;
       } else {
@@ -572,36 +695,15 @@ function parseEducation(lines: PdfLine[]): EducationRow[] {
   });
   if (!filtered.length) return [];
 
-  // Cluster all item x positions into 4 columns.
-  const items = filtered.flatMap((l) => l.items);
-  const xs = items.map((it) => it.x).sort((a, b) => a - b);
-  const xMin = xs[0];
-  const xMax = xs[xs.length - 1];
-  const seeds = [
-    xMin + (xMax - xMin) * 0.05,
-    xMin + (xMax - xMin) * 0.4,
-    xMin + (xMax - xMin) * 0.75,
-    xMin + (xMax - xMin) * 0.92,
-  ];
-  const bounds = [
-    (seeds[0] + seeds[1]) / 2,
-    (seeds[1] + seeds[2]) / 2,
-    (seeds[2] + seeds[3]) / 2,
-  ];
-
   const rows: EducationRow[] = [];
   for (const line of filtered) {
-    const cols: TextItem[][] = [[], [], [], []];
-    for (const it of line.items) {
-      const c = it.x + it.width / 2;
-      let idx = 0;
-      if (c >= bounds[0]) idx = 1;
-      if (c >= bounds[1]) idx = 2;
-      if (c >= bounds[2]) idx = 3;
-      cols[idx].push(it);
-    }
-    const cells = cols.map(joinItems);
-    const [degree, institute, gpa, year] = cells;
+    // Always take the top 3 gaps as cell separators, with a low absolute
+    // threshold (5pt) so the gpa↔year gap is still picked up even when
+    // the gpa cell text is wider than usual (e.g. "B.Tech Chemical
+    // Engineering" pushes neighbouring content closer than "MBA" does).
+    const cells = splitByTopGaps(line.items, 4, 5);
+    if (cells.length < 2) continue;
+    const [degree = '', institute = '', gpa = '', year = ''] = cells;
     if (!degree && !institute && !gpa && !year) continue;
     if (/degree/i.test(degree) && /board|institute/i.test(institute)) continue;
     rows.push({ degree, institute, gpa, year });

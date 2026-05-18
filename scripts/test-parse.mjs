@@ -81,10 +81,10 @@ for (const l of lines) {
 
 console.log('\n==================== PER-ITEM DUMP: bullet lines ====================');
 const codePoints = (s) => [...s].map((c) => 'U+' + c.codePointAt(0).toString(16).padStart(4, '0')).join(' ');
-const sampleLines = lines.filter((l) => /Secured|NASSCOM|QF Judge|Council Chair|Elected/.test(l.text)).slice(0, 5);
+const sampleLines = lines.filter((l) => /AB INBEV|MCKINSEY SUMMER|MBA Indian|IIM C CEMS RANK/.test(l.text)).slice(0, 5);
 for (const l of sampleLines) {
   console.log(`\nLINE y=${l.y.toFixed(1)}  text="${l.text.slice(0, 60)}..."`);
-  for (const it of l.items.slice(0, 6)) {
+  for (const it of l.items.slice(0, 30)) {
     console.log(`  x=${it.x.toFixed(1).padStart(6)} w=${it.width.toFixed(1).padStart(5)} h=${it.height.toFixed(1)} font="${it.fontName}" str="${it.str}" cp=${codePoints(it.str)}`);
   }
 }
