@@ -96,8 +96,10 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border: 0.5pt solid var(--c-border);
-  border-bottom: none;
+  /* No border — the dark fill IS the visible boundary. A grey border
+     on a near-black background is invisible and only creates a 0.6pt
+     gap before the table below. */
+  border: 0;
   letter-spacing: 0.01em;
 }
 
@@ -176,7 +178,7 @@
   text-justify: inter-word;
   text-align-last: justify;
   hyphens: none;
-  padding-left: 5pt !important;
+  padding-left: 3pt !important;
 }
 
 /* Continuation row: bullet that shares a sub-category with the row
@@ -268,8 +270,8 @@
   min-height: 1.2em;
   padding: 0.5pt 3pt;
   text-align: center;
-  font-weight: bold;
-  font-size: 10.25pt;
+  font-weight: 600;
+  font-size: 9.75pt;
   line-height: 1.1;
 }
 
@@ -277,10 +279,10 @@
    so the first word starts at roughly the same x as in the source PDF. */
 .f1-bullet::before {
   content: '\2022';
-  font-size: 0.75em;
-  vertical-align: 0.1em;
-  margin-left: -4pt;
-  margin-right: 4pt;
+  font-size: 0.65em;
+  vertical-align: 0.15em;
+  margin-left: -1pt;
+  margin-right: 3pt;
   display: inline-block;
 }
 
