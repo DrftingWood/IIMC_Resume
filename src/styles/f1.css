@@ -3,7 +3,7 @@
   --c-bg: #ffffff;
   --c-darkbar: #383838;
   --c-lightbar: #CDCDCD;
-  --c-border: #2F2F2F;
+  --c-border: #4A4A4A;
   --c-border-tagline: #000000;
   --c-white: #FFFFFF;
 }
@@ -15,8 +15,8 @@
   background: var(--c-bg);
   color: var(--c-text);
   font-family: 'Calibri', 'Carlito', 'Arial', sans-serif;
-  font-size: 9pt;
-  line-height: 1.2;
+  font-size: 9.5pt;
+  line-height: 1.22;
   margin: 0 auto;
   box-sizing: border-box;
   font-style: normal !important;
@@ -96,7 +96,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border: 0.6pt solid var(--c-border);
+  border: 0.5pt solid var(--c-border);
   border-bottom: none;
   letter-spacing: 0.01em;
 }
@@ -115,11 +115,11 @@
 
 .f1-table th,
 .f1-table td {
-  border: 0.6pt solid var(--c-border);
+  border: 0.5pt solid var(--c-border);
   padding: 1.5pt 4pt;
   vertical-align: middle;
   text-align: left;
-  font-size: 9pt;
+  font-size: 9.5pt;
   font-weight: normal;
   line-height: 1.22;
 }
@@ -141,8 +141,11 @@
 
 .f1-cell-year {
   text-align: center;
+  vertical-align: middle;
   font-size: 9pt;
   white-space: nowrap;
+  padding-left: 2pt !important;
+  padding-right: 2pt !important;
 }
 
 /* Education: all four columns centered, data rows light-grey */
@@ -163,12 +166,13 @@
 }
 
 .f1-bullet-cell {
-  font-size: 9pt;
+  font-size: 9.5pt;
   vertical-align: middle;
   text-align: justify;
   text-justify: inter-word;
   text-align-last: justify;
   hyphens: none;
+  padding-left: 6pt !important;
 }
 
 /* Continuation row: bullet that shares a sub-category with the row
@@ -238,8 +242,7 @@
   text-align: center;
 }
 .f1-firm-banner > :nth-child(3) {
-  /* Center the dates within their grid column (was right-aligned). */
-  text-align: center;
+  text-align: right;
   text-transform: none;
 }
 
@@ -261,16 +264,18 @@
   padding: 1pt 3pt;
   text-align: center;
   font-weight: bold;
-  font-size: 9.5pt;
+  font-size: 10pt;
   line-height: 1.15;
 }
 
-/* Bullets — tiny raised • + small gap */
+/* Bullets — small • placed close to the cell edge with a tight gap
+   so the first word starts at roughly the same x as in the source PDF. */
 .f1-bullet::before {
   content: '\2022';
-  font-size: 0.7em;
-  vertical-align: 0.15em;
-  margin-right: 0.35em;
+  font-size: 0.75em;
+  vertical-align: 0.1em;
+  margin-left: -4pt;
+  margin-right: 4pt;
   display: inline-block;
 }
 
