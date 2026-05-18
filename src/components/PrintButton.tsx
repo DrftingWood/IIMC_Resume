@@ -8,16 +8,16 @@ export default function PrintButton({
 }) {
   const handlePrint = useReactToPrint({
     contentRef: previewRef,
-    documentTitle: 'IIM-C-F1-Resume',
+    documentTitle: 'IIM-C-Resume',
   });
 
   return (
     <button
       onClick={() => handlePrint()}
-      className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm font-semibold"
+      className="ui-transition px-3.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-md text-sm font-semibold shadow-sm"
       title="Tip: in the print dialog, set Margins to None and uncheck Headers and footers."
     >
-      Print PDF
+      Export PDF
     </button>
   );
 }
