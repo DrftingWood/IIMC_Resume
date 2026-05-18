@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { Analytics } from '@vercel/analytics/react';
 import { emptyResume, type ResumeData } from '@/types/resume';
 import { loadDraft, saveDraft, clearDraft } from '@/lib/storage';
 import UploadStep from '@/components/UploadStep';
@@ -35,12 +36,15 @@ export default function App() {
 
   if (!data) {
     return (
-      <UploadStep
-        onReady={(d, opts) => {
-          setData(d);
-          if (opts?.warnBoldLost) setShowWarning(true);
-        }}
-      />
+      <>
+        <UploadStep
+          onReady={(d, opts) => {
+            setData(d);
+            if (opts?.warnBoldLost) setShowWarning(true);
+          }}
+        />
+        <Analytics />
+      </>
     );
   }
 
@@ -68,6 +72,7 @@ export default function App() {
           }
         />
       </main>
+      <Analytics />
     </div>
   );
 }
