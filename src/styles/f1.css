@@ -71,13 +71,14 @@
 }
 
 .f1-tagline-row td {
-  background: var(--c-lightbar);
-  border: 0.5pt solid var(--c-border-tagline);
+  background: var(--c-darkbar);
+  color: var(--c-white);
+  border: 0.3pt solid var(--c-border);
   font-weight: bold;
-  font-size: 9pt;
+  font-size: 11pt;
   text-transform: uppercase;
   text-align: center;
-  padding: 3pt 4pt;
+  padding: 2pt 6pt;
   width: 33.333%;
 }
 
@@ -88,7 +89,7 @@
   font-weight: bold;
   font-size: 11pt;
   text-transform: uppercase;
-  padding: 3pt 6pt;
+  padding: 2pt 6pt;
   display: flex;
   justify-content: space-between;
   align-items: center;
