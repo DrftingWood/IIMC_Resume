@@ -278,11 +278,14 @@
   font-weight: bold;
 }
 
-/* Ordinal superscript */
+/* Ordinal superscript — position:relative keeps the parent line box
+   from growing taller than its body line. */
 .f1-page sup {
-  font-size: 0.7em;
-  vertical-align: super;
+  font-size: 0.65em;
   line-height: 0;
+  position: relative;
+  top: -0.45em;
+  vertical-align: baseline;
 }
 
 /* Bordered preview wrapper (screen only) */
