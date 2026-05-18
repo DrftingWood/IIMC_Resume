@@ -3,7 +3,7 @@
   --c-bg: #ffffff;
   --c-darkbar: #383838;
   --c-lightbar: #CDCDCD;
-  --c-border: #7F7F7F;
+  --c-border: #2F2F2F;
   --c-border-tagline: #000000;
   --c-white: #FFFFFF;
 }
@@ -96,7 +96,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border: 0.3pt solid var(--c-border);
+  border: 0.6pt solid var(--c-border);
   border-bottom: none;
   letter-spacing: 0.01em;
 }
@@ -115,7 +115,7 @@
 
 .f1-table th,
 .f1-table td {
-  border: 0.3pt solid var(--c-border);
+  border: 0.6pt solid var(--c-border);
   padding: 1.5pt 4pt;
   vertical-align: middle;
   text-align: left;
@@ -176,7 +176,7 @@
 
 /* Industry experience specifics */
 .f1-vertical {
-  width: 0.2cm;
+  width: 0.3cm;
   background: var(--c-lightbar);
   padding: 0 !important;
   vertical-align: middle;
