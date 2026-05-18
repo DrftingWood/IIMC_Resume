@@ -220,8 +220,8 @@ function IndustryTable({ entries }: { entries: ExperienceEntry[] }) {
   return (
     <table className="f1-table">
       <colgroup>
-        <col style={{ width: '0.35cm' }} />
-        <col style={{ width: 'calc(15% - 0.35cm)' }} />
+        <col style={{ width: '0.4cm' }} />
+        <col style={{ width: 'calc(15% - 0.4cm)' }} />
         <col style={{ width: '85%' }} />
       </colgroup>
       <tbody>{rows}</tbody>

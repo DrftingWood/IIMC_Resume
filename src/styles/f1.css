@@ -176,7 +176,7 @@
 
 /* Industry experience specifics */
 .f1-vertical {
-  width: 0.35cm;
+  width: 0.4cm;
   background: var(--c-lightbar);
   padding: 0 !important;
   vertical-align: middle;
@@ -281,10 +281,10 @@
 /* Ordinal superscript — position:relative keeps the parent line box
    from growing taller than its body line. */
 .f1-page sup {
-  font-size: 0.65em;
+  font-size: 0.7em;
   line-height: 0;
   position: relative;
-  top: -0.45em;
+  top: -0.25em;
   vertical-align: baseline;
 }
 
