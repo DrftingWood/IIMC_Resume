@@ -116,12 +116,12 @@
 .f1-table th,
 .f1-table td {
   border: 0.5pt solid var(--c-border);
-  padding: 1.5pt 4pt;
+  padding: 1pt 4pt;
   vertical-align: middle;
   text-align: left;
   font-size: 9.5pt;
   font-weight: normal;
-  line-height: 1.22;
+  line-height: 1.18;
 }
 
 .f1-table th {
@@ -148,7 +148,7 @@
   vertical-align: middle !important;
   font-size: 9.5pt;
   white-space: nowrap;
-  padding: 1.5pt 2pt !important;
+  padding: 1pt 2pt !important;
   letter-spacing: 0.01em;
 }
 
@@ -265,12 +265,12 @@
   align-items: center;
   justify-content: center;
   height: 100%;
-  min-height: 1.3em;
-  padding: 1pt 3pt;
+  min-height: 1.2em;
+  padding: 0.5pt 3pt;
   text-align: center;
   font-weight: bold;
   font-size: 10pt;
-  line-height: 1.15;
+  line-height: 1.1;
 }
 
 /* Bullets — small • placed close to the cell edge with a tight gap
