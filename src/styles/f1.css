@@ -1,0 +1,292 @@
+:root {
+  --c-text: #000000;
+  --c-bg: #ffffff;
+  --c-darkbar: #383838;
+  --c-lightbar: #CDCDCD;
+  --c-border: #2F2F2F;
+  --c-border-tagline: #000000;
+  --c-white: #FFFFFF;
+}
+
+.f1-page {
+  width: 210mm;
+  min-height: 297mm;
+  padding: 0.55in 0.4in 0.45in 0.4in;
+  background: var(--c-bg);
+  color: var(--c-text);
+  font-family: 'Calibri', 'Carlito', 'Arial', sans-serif;
+  font-size: 9.5pt;
+  line-height: 1.33;
+  margin: 0 auto;
+  box-sizing: border-box;
+  font-style: normal !important;
+}
+
+.f1-page * {
+  font-style: normal !important;
+  box-sizing: border-box;
+}
+
+/* Header band */
+.f1-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 0 6pt 0;
+  border-bottom: 0.6pt solid #000;
+  margin-bottom: 6pt;
+}
+
+.f1-inst-hindi {
+  font-weight: bold;
+  font-size: 11pt;
+  line-height: 1.15;
+}
+
+.f1-inst-eng {
+  font-weight: bold;
+  font-size: 10pt;
+  line-height: 1.15;
+}
+
+.f1-header-right {
+  text-align: right;
+}
+
+.f1-name {
+  font-weight: bold;
+  font-size: 14pt;
+  line-height: 1.15;
+}
+
+.f1-mbaid {
+  font-weight: bold;
+  font-size: 11pt;
+  line-height: 1.15;
+}
+
+/* Tagline row — flex so we get true white gaps between cells and a gap
+   below before the first section starts */
+.f1-tagline-row {
+  display: flex;
+  gap: 3pt;
+  margin-bottom: 3pt;
+  width: 100%;
+}
+
+.f1-tagline {
+  flex: 1 1 0;
+  background: var(--c-darkbar);
+  color: var(--c-white);
+  font-weight: bold;
+  font-size: 11pt;
+  text-transform: uppercase;
+  text-align: center;
+  padding: 2pt 6pt;
+}
+
+/* Section header bar — dark with white text */
+.f1-section-bar {
+  background: var(--c-darkbar);
+  color: var(--c-white);
+  font-weight: bold;
+  font-size: 11pt;
+  text-transform: uppercase;
+  padding: 2pt 6pt;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 0.6pt solid var(--c-border);
+  border-bottom: none;
+  letter-spacing: 0.01em;
+}
+
+.f1-section-bar-right {
+  font-weight: bold;
+  font-size: 11pt;
+}
+
+/* Tables — grey thin borders everywhere except taglines */
+.f1-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.f1-table th,
+.f1-table td {
+  border: 0.6pt solid var(--c-border);
+  padding: 1.5pt 4pt;
+  vertical-align: middle;
+  text-align: left;
+  font-size: 9.5pt;
+  font-weight: normal;
+  line-height: 1.2;
+}
+
+.f1-table th {
+  background: var(--c-lightbar);
+  font-size: 9.5pt;
+  font-weight: bold;
+  text-align: center;
+}
+
+.f1-cell-center {
+  text-align: center;
+}
+
+.f1-cell-bold {
+  font-weight: bold;
+}
+
+.f1-cell-year {
+  text-align: center;
+  font-size: 9pt;
+  white-space: nowrap;
+}
+
+/* Education: all four columns centered, data rows light-grey */
+.f1-edu td {
+  text-align: center;
+  vertical-align: middle;
+  background: var(--c-lightbar);
+  font-weight: normal;
+}
+
+/* Sub-category cells (left column in 3-col tables) */
+.f1-category {
+  background: var(--c-lightbar);
+  padding: 0 !important;
+  vertical-align: middle;
+  text-align: center;
+  height: 1px; /* enables height:100% on inner flex */
+}
+
+.f1-bullet-cell {
+  font-size: 9.5pt;
+  vertical-align: middle;
+}
+
+/* Continuation row: bullet that shares a sub-category with the row
+   above — remove the top border so consecutive points within a
+   sub-category appear as one flowing list */
+.f1-table tr.f1-continuation > td {
+  border-top: none;
+}
+
+/* Industry experience specifics */
+.f1-vertical {
+  width: 0.3cm;
+  background: var(--c-lightbar);
+  padding: 0 !important;
+  vertical-align: middle;
+  text-align: center;
+  height: 1px;
+}
+
+.f1-vertical-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+  padding: 0;
+}
+
+.f1-vertical-inner span {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  white-space: nowrap;
+  font-weight: bold;
+  font-size: 9pt;
+  line-height: 1;
+}
+
+/* Firm header row inside Industry Experience: full-width light-grey banner
+   containing [Firm | Role | Dates] */
+.f1-firm-banner-cell {
+  background: var(--c-lightbar);
+  padding: 0 !important;
+}
+
+.f1-firm-banner {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  width: 100%;
+  align-items: center;
+  padding: 3pt 6pt;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.f1-firm-banner > :nth-child(1) {
+  text-align: left;
+}
+.f1-firm-banner > :nth-child(2) {
+  text-align: center;
+}
+.f1-firm-banner > :nth-child(3) {
+  text-align: right;
+  text-transform: none;
+}
+
+.f1-exp-sublabel {
+  background: var(--c-lightbar);
+  padding: 0 !important;
+  vertical-align: middle;
+  text-align: center;
+  height: 1px;
+}
+
+.f1-label-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 1.5em;
+  padding: 1.5pt 4pt;
+  text-align: center;
+  font-weight: bold;
+  font-size: 9pt;
+  line-height: 1.15;
+}
+
+/* Bullets — tiny raised • + small gap */
+.f1-bullet::before {
+  content: '\2022';
+  font-size: 0.7em;
+  vertical-align: 0.15em;
+  margin-right: 0.35em;
+  display: inline-block;
+}
+
+/* Footer */
+.f1-footer {
+  text-align: center;
+  font-size: 7pt;
+  line-height: 1.2;
+  padding-top: 4pt;
+}
+
+.f1-footer-line {
+  display: block;
+}
+
+/* Bold inline */
+.f1-page strong {
+  font-weight: bold;
+}
+
+/* Ordinal superscript */
+.f1-page sup {
+  font-size: 0.7em;
+  vertical-align: super;
+  line-height: 0;
+}
+
+/* Bordered preview wrapper (screen only) */
+.f1-screen-wrap {
+  box-shadow: 0 0 0 1px #d1d5db, 0 4px 12px rgba(0, 0, 0, 0.08);
+  background: #fff;
+}
