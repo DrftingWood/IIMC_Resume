@@ -125,9 +125,11 @@ function BulletGroupTable({ groups }: { groups: BulletGroup[] }) {
             <tr key={`${gi}-${bi}`}>
               {bi === 0 && (
                 <td className="f1-category" rowSpan={g.bullets.length}>
-                  {g.category.split('\n').map((line, li) => (
-                    <div key={li}>{line}</div>
-                  ))}
+                  <div className="f1-label-inner">
+                    {g.category.split('\n').map((line, li) => (
+                      <div key={li}>{line}</div>
+                    ))}
+                  </div>
                 </td>
               )}
               <td className="f1-bullet-cell">
@@ -199,9 +201,11 @@ function IndustryTable({ entries }: { entries: ExperienceEntry[] }) {
             <tr key={`g${gi}-e${ei}-s${si}-b${bi}`}>
               {bi === 0 && (
                 <td className="f1-exp-sublabel" rowSpan={bullets.length}>
-                  {sub.label.split('\n').map((line, li) => (
-                    <div key={li}>{line}</div>
-                  ))}
+                  <div className="f1-label-inner">
+                    {sub.label.split('\n').map((line, li) => (
+                      <div key={li}>{line}</div>
+                    ))}
+                  </div>
                 </td>
               )}
               <td className="f1-bullet-cell">
@@ -240,9 +244,11 @@ function PositionsTable({ data }: { data: ResumeData }) {
             <tr key={`${pi}-${bi}`}>
               {bi === 0 && (
                 <td className="f1-category" rowSpan={p.bullets.length}>
-                  {p.title.split('\n').map((line, li) => (
-                    <div key={li}>{line}</div>
-                  ))}
+                  <div className="f1-label-inner">
+                    {p.title.split('\n').map((line, li) => (
+                      <div key={li}>{line}</div>
+                    ))}
+                  </div>
                 </td>
               )}
               <td className="f1-bullet-cell">

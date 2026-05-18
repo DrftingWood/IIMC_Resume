@@ -86,7 +86,7 @@
   background: var(--c-darkbar);
   color: var(--c-white);
   font-weight: bold;
-  font-size: 12pt;
+  font-size: 11pt;
   text-transform: uppercase;
   padding: 3pt 6pt;
   display: flex;
@@ -99,7 +99,7 @@
 
 .f1-section-bar-right {
   font-weight: bold;
-  font-size: 12pt;
+  font-size: 11pt;
 }
 
 /* Tables — grey thin borders everywhere except taglines */
@@ -150,11 +150,11 @@
 
 /* Sub-category cells (left column in 3-col tables) */
 .f1-category {
-  text-align: center;
-  font-weight: bold;
-  font-size: 9pt;
-  vertical-align: middle;
   background: var(--c-lightbar);
+  padding: 0 !important;
+  vertical-align: middle;
+  text-align: center;
+  height: 1px; /* enables height:100% on inner flex */
 }
 
 .f1-bullet-cell {
@@ -218,11 +218,25 @@
 }
 
 .f1-exp-sublabel {
+  background: var(--c-lightbar);
+  padding: 0 !important;
+  vertical-align: middle;
+  text-align: center;
+  height: 1px;
+}
+
+.f1-label-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 2em;
+  padding: 3pt 4pt;
   text-align: center;
   font-weight: bold;
   font-size: 9pt;
-  vertical-align: middle;
-  background: var(--c-lightbar);
+  line-height: 1.2;
 }
 
 /* Bullets — tiny raised • + small gap */
