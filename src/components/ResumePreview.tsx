@@ -22,10 +22,7 @@ const ResumePreview = forwardRef<HTMLDivElement, Props>(({ data }, ref) => {
       <SectionBar title="ACADEMIC DISTINCTIONS & CO-CURRICULAR ACHIEVEMENTS" />
       <BulletGroupTable groups={data.distinctions} />
 
-      <SectionBar
-        title="INDUSTRY EXPERIENCE"
-        rightText={data.industryRightText}
-      />
+      <SectionBar title="INDUSTRY EXPERIENCE" rightText={data.industryRightText} />
       <IndustryTable entries={data.experience} />
 
       <SectionBar title="POSITIONS OF RESPONSIBILITY" />
@@ -35,7 +32,8 @@ const ResumePreview = forwardRef<HTMLDivElement, Props>(({ data }, ref) => {
       <BulletGroupTable groups={data.extras} />
 
       <div className="f1-footer">
-        Email: {data.email} | {data.institute}
+        <span className="f1-footer-line">Email: {data.email}</span>
+        <span className="f1-footer-line">{data.institute}</span>
       </div>
     </div>
   );
@@ -47,16 +45,13 @@ export default ResumePreview;
 function HeaderBand({ data }: { data: ResumeData }) {
   return (
     <div className="f1-header">
-      <div className="f1-header-left">
-        <div className="f1-logo-placeholder">IIM<br />C</div>
-        <div>
-          <div className="f1-inst-hindi">भारतीय प्रबंध संस्थान कलकत्ता</div>
-          <div className="f1-inst-eng">INDIAN INSTITUTE OF MANAGEMENT CALCUTTA</div>
-        </div>
+      <div>
+        <div className="f1-inst-hindi">भारतीय प्रबंध संस्थान कलकत्ता</div>
+        <div className="f1-inst-eng">Indian Institute of Management Calcutta</div>
       </div>
       <div className="f1-header-right">
-        <div className="f1-name">{data.name || ' '}</div>
-        <div className="f1-mbaid">{data.mbaId || ' '}</div>
+        <div className="f1-name">{data.name || ' '}</div>
+        <div className="f1-mbaid">{data.mbaId || ' '}</div>
       </div>
     </div>
   );
@@ -87,12 +82,12 @@ function SectionBar({ title, rightText }: { title: string; rightText?: string })
 
 function EducationTable({ data }: { data: ResumeData }) {
   return (
-    <table className="f1-table">
+    <table className="f1-table f1-edu">
       <colgroup>
-        <col style={{ width: '24%' }} />
-        <col style={{ width: '48%' }} />
-        <col style={{ width: '14%' }} />
-        <col style={{ width: '14%' }} />
+        <col style={{ width: '41%' }} />
+        <col style={{ width: '41%' }} />
+        <col style={{ width: '12%' }} />
+        <col style={{ width: '6%' }} />
       </colgroup>
       <thead>
         <tr>
@@ -105,10 +100,10 @@ function EducationTable({ data }: { data: ResumeData }) {
       <tbody>
         {data.education.map((row, i) => (
           <tr key={i}>
-            <td className="f1-cell-bold">{row.degree}</td>
+            <td>{row.degree}</td>
             <td>{row.institute}</td>
-            <td className="f1-cell-center">{row.gpa}</td>
-            <td className="f1-cell-year">{row.year}</td>
+            <td>{row.gpa}</td>
+            <td>{row.year}</td>
           </tr>
         ))}
       </tbody>
@@ -120,9 +115,9 @@ function BulletGroupTable({ groups }: { groups: BulletGroup[] }) {
   return (
     <table className="f1-table">
       <colgroup>
-        <col style={{ width: '18%' }} />
-        <col style={{ width: '72%' }} />
-        <col style={{ width: '10%' }} />
+        <col style={{ width: '15%' }} />
+        <col style={{ width: '80%' }} />
+        <col style={{ width: '5%' }} />
       </colgroup>
       <tbody>
         {groups.flatMap((g, gi) =>
@@ -130,7 +125,9 @@ function BulletGroupTable({ groups }: { groups: BulletGroup[] }) {
             <tr key={`${gi}-${bi}`}>
               {bi === 0 && (
                 <td className="f1-category" rowSpan={g.bullets.length}>
-                  {g.category}
+                  {g.category.split('\n').map((line, li) => (
+                    <div key={li}>{line}</div>
+                  ))}
                 </td>
               )}
               <td className="f1-bullet-cell">
@@ -150,7 +147,7 @@ function IndustryTable({ entries }: { entries: ExperienceEntry[] }) {
     return <table className="f1-table"><tbody></tbody></table>;
   }
 
-  // Group entries by type to compute rowSpan for the vertical label column.
+  // Group consecutive entries by type to compute rowSpan for vertical column.
   const groups: { type: string; entries: ExperienceEntry[] }[] = [];
   for (const e of entries) {
     const last = groups[groups.length - 1];
@@ -161,10 +158,10 @@ function IndustryTable({ entries }: { entries: ExperienceEntry[] }) {
   const rows: React.ReactNode[] = [];
 
   groups.forEach((grp, gi) => {
-    // Count total rows for this type group: header row + bullets per subSection
+    // Total rows for this type group = (firm-banner + bullet rows) per entry
     let typeRowCount = 0;
     for (const e of grp.entries) {
-      typeRowCount += 1; // header row
+      typeRowCount += 1; // firm banner row
       for (const s of e.subSections) {
         typeRowCount += Math.max(s.bullets.length, 1);
       }
@@ -173,22 +170,26 @@ function IndustryTable({ entries }: { entries: ExperienceEntry[] }) {
     let isFirstRowOfType = true;
 
     grp.entries.forEach((entry, ei) => {
-      // Header row: firm | role | dates
+      // Firm banner row: spans the sub-label + bullet columns (cols 2 and 3)
       rows.push(
-        <tr key={`g${gi}-e${ei}-head`} className="f1-exp-headrow">
+        <tr key={`g${gi}-e${ei}-head`}>
           {isFirstRowOfType && (
             <td className="f1-vertical" rowSpan={typeRowCount}>
               <span>{grp.type}</span>
             </td>
           )}
-          <td>{entry.firm}</td>
-          <td colSpan={2}>{entry.role}</td>
-          <td className="f1-cell-year">{entry.dates}</td>
+          <td className="f1-firm-banner-cell" colSpan={2}>
+            <div className="f1-firm-banner">
+              <span>{entry.firm}</span>
+              <span>{entry.role}</span>
+              <span>{entry.dates}</span>
+            </div>
+          </td>
         </tr>
       );
       isFirstRowOfType = false;
 
-      // Body rows: for each subsection, rowspan label cell across its bullets
+      // Sub-section rows
       entry.subSections.forEach((sub, si) => {
         const bullets = sub.bullets.length ? sub.bullets : [''];
         bullets.forEach((b, bi) => {
@@ -196,10 +197,12 @@ function IndustryTable({ entries }: { entries: ExperienceEntry[] }) {
             <tr key={`g${gi}-e${ei}-s${si}-b${bi}`}>
               {bi === 0 && (
                 <td className="f1-exp-sublabel" rowSpan={bullets.length}>
-                  {sub.label}
+                  {sub.label.split('\n').map((line, li) => (
+                    <div key={li}>{line}</div>
+                  ))}
                 </td>
               )}
-              <td className="f1-bullet-cell" colSpan={3}>
+              <td className="f1-bullet-cell">
                 <span className="f1-bullet">{renderInline(b)}</span>
               </td>
             </tr>
@@ -212,10 +215,9 @@ function IndustryTable({ entries }: { entries: ExperienceEntry[] }) {
   return (
     <table className="f1-table">
       <colgroup>
-        <col style={{ width: '28px' }} />
-        <col style={{ width: '18%' }} />
-        <col style={{ width: '54%' }} />
-        <col style={{ width: '14%' }} />
+        <col style={{ width: '0.5cm' }} />
+        <col style={{ width: '15%' }} />
+        <col style={{ width: '80%' }} />
       </colgroup>
       <tbody>{rows}</tbody>
     </table>
@@ -226,9 +228,9 @@ function PositionsTable({ data }: { data: ResumeData }) {
   return (
     <table className="f1-table">
       <colgroup>
-        <col style={{ width: '22%' }} />
-        <col style={{ width: '68%' }} />
-        <col style={{ width: '10%' }} />
+        <col style={{ width: '15%' }} />
+        <col style={{ width: '80%' }} />
+        <col style={{ width: '5%' }} />
       </colgroup>
       <tbody>
         {data.positions.flatMap((p, pi) =>

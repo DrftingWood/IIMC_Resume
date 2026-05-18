@@ -1,21 +1,22 @@
 :root {
   --c-text: #000000;
   --c-bg: #ffffff;
-  --c-section: #bfbfbf;
-  --c-colheader: #bfbfbf;
-  --c-tagline: #d9d9d9;
-  --c-border: #000000;
+  --c-darkbar: #383838;
+  --c-lightbar: #CDCDCD;
+  --c-border: #7F7F7F;
+  --c-border-tagline: #000000;
+  --c-white: #FFFFFF;
 }
 
 .f1-page {
   width: 210mm;
   min-height: 297mm;
-  padding: 0.3in;
+  padding: 0.35in 0.4in 0.2in 0.4in;
   background: var(--c-bg);
   color: var(--c-text);
   font-family: 'Calibri', 'Carlito', 'Arial', sans-serif;
-  font-size: 8.5pt;
-  line-height: 1.15;
+  font-size: 9.5pt;
+  line-height: 1.33;
   margin: 0 auto;
   box-sizing: border-box;
   font-style: normal !important;
@@ -31,43 +32,19 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 0 4pt 0;
-}
-
-.f1-header-left {
-  display: flex;
-  align-items: center;
-  gap: 8pt;
-}
-
-.f1-logo {
-  width: 50px;
-  height: 50px;
-  object-fit: contain;
-}
-
-.f1-logo-placeholder {
-  width: 50px;
-  height: 50px;
-  border: 0.5pt solid #000;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 7pt;
-  font-weight: bold;
-  text-align: center;
-  line-height: 1;
+  padding: 0 0 3pt 0;
 }
 
 .f1-inst-hindi {
   font-weight: bold;
   font-size: 11pt;
+  line-height: 1.15;
 }
 
 .f1-inst-eng {
   font-weight: bold;
-  font-size: 7.5pt;
+  font-size: 10pt;
+  line-height: 1.15;
 }
 
 .f1-header-right {
@@ -76,16 +53,17 @@
 
 .f1-name {
   font-weight: bold;
-  font-size: 16pt;
-  line-height: 1.1;
+  font-size: 14pt;
+  line-height: 1.15;
 }
 
 .f1-mbaid {
   font-weight: bold;
-  font-size: 10pt;
+  font-size: 11pt;
+  line-height: 1.15;
 }
 
-/* Tagline row */
+/* Tagline row (BLACK borders explicitly, different from rest of resume) */
 .f1-tagline-row {
   width: 100%;
   border-collapse: collapse;
@@ -93,36 +71,38 @@
 }
 
 .f1-tagline-row td {
-  background: var(--c-tagline);
-  border: 0.5pt solid var(--c-border);
-  font-weight: bold;
-  font-size: 8pt;
-  text-transform: uppercase;
-  text-align: center;
-  padding: 2pt 6pt;
-  width: 33.333%;
-}
-
-/* Section header bar */
-.f1-section-bar {
-  background: var(--c-section);
+  background: var(--c-lightbar);
+  border: 0.5pt solid var(--c-border-tagline);
   font-weight: bold;
   font-size: 9pt;
   text-transform: uppercase;
-  padding: 2pt 6pt;
+  text-align: center;
+  padding: 3pt 4pt;
+  width: 33.333%;
+}
+
+/* Section header bar — dark with white text */
+.f1-section-bar {
+  background: var(--c-darkbar);
+  color: var(--c-white);
+  font-weight: bold;
+  font-size: 12pt;
+  text-transform: uppercase;
+  padding: 3pt 6pt;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border: 0.5pt solid var(--c-border);
+  border: 0.3pt solid var(--c-border);
   border-bottom: none;
+  letter-spacing: 0.01em;
 }
 
 .f1-section-bar-right {
   font-weight: bold;
-  font-size: 9pt;
+  font-size: 12pt;
 }
 
-/* Tables generic */
+/* Tables — grey thin borders everywhere except taglines */
 .f1-table {
   width: 100%;
   border-collapse: collapse;
@@ -131,17 +111,17 @@
 
 .f1-table th,
 .f1-table td {
-  border: 0.5pt solid var(--c-border);
-  padding: 2pt 6pt;
+  border: 0.3pt solid var(--c-border);
+  padding: 3pt 4pt;
   vertical-align: middle;
   text-align: left;
-  font-size: 8.5pt;
+  font-size: 9.5pt;
   font-weight: normal;
 }
 
 .f1-table th {
-  background: var(--c-colheader);
-  font-size: 8.5pt;
+  background: var(--c-lightbar);
+  font-size: 9.5pt;
   font-weight: bold;
   text-align: center;
 }
@@ -156,27 +136,35 @@
 
 .f1-cell-year {
   text-align: center;
-  font-size: 8pt;
+  font-size: 9pt;
   white-space: nowrap;
 }
 
-/* Category cell (left column in 3-col group tables) */
+/* Education: all four columns centered */
+.f1-edu td {
+  text-align: center;
+  vertical-align: middle;
+}
+
+/* Sub-category cells (left column in 3-col tables) */
 .f1-category {
   text-align: center;
   font-weight: bold;
-  font-size: 8.5pt;
-  width: 18%;
+  font-size: 9pt;
+  vertical-align: middle;
 }
 
 .f1-bullet-cell {
-  font-size: 8.5pt;
+  font-size: 9.5pt;
+  vertical-align: middle;
 }
 
 /* Industry experience specifics */
 .f1-vertical {
-  width: 28px;
+  width: 0.5cm;
   text-align: center;
-  background: #fff;
+  background: var(--c-white);
+  padding: 2pt 0 !important;
 }
 
 .f1-vertical span {
@@ -185,40 +173,63 @@
   display: inline-block;
   white-space: nowrap;
   font-weight: bold;
-  font-size: 8.5pt;
-  text-transform: capitalize;
+  font-size: 9pt;
 }
 
-.f1-exp-headrow td {
-  background: var(--c-section);
+/* Firm header row inside Industry Experience: full-width light-grey banner
+   containing [Firm | Role | Dates] */
+.f1-firm-banner-cell {
+  background: var(--c-lightbar);
+  padding: 0 !important;
+}
+
+.f1-firm-banner {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  width: 100%;
+  align-items: center;
+  padding: 3pt 6pt;
   font-weight: bold;
   text-transform: uppercase;
+}
+
+.f1-firm-banner > :nth-child(1) {
+  text-align: left;
+}
+.f1-firm-banner > :nth-child(2) {
   text-align: center;
-  font-size: 8.5pt;
+}
+.f1-firm-banner > :nth-child(3) {
+  text-align: right;
+  text-transform: none;
 }
 
 .f1-exp-sublabel {
   text-align: center;
   font-weight: bold;
-  font-size: 8.5pt;
-  width: 18%;
+  font-size: 9pt;
+  vertical-align: middle;
 }
 
-/* Bullets */
-.f1-bullet {
-  margin: 0;
-  padding: 0;
-}
-
+/* Bullets — tiny raised • + small gap */
 .f1-bullet::before {
-  content: '• ';
+  content: '\2022';
+  font-size: 0.7em;
+  vertical-align: 0.15em;
+  margin-right: 0.35em;
+  display: inline-block;
 }
 
 /* Footer */
 .f1-footer {
   text-align: center;
-  font-size: 8.5pt;
+  font-size: 7pt;
+  line-height: 1.2;
   padding-top: 4pt;
+}
+
+.f1-footer-line {
+  display: block;
 }
 
 /* Bold inline */
