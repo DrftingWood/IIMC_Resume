@@ -47,42 +47,7 @@
     box-shadow: none !important;
     margin: 0 auto !important;
     width: 210mm !important;
-    min-height: 0 !important;
-    /* Hard cap at one A4 page; pulled-in padding + row padding below
-       leave room for the resume content without spilling onto a second
-       physical page. */
-    max-height: 297mm !important;
-    /* Tighter outer padding in print so the content fits on one page. */
-    padding-top: 0.25in !important;
-    padding-bottom: 0.15in !important;
-    page-break-after: avoid !important;
-    page-break-inside: avoid !important;
-    overflow: hidden !important;
-  }
-
-  /* Anything that follows the preview on the printed page is chrome we
-     don't want — react makes sure .no-print is hidden but in case any
-     stray spacer slips through, kill page breaks after the preview. */
-  .f1-page + * {
-    display: none !important;
-  }
-
-  /* Tighten row padding by half a point per cell to recover a few mm
-     of vertical space without making the table look squashed. */
-  .f1-table th,
-  .f1-table td {
-    padding-top: 1pt !important;
-    padding-bottom: 1pt !important;
-  }
-
-  .f1-section-bar {
-    padding-top: 1.5pt !important;
-    padding-bottom: 1.5pt !important;
-  }
-
-  .f1-tagline {
-    padding-top: 1.5pt !important;
-    padding-bottom: 1.5pt !important;
+    min-height: 297mm !important;
   }
 
   /* Make sure colored backgrounds and table borders actually print. */
