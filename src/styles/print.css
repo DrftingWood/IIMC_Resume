@@ -11,24 +11,42 @@
     padding: 0 !important;
     background: #fff !important;
     height: auto !important;
+    min-height: 0 !important;
     overflow: visible !important;
   }
 
+  /* Anything explicitly marked .no-print disappears. Highest-specificity
+     wins because we use a class + !important and don't compete with any
+     ID-based or descendant-combinator selectors below. */
   .no-print {
     display: none !important;
   }
 
-  /* Flatten every wrapping layout between #root and the preview so the
-     .f1-page sits at the very top-left of the printed page. We only
-     touch the chrome ancestors — the .f1-page itself and its children
-     keep their grid/flex/table layouts intact. */
-  #root,
-  #root > div,
-  #root > div > main,
-  #root > div > main > div,
-  #root > div > main > div > div,
-  #root > div > main > div > div > div,
-  .f1-screen-wrap {
+  /* The editor's outer flex column (AppHeader + main) and the main
+     element itself need to drop their full-height / overflow constraints
+     so the preview can flow on the printed page. We DO NOT touch the
+     grid contents — the form column is .no-print and is already hidden. */
+  body > #root,
+  #root > div {
+    display: block !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  main {
+    display: block !important;
+    height: auto !important;
+    overflow: visible !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Flatten ONLY the grid that holds [form | preview]. Targeting via the
+     explicit print-grid class avoids accidentally collapsing other
+     grid/flex layouts inside the preview itself. */
+  .print-grid {
     display: block !important;
     grid-template-columns: none !important;
     overflow: visible !important;
@@ -38,9 +56,21 @@
     min-height: 0 !important;
     max-height: none !important;
     gap: 0 !important;
+  }
+
+  .print-preview-col,
+  .print-preview-inner,
+  .f1-screen-wrap {
+    display: block !important;
+    overflow: visible !important;
+    padding: 0 !important;
+    margin: 0 !important;
     background: #fff !important;
     box-shadow: none !important;
     border: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
   }
 
   .f1-page {

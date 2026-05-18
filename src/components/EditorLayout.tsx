@@ -53,10 +53,10 @@ export default function EditorLayout({
   }
 
   return (
-    <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] gap-6 px-6 py-5 h-full overflow-hidden">
+    <div className="print-grid grid grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] gap-6 px-6 py-5 h-full overflow-hidden">
       <div className="no-print overflow-auto pr-1">{form}</div>
-      <div className="overflow-auto">
-        <div className="flex justify-center">{preview}</div>
+      <div className="print-preview-col overflow-auto">
+        <div className="print-preview-inner flex justify-center">{preview}</div>
       </div>
     </div>
   );
