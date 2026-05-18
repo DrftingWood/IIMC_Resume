@@ -53,7 +53,7 @@ export async function extractLines(file: File): Promise<PdfLine[]> {
 
   const sorted = [...items].sort((a, b) => b.y - a.y);
   const lines: PdfLine[] = [];
-  const TOL = 2.5;
+  const TOL = 4.5;
 
   for (const it of sorted) {
     if (!it.str.trim() && it.str !== ' ') {

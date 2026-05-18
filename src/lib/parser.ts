@@ -24,42 +24,13 @@ const YEAR_TAIL_RE = /\s+((?:19|20)\d{2}|\d{2}\s*-\s*\d{2}|\d{2}\s*,\s*\d{2}|\d{
 const DATE_RANGE_RE = /[A-Za-z]+\s*[`'’]\s*\d{2}\s*[-–]\s*[A-Za-z]+\s*[`'’]\s*\d{2}/;
 const MBA_ID_RE = /MBA\/\d+\/\d+/;
 const EMAIL_RE = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/;
+const INSTITUTE_FOOTER_RE = /^Indian Institute of Management Calcutta\s*$/i;
 
-/* ----------------------------- section split ----------------------------- */
+/* ----------------------------- helpers ----------------------------------- */
 
-interface Section {
-  name: string;
-  lines: PdfLine[];
+function escapeRe(s: string): string {
+  return s.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
 }
-
-function findAnchorLine(line: PdfLine): string | null {
-  const t = line.text.toUpperCase().replace(/\s+/g, ' ').trim();
-  for (const a of ANCHORS) {
-    if (t === a || t.startsWith(a)) return a;
-  }
-  return null;
-}
-
-function splitSections(lines: PdfLine[]): { header: PdfLine[]; sections: Section[] } {
-  const anchors: { idx: number; name: string }[] = [];
-  for (let i = 0; i < lines.length; i++) {
-    const a = findAnchorLine(lines[i]);
-    if (a && !anchors.find((x) => x.name === a)) {
-      anchors.push({ idx: i, name: a });
-    }
-  }
-  if (!anchors.length) return { header: lines, sections: [] };
-  const header = lines.slice(0, anchors[0].idx);
-  const sections: Section[] = [];
-  for (let i = 0; i < anchors.length; i++) {
-    const start = anchors[i].idx + 1;
-    const end = i + 1 < anchors.length ? anchors[i + 1].idx : lines.length;
-    sections.push({ name: anchors[i].name, lines: lines.slice(start, end) });
-  }
-  return { header, sections };
-}
-
-/* ------------------------------- helpers --------------------------------- */
 
 function joinItems(items: TextItem[]): string {
   if (!items.length) return '';
@@ -81,8 +52,7 @@ function stripBulletGlyph(text: string): string {
 
 function startsWithBullet(items: TextItem[]): boolean {
   if (!items.length) return false;
-  const first = items[0];
-  return BULLET_GLYPH_RE.test(first.str.trim());
+  return BULLET_GLYPH_RE.test(items[0].str.trim());
 }
 
 function splitYearTail(text: string): { text: string; year: string } {
@@ -91,7 +61,74 @@ function splitYearTail(text: string): { text: string; year: string } {
   return { text: text.slice(0, m.index).trim(), year: m[1].trim() };
 }
 
-/** Locate the bullet column by taking the median x of every bullet glyph. */
+/** Split a list of items into clusters separated by large x-gaps.
+ *  Used to recover the 3-cell tagline row from a single PdfLine. */
+function splitByLargeGaps(items: TextItem[], gapThreshold = 20): string[] {
+  if (!items.length) return [];
+  const sorted = [...items].sort((a, b) => a.x - b.x);
+  const clusters: TextItem[][] = [[sorted[0]]];
+  for (let i = 1; i < sorted.length; i++) {
+    const gap = sorted[i].x - (sorted[i - 1].x + sorted[i - 1].width);
+    if (gap > gapThreshold) clusters.push([sorted[i]]);
+    else clusters[clusters.length - 1].push(sorted[i]);
+  }
+  return clusters.map(joinItems);
+}
+
+/* ----------------------------- section split ----------------------------- */
+
+interface Section {
+  name: string;
+  headerRest: string;
+  lines: PdfLine[];
+}
+
+function findAnchorLine(line: PdfLine): string | null {
+  const t = line.text.toUpperCase().replace(/\s+/g, ' ').trim();
+  for (const a of ANCHORS) {
+    if (t === a || t.startsWith(a + ' ') || t.startsWith(a)) return a;
+  }
+  return null;
+}
+
+function isFooterLine(l: PdfLine): boolean {
+  return EMAIL_RE.test(l.text) || INSTITUTE_FOOTER_RE.test(l.text.trim());
+}
+
+function splitSections(allLines: PdfLine[]): {
+  header: PdfLine[];
+  sections: Section[];
+} {
+  // Remove footer lines from sections (they show up at the bottom of the
+  // last section and otherwise get mis-parsed as bullet continuations).
+  const lines = allLines.filter((l) => !isFooterLine(l));
+
+  const anchors: { idx: number; name: string }[] = [];
+  for (let i = 0; i < lines.length; i++) {
+    const a = findAnchorLine(lines[i]);
+    if (a && !anchors.find((x) => x.name === a)) anchors.push({ idx: i, name: a });
+  }
+  if (!anchors.length) return { header: lines, sections: [] };
+
+  const header = lines.slice(0, anchors[0].idx);
+  const sections: Section[] = [];
+  for (let i = 0; i < anchors.length; i++) {
+    const anchorLine = lines[anchors[i].idx];
+    const restRe = new RegExp('^\\s*' + escapeRe(anchors[i].name), 'i');
+    const headerRest = anchorLine.text.replace(restRe, '').trim();
+    const start = anchors[i].idx + 1;
+    const end = i + 1 < anchors.length ? anchors[i + 1].idx : lines.length;
+    sections.push({
+      name: anchors[i].name,
+      headerRest,
+      lines: lines.slice(start, end),
+    });
+  }
+  return { header, sections };
+}
+
+/* --------------------- column detection per-section ---------------------- */
+
 function findBulletX(lines: PdfLine[]): number | null {
   const xs: number[] = [];
   for (const l of lines) {
@@ -104,15 +141,23 @@ function findBulletX(lines: PdfLine[]): number | null {
   return xs[Math.floor(xs.length / 2)];
 }
 
-/** The right-edge x threshold above which an item belongs to the year column. */
 function findYearX(lines: PdfLine[]): number {
-  const ends = lines.map((l) => l.endX).sort((a, b) => a - b);
-  if (!ends.length) return Infinity;
-  const p95 = ends[Math.floor(ends.length * 0.95)] ?? ends[ends.length - 1];
-  return p95 - 28;
+  // Prefer the leftmost x of items that look like year tokens.
+  const yearXs: number[] = [];
+  for (const l of lines) {
+    for (const it of l.items) {
+      if (YEAR_TOKEN_RE.test(it.str.trim())) yearXs.push(it.x);
+    }
+  }
+  if (yearXs.length >= 3) {
+    return Math.min(...yearXs) - 4;
+  }
+  // Fallback: 30pt strip at the right edge.
+  let maxEndX = 0;
+  for (const l of lines) maxEndX = Math.max(maxEndX, l.endX);
+  return maxEndX === 0 ? Infinity : maxEndX - 30;
 }
 
-/** The typical y-distance between two consecutive lines of the same paragraph. */
 function findLineHeight(lines: PdfLine[]): number {
   if (lines.length < 2) return 12;
   const deltas: number[] = [];
@@ -125,6 +170,8 @@ function findLineHeight(lines: PdfLine[]): number {
   return deltas[Math.floor(deltas.length / 2)];
 }
 
+/* ----------------------- per-line column classification ------------------ */
+
 interface RowParts {
   y: number;
   leftItems: TextItem[];
@@ -136,17 +183,6 @@ interface RowParts {
   hasBulletGlyph: boolean;
 }
 
-/**
- * Re-bin every item of every line into three column buckets:
- *   left   = sub-category cell (x < bulletX - tol)
- *   mid    = bullet text       (bulletX - tol <= x < yearX)
- *   right  = year              (x >= yearX)
- *
- * This is the key fix: when the sub-category label and the first bullet
- * share the same y in the PDF (which is how the original LaTeX renders
- * vertically-centered labels), the previous parser joined them into one
- * string and lost the label. We now split per-item by x.
- */
 function classifyLines(lines: PdfLine[], bulletX: number, yearX: number): RowParts[] {
   const TOL = 6;
   return lines.map((l) => {
@@ -155,7 +191,7 @@ function classifyLines(lines: PdfLine[], bulletX: number, yearX: number): RowPar
     const rightItems: TextItem[] = [];
     for (const it of l.items) {
       const center = it.x + it.width / 2;
-      if (center >= yearX) rightItems.push(it);
+      if (center >= yearX - 2) rightItems.push(it);
       else if (center >= bulletX - TOL) midItems.push(it);
       else leftItems.push(it);
     }
@@ -191,6 +227,7 @@ function parseHeader(lines: PdfLine[]): {
     }
   }
 
+  // Name = the tallest non-institute, non-MBA-id line.
   const nameCandidates = lines.filter(
     (l) => !isInstituteLine(l.text) && !MBA_ID_RE.test(l.text) && l.text.trim().length > 1
   );
@@ -202,40 +239,93 @@ function parseHeader(lines: PdfLine[]): {
     name = (tallest[0]?.text ?? '').replace(MBA_ID_RE, '').trim();
   }
 
-  const isTaglineCandidate = (l: PdfLine) => {
+  // Taglines: find a single line that splits into 3 by large x-gaps.
+  let t1 = '',
+    t2 = '',
+    t3 = '';
+  const taglineLineCandidates = lines.filter((l) => {
     const t = l.text.trim();
     if (!t || t === name) return false;
     if (isInstituteLine(t) || MBA_ID_RE.test(t)) return false;
     const letters = t.replace(/[^A-Za-z]/g, '');
-    if (letters.length < 3) return false;
+    if (letters.length < 5) return false;
     const upper = t.replace(/[^A-Z]/g, '');
-    return upper.length / Math.max(letters.length, 1) > 0.6;
-  };
+    return upper.length / Math.max(letters.length, 1) > 0.55;
+  });
 
-  const taglineLines = lines.filter(isTaglineCandidate);
-  let t1 = '',
-    t2 = '',
-    t3 = '';
-
-  // First try: any tagline line that has three column-separated parts.
-  for (const l of taglineLines) {
-    const parts = l.text.split(/\s{2,}/).map((s) => s.trim()).filter(Boolean);
+  for (const l of taglineLineCandidates) {
+    const parts = splitByLargeGaps(l.items, 20);
     if (parts.length >= 3) {
       t1 = parts[0];
       t2 = parts[1];
       t3 = parts.slice(2).join(' ');
       break;
     }
+    // also try whitespace-based fallback on the joined text
+    const wsParts = l.text.split(/\s{2,}/).map((s) => s.trim()).filter(Boolean);
+    if (wsParts.length >= 3) {
+      t1 = wsParts[0];
+      t2 = wsParts[1];
+      t3 = wsParts.slice(2).join(' ');
+      break;
+    }
   }
-  // Fallback: take the last three.
-  if (!t1 && taglineLines.length >= 1) {
-    const tail = taglineLines.slice(-3);
+
+  // If we still failed, take the last three candidate lines as taglines.
+  if (!t1 && taglineLineCandidates.length >= 1) {
+    const tail = taglineLineCandidates.slice(-3);
     t1 = tail[0]?.text ?? '';
     t2 = tail[1]?.text ?? '';
     t3 = tail[2]?.text ?? '';
   }
 
   return { name, mbaId, taglines: [t1, t2, t3] };
+}
+
+/* -------------------- two-pass label cell extraction --------------------- */
+
+interface LabelCell {
+  texts: string[];
+  ys: number[];
+  yCenter: number;
+}
+
+function buildLabelCells(rows: RowParts[], sameLabelGap: number): LabelCell[] {
+  const cells: LabelCell[] = [];
+  let cur: LabelCell | null = null;
+  let prevY: number | null = null;
+
+  for (const r of rows) {
+    if (!r.leftText) continue;
+    const sameCell = cur != null && prevY != null && prevY - r.y <= sameLabelGap;
+    if (sameCell && cur) {
+      cur.texts.push(r.leftText);
+      cur.ys.push(r.y);
+    } else {
+      cur = { texts: [r.leftText], ys: [r.y], yCenter: r.y };
+      cells.push(cur);
+    }
+    prevY = r.y;
+  }
+
+  for (const c of cells) {
+    c.yCenter = c.ys.reduce((a, b) => a + b, 0) / c.ys.length;
+  }
+  return cells;
+}
+
+/** Boundary-based cell finder.
+ *  cells are in y-descending order: cells[0] is topmost (highest y).
+ *  Boundary between cell i and cell i+1 = midpoint of their yCenters. */
+function makeCellIdxFinder(cells: LabelCell[]): (y: number) => number {
+  return (y: number) => {
+    if (!cells.length) return 0;
+    for (let i = 0; i < cells.length - 1; i++) {
+      const boundary = (cells[i].yCenter + cells[i + 1].yCenter) / 2;
+      if (y >= boundary) return i;
+    }
+    return cells.length - 1;
+  };
 }
 
 /* --------------------- generic column-aware bullet table ----------------- */
@@ -246,67 +336,61 @@ function parseBulletTable(lines: PdfLine[]): BulletGroup[] {
   if (bulletX == null) return [];
   const yearX = findYearX(lines);
   const lineHeight = findLineHeight(lines);
-  const sameLabelGap = lineHeight * 1.9;
+  const sameLabelGap = lineHeight * 1.7;
 
   const rows = classifyLines(lines, bulletX, yearX);
 
-  const groups: BulletGroup[] = [];
-  let current: BulletGroup | null = null;
-  let lastBullet: YearedBullet | null = null;
-  let prevLabelY: number | null = null;
+  // Pass 1: build label cells from left-column items.
+  const cells = buildLabelCells(rows, sameLabelGap);
 
+  // Build groups (one per cell, plus one unlabeled if no cells).
+  const groups: BulletGroup[] = cells.map((c) => ({
+    category: c.texts.join('\n'),
+    bullets: [],
+  }));
+  if (!groups.length) groups.push({ category: '', bullets: [] });
+
+  const findIdx = makeCellIdxFinder(cells);
+  const lastBullet: Array<YearedBullet | null> = groups.map(() => null);
+
+  // Pass 2: assign every bullet (or continuation) to the owning cell.
   for (const r of rows) {
-    /* -- LEFT column (sub-category label) -- */
-    if (r.leftText) {
-      const startsNew =
-        !current ||
-        prevLabelY == null ||
-        prevLabelY - r.y > sameLabelGap;
-      if (startsNew) {
-        current = { category: r.leftText, bullets: [] };
-        groups.push(current);
-        lastBullet = null;
-      } else if (current) {
-        current.category = (current.category + '\n' + r.leftText).trim();
-      }
-      prevLabelY = r.y;
-    }
+    if (!r.midText && !r.rightText) continue;
+    const idx = findIdx(r.y);
+    const group = groups[idx];
 
-    /* -- MID column (bullet text) -- */
-    if (r.midText) {
-      if (!current) {
-        current = { category: '', bullets: [] };
-        groups.push(current);
-      }
-      const yearFromRight = r.rightText && YEAR_TOKEN_RE.test(r.rightText.trim())
+    const yearFromRight =
+      r.rightText && YEAR_TOKEN_RE.test(r.rightText.trim())
         ? r.rightText.trim()
         : '';
 
+    if (r.midText) {
       if (r.hasBulletGlyph) {
         const stripped = stripBulletGlyph(r.midText);
         let { text, year } = splitYearTail(stripped);
         if (!year && yearFromRight) year = yearFromRight;
-        lastBullet = { text, year };
-        current.bullets.push(lastBullet);
+        const b: YearedBullet = { text, year };
+        group.bullets.push(b);
+        lastBullet[idx] = b;
       } else {
-        // continuation of previous bullet (mid-column line with no glyph)
         const stripped = stripBulletGlyph(r.midText);
-        if (lastBullet) {
+        const lb = lastBullet[idx];
+        if (lb) {
           const { text: t, year: y } = splitYearTail(stripped);
-          lastBullet.text = (lastBullet.text + ' ' + t).trim();
-          if (y && !lastBullet.year) lastBullet.year = y;
-          if (yearFromRight && !lastBullet.year) lastBullet.year = yearFromRight;
+          lb.text = (lb.text + ' ' + t).trim();
+          if (y && !lb.year) lb.year = y;
+          if (yearFromRight && !lb.year) lb.year = yearFromRight;
         } else if (stripped) {
-          // No previous bullet — treat as a new (glyph-less) bullet.
           const { text, year } = splitYearTail(stripped);
-          lastBullet = { text, year: year || yearFromRight };
-          current.bullets.push(lastBullet);
+          const b: YearedBullet = { text, year: year || yearFromRight };
+          group.bullets.push(b);
+          lastBullet[idx] = b;
         }
       }
-    } else if (r.rightText && lastBullet) {
-      // Year-only row (continuation of a wrapped bullet whose year sits below)
-      const yr = r.rightText.trim();
-      if (YEAR_TOKEN_RE.test(yr) && !lastBullet.year) lastBullet.year = yr;
+    } else if (yearFromRight) {
+      // Year-only row: attach to the most recent bullet in this cell.
+      const lb = lastBullet[idx];
+      if (lb && !lb.year) lb.year = yearFromRight;
     }
   }
 
@@ -321,72 +405,59 @@ function parsePositions(lines: PdfLine[]): PositionEntry[] {
   if (bulletX == null) return [];
   const yearX = findYearX(lines);
   const lineHeight = findLineHeight(lines);
-  const sameLabelGap = lineHeight * 1.9;
+  const sameLabelGap = lineHeight * 1.7;
 
   const rows = classifyLines(lines, bulletX, yearX);
+  const cells = buildLabelCells(rows, sameLabelGap);
 
-  const out: PositionEntry[] = [];
-  let current: PositionEntry | null = null;
-  let lastBulletIdx = -1;
-  let prevLabelY: number | null = null;
+  const out: PositionEntry[] = cells.map((c) => ({
+    title: c.texts.join('\n'),
+    bullets: [],
+    year: '',
+  }));
+  if (!out.length) out.push({ title: '', bullets: [], year: '' });
+
+  const findIdx = makeCellIdxFinder(cells);
+  const lastBulletIdx: number[] = out.map(() => -1);
 
   for (const r of rows) {
-    if (r.leftText) {
-      const startsNew =
-        !current ||
-        prevLabelY == null ||
-        prevLabelY - r.y > sameLabelGap;
-      if (startsNew) {
-        current = { title: r.leftText, bullets: [], year: '' };
-        out.push(current);
-        lastBulletIdx = -1;
-      } else if (current) {
-        current.title = (current.title + '\n' + r.leftText).trim();
-      }
-      prevLabelY = r.y;
-    }
+    if (!r.midText && !r.rightText) continue;
+    const idx = findIdx(r.y);
+    const entry = out[idx];
 
-    if (r.rightText && current) {
-      const yr = r.rightText.trim();
-      if (YEAR_TOKEN_RE.test(yr) && !current.year) current.year = yr;
+    if (r.rightText && YEAR_TOKEN_RE.test(r.rightText.trim()) && !entry.year) {
+      entry.year = r.rightText.trim();
     }
 
     if (r.midText) {
-      if (!current) {
-        current = { title: '', bullets: [], year: '' };
-        out.push(current);
-      }
       const stripped = stripBulletGlyph(r.midText);
-      if (r.hasBulletGlyph || lastBulletIdx < 0) {
-        current.bullets.push(stripped);
-        lastBulletIdx = current.bullets.length - 1;
+      if (r.hasBulletGlyph || lastBulletIdx[idx] < 0) {
+        entry.bullets.push(stripped);
+        lastBulletIdx[idx] = entry.bullets.length - 1;
       } else {
-        current.bullets[lastBulletIdx] =
-          (current.bullets[lastBulletIdx] + ' ' + stripped).trim();
+        const i = lastBulletIdx[idx];
+        entry.bullets[i] = (entry.bullets[i] + ' ' + stripped).trim();
       }
     }
   }
 
-  return out;
+  return out.filter((e) => e.bullets.length > 0 || e.title);
 }
 
 /* -------------------------------- industry ------------------------------- */
 
-function parseIndustry(lines: PdfLine[]): {
+function parseIndustry(lines: PdfLine[], headerRest: string): {
   entries: ExperienceEntry[];
   rightText: string;
 } {
+  // The "XX MONTHS (FULL-TIME)" trailing text was on the section header
+  // line. splitSections captured it as `headerRest`.
   let rightText = '';
-  for (const l of lines.slice(0, 4)) {
-    const m = l.text.match(/(\d+\s*MONTHS\s*\([^)]+\))/i);
-    if (m) {
-      rightText = m[1].toUpperCase();
-      break;
-    }
-  }
+  const monthsMatch = headerRest.match(/(\d+\s*MONTHS\s*\([^)]+\))/i);
+  if (monthsMatch) rightText = monthsMatch[1].toUpperCase();
 
-  // Filter out the rotated Intern / Full-Time labels (they show up as their
-  // own short lines once unrolled by pdfjs).
+  // Filter rotated "Intern" / "Full Time" labels (their items show up as
+  // tiny short lines once pdfjs unrolls the rotated glyph stream).
   const bodyLines = lines.filter((l) => {
     const t = l.text.trim();
     if (/^full[- ]?time$/i.test(t)) return false;
@@ -395,99 +466,93 @@ function parseIndustry(lines: PdfLine[]): {
   });
 
   const bulletX = findBulletX(bodyLines);
-  const yearX = findYearX(bodyLines); // industry has no year col but harmless
+  if (bulletX == null) return { entries: [], rightText };
+  const yearX = findYearX(bodyLines);
   const lineHeight = findLineHeight(bodyLines);
-  const sameLabelGap = lineHeight * 1.9;
-
-  if (bulletX == null) {
-    return { entries: [], rightText };
-  }
+  const sameLabelGap = lineHeight * 1.7;
 
   const rows = classifyLines(bodyLines, bulletX, yearX);
 
-  const entries: ExperienceEntry[] = [];
-  let entry: ExperienceEntry | null = null;
-  let sub: ExperienceSubSection | null = null;
-  let lastBulletIdx = -1;
-  let prevLabelY: number | null = null;
-
+  // Split rows into per-firm blocks by detecting the date-range banner row.
+  interface FirmBlock {
+    banner: RowParts;
+    body: RowParts[];
+  }
+  const blocks: FirmBlock[] = [];
+  let curBlock: FirmBlock | null = null;
   for (const r of rows) {
-    const fullText = [r.leftText, r.midText, r.rightText].filter(Boolean).join(' ');
-
-    // Firm banner row: contains a date range like "Mon`XX - Mon`YY".
-    const dm = fullText.match(DATE_RANGE_RE);
-    if (dm) {
-      const dates = dm[0];
-      const before = fullText.slice(0, dm.index).trim();
-      // Split firm vs role by the largest x-gap between consecutive items.
-      const all = [...r.leftItems, ...r.midItems, ...r.rightItems].sort(
-        (a, b) => a.x - b.x
-      );
-      const beforeItems = all.filter((it) => !DATE_RANGE_RE.test(it.str));
-      let firm = '';
-      let role = '';
-      let maxGap = -1;
-      let splitAt = -1;
-      for (let i = 1; i < beforeItems.length; i++) {
-        const gap = beforeItems[i].x - (beforeItems[i - 1].x + beforeItems[i - 1].width);
-        if (gap > maxGap) {
-          maxGap = gap;
-          splitAt = i;
-        }
-      }
-      if (splitAt > 0 && maxGap > 10) {
-        firm = joinItems(beforeItems.slice(0, splitAt));
-        role = joinItems(beforeItems.slice(splitAt));
-      } else {
-        firm = before;
-      }
-
-      entry = {
-        type: entries.length === 0 ? 'Full Time' : 'Intern',
-        firm,
-        role,
-        dates,
-        subSections: [],
-      };
-      entries.push(entry);
-      sub = null;
-      lastBulletIdx = -1;
-      prevLabelY = null;
-      continue;
-    }
-
-    if (!entry) continue;
-
-    if (r.leftText) {
-      const startsNew =
-        !sub ||
-        prevLabelY == null ||
-        prevLabelY - r.y > sameLabelGap;
-      if (startsNew) {
-        sub = { label: r.leftText, bullets: [] };
-        entry.subSections.push(sub);
-        lastBulletIdx = -1;
-      } else if (sub) {
-        sub.label = (sub.label + '\n' + r.leftText).trim();
-      }
-      prevLabelY = r.y;
-    }
-
-    if (r.midText) {
-      if (!sub) {
-        sub = { label: '', bullets: [] };
-        entry.subSections.push(sub);
-      }
-      const stripped = stripBulletGlyph(r.midText);
-      if (r.hasBulletGlyph || lastBulletIdx < 0) {
-        sub.bullets.push(stripped);
-        lastBulletIdx = sub.bullets.length - 1;
-      } else {
-        sub.bullets[lastBulletIdx] =
-          (sub.bullets[lastBulletIdx] + ' ' + stripped).trim();
-      }
+    const full = [r.leftText, r.midText, r.rightText].filter(Boolean).join(' ');
+    if (DATE_RANGE_RE.test(full)) {
+      curBlock = { banner: r, body: [] };
+      blocks.push(curBlock);
+    } else if (curBlock) {
+      curBlock.body.push(r);
     }
   }
+
+  const entries: ExperienceEntry[] = blocks.map((block, i) => {
+    // Parse the banner: firm + role + dates separated by big x-gaps.
+    const allItems = [
+      ...block.banner.leftItems,
+      ...block.banner.midItems,
+      ...block.banner.rightItems,
+    ].sort((a, b) => a.x - b.x);
+    const fullBanner = joinItems(allItems);
+    const dm = fullBanner.match(DATE_RANGE_RE)!;
+    const dates = dm[0];
+
+    // Items excluding the date range
+    const dateItems = new Set<TextItem>();
+    let datesAccum = '';
+    for (let k = allItems.length - 1; k >= 0; k--) {
+      datesAccum = (allItems[k].str + ' ' + datesAccum).trim();
+      dateItems.add(allItems[k]);
+      if (datesAccum.replace(/\s+/g, '').includes(dates.replace(/\s+/g, ''))) break;
+    }
+    const beforeItems = allItems.filter((it) => !dateItems.has(it));
+    const segments = splitByLargeGaps(beforeItems, 12);
+    let firm = '';
+    let role = '';
+    if (segments.length >= 2) {
+      firm = segments[0];
+      role = segments.slice(1).join(' ');
+    } else {
+      firm = segments[0] ?? '';
+    }
+
+    // Apply two-pass within this firm block.
+    const cells = buildLabelCells(block.body, sameLabelGap);
+    const subSections: ExperienceSubSection[] = cells.map((c) => ({
+      label: c.texts.join('\n'),
+      bullets: [],
+    }));
+    if (!subSections.length) subSections.push({ label: '', bullets: [] });
+
+    const findIdx = makeCellIdxFinder(cells);
+    const lastBulletIdx: number[] = subSections.map(() => -1);
+
+    for (const r of block.body) {
+      if (!r.midText) continue;
+      const idx = findIdx(r.y);
+      const sub = subSections[idx];
+      const stripped = stripBulletGlyph(r.midText);
+      if (r.hasBulletGlyph || lastBulletIdx[idx] < 0) {
+        sub.bullets.push(stripped);
+        lastBulletIdx[idx] = sub.bullets.length - 1;
+      } else {
+        const j = lastBulletIdx[idx];
+        sub.bullets[j] = (sub.bullets[j] + ' ' + stripped).trim();
+      }
+    }
+
+    return {
+      type: i === 0 ? 'Full Time' : 'Intern',
+      firm,
+      role,
+      dates,
+      subSections: subSections.filter((s) => s.bullets.length > 0 || s.label),
+    };
+  });
 
   return { entries, rightText };
 }
@@ -563,17 +628,19 @@ export function parseResume(lines: PdfLine[]): Partial<ResumeData> {
     const headerInfo = parseHeader(header);
     const footer = parseFooter(lines);
     const getSection = (name: string) =>
-      sections.find((s) => s.name === name)?.lines ?? [];
+      sections.find((s) => s.name === name);
 
-    const education = parseEducation(getSection('ACADEMIC QUALIFICATIONS'));
+    const education = parseEducation(getSection('ACADEMIC QUALIFICATIONS')?.lines ?? []);
     const distinctions = parseBulletTable(
-      getSection('ACADEMIC DISTINCTIONS & CO-CURRICULAR ACHIEVEMENTS')
+      getSection('ACADEMIC DISTINCTIONS & CO-CURRICULAR ACHIEVEMENTS')?.lines ?? []
     );
+    const industrySec = getSection('INDUSTRY EXPERIENCE');
     const { entries: experience, rightText: industryRightText } = parseIndustry(
-      getSection('INDUSTRY EXPERIENCE')
+      industrySec?.lines ?? [],
+      industrySec?.headerRest ?? ''
     );
-    const positions = parsePositions(getSection('POSITIONS OF RESPONSIBILITY'));
-    const extras = parseBulletTable(getSection('EXTRA-CURRICULAR ACHIEVEMENTS'));
+    const positions = parsePositions(getSection('POSITIONS OF RESPONSIBILITY')?.lines ?? []);
+    const extras = parseBulletTable(getSection('EXTRA-CURRICULAR ACHIEVEMENTS')?.lines ?? []);
 
     return {
       name: headerInfo.name,
@@ -594,7 +661,6 @@ export function parseResume(lines: PdfLine[]): Partial<ResumeData> {
   }
 }
 
-/** Kept for backwards compat; the new pipeline calls parseResume(PdfLine[]). */
 export function parseResumeText(_text: string): Partial<ResumeData> {
   return {};
 }
