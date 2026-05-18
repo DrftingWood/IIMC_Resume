@@ -43,7 +43,81 @@ function joinItems(items: TextItem[]): string {
     buf += it.str;
     prevEnd = it.x + it.width;
   }
-  return buf.replace(/\s+/g, ' ').trim();
+  // Collapse "<digit> nd/rd/th/st" → "<digit>nd" so superscripts merge
+  // back into their base number when pdfjs reports them as separate items
+  // (the PDF renders the suffix raised — different y, same x cluster).
+  return buf
+    .replace(/\s+/g, ' ')
+    .replace(/\b(\d+)\s+(nd|rd|th|st)\b/gi, '$1$2')
+    .trim();
+}
+
+/** Join items while preserving bold runs (detected via fontName) as
+ *  **markdown** so the editor can re-apply them. Falls back to plain
+ *  joinItems when no boldFont is known. */
+function joinItemsAsMarkdown(items: TextItem[], boldFont: string | null): string {
+  if (!items.length) return '';
+  if (!boldFont) return joinItems(items);
+
+  const sorted = [...items].sort((a, b) => a.x - b.x);
+  type Tok = { text: string; bold: boolean };
+  const toks: Tok[] = [];
+  let prevEnd = -Infinity;
+
+  for (const it of sorted) {
+    const isBold = it.fontName === boldFont;
+    if (toks.length) {
+      const gap = it.x - prevEnd;
+      const last = toks[toks.length - 1];
+      if (gap > 1.2 && !/\s$/.test(last.text) && !/^\s/.test(it.str)) {
+        toks.push({ text: ' ', bold: last.bold && isBold });
+      }
+    }
+    toks.push({ text: it.str, bold: isBold });
+    prevEnd = it.x + it.width;
+  }
+
+  // Merge consecutive same-bold tokens.
+  const merged: Tok[] = [];
+  for (const t of toks) {
+    const last = merged[merged.length - 1];
+    if (last && last.bold === t.bold) last.text += t.text;
+    else merged.push({ ...t });
+  }
+
+  // Emit, putting leading/trailing whitespace OUTSIDE the ** markers.
+  let result = '';
+  for (const t of merged) {
+    if (!t.text) continue;
+    if (t.bold) {
+      const m = t.text.match(/^(\s*)([\s\S]*?)(\s*)$/);
+      if (m && m[2]) result += m[1] + '**' + m[2] + '**' + m[3];
+      else result += t.text;
+    } else {
+      result += t.text;
+    }
+  }
+  return result
+    .replace(/\s+/g, ' ')
+    .replace(/\b(\d+)\s+(nd|rd|th|st)\b/gi, '$1$2')
+    .trim();
+}
+
+/** Detect the bold font name by counting characters per fontName. The
+ *  font with the most characters is "regular"; the next-most is "bold".
+ *  Falls back to null when only one font is present. */
+function detectBoldFont(lines: PdfLine[]): string | null {
+  const counts = new Map<string, number>();
+  for (const l of lines) {
+    for (const it of l.items) {
+      if (it.str.trim().length === 0) continue;
+      if (!it.fontName) continue;
+      counts.set(it.fontName, (counts.get(it.fontName) ?? 0) + it.str.length);
+    }
+  }
+  if (counts.size < 2) return null;
+  const sorted = [...counts.entries()].sort((a, b) => b[1] - a[1]);
+  return sorted[1][0];
 }
 
 function stripBulletGlyph(text: string): string {
@@ -282,9 +356,14 @@ interface RowParts {
 
 const ORPHAN_SUPERSCRIPT_RE = /^(?:nd|rd|th|st)(?:\s+(?:nd|rd|th|st))*$/i;
 
-function classifyLines(lines: PdfLine[], bulletX: number, yearX: number): RowParts[] {
+function classifyLines(
+  lines: PdfLine[],
+  bulletX: number,
+  yearX: number,
+  boldFont: string | null = null
+): RowParts[] {
   const TOL = 6;
-  return lines.map((l) => {
+  const rows: RowParts[] = lines.map((l) => {
     const leftItems: TextItem[] = [];
     const midItems: TextItem[] = [];
     const rightItems: TextItem[] = [];
@@ -294,22 +373,47 @@ function classifyLines(lines: PdfLine[], bulletX: number, yearX: number): RowPar
       else if (center >= bulletX - TOL) midItems.push(it);
       else leftItems.push(it);
     }
-    let midText = joinItems(midItems);
-    // Stray superscript orphans: pdfjs sometimes places "nd" / "rd" / "th"
-    // on their own y-line a few pt above the digit. They land in the
-    // mid-column with no real content; ignore.
-    if (midText && ORPHAN_SUPERSCRIPT_RE.test(midText.trim())) midText = '';
     return {
       y: l.y,
       leftItems,
       midItems,
       rightItems,
       leftText: joinItems(leftItems),
-      midText,
+      midText: joinItemsAsMarkdown(midItems, boldFont),
       rightText: joinItems(rightItems),
       hasBulletGlyph: startsWithBullet(midItems),
     };
   });
+
+  // Re-attach orphan superscript rows. pdfjs sometimes emits "nd" / "rd"
+  // / "th" / "st" on their own y-line a few pt above the digit they
+  // belong to. Those rows land in the mid-column as midText that is
+  // ONLY a superscript suffix. Instead of dropping them, merge their
+  // items into the next bullet row below; joinItems' ordinal-collapse
+  // regex then glues "2 nd" back to "2nd".
+  for (let i = 0; i < rows.length; i++) {
+    const r = rows[i];
+    if (!r.midText) continue;
+    const pureSuper = ORPHAN_SUPERSCRIPT_RE.test(
+      r.midText.replace(/\*\*/g, '').trim()
+    );
+    if (!pureSuper) continue;
+    for (let j = i + 1; j < rows.length; j++) {
+      const target = rows[j];
+      if (target.midItems.length === 0) continue;
+      const targetSuper = ORPHAN_SUPERSCRIPT_RE.test(
+        target.midText.replace(/\*\*/g, '').trim()
+      );
+      if (targetSuper) continue;
+      target.midItems = [...target.midItems, ...r.midItems];
+      target.midText = joinItemsAsMarkdown(target.midItems, boldFont);
+      r.midItems = [];
+      r.midText = '';
+      break;
+    }
+  }
+
+  return rows;
 }
 
 /* -------------------------------- header --------------------------------- */
@@ -448,7 +552,8 @@ function parseBulletTable(lines: PdfLine[]): BulletGroup[] {
   // bracket value.
   const sameLabelGap = lineHeight * 1.15;
 
-  const rows = classifyLines(lines, bulletX, yearX);
+  const boldFont = detectBoldFont(lines);
+  const rows = classifyLines(lines, bulletX, yearX, boldFont);
 
   // Pass 1: build label cells from left-column items.
   const cells = buildLabelCells(rows, sameLabelGap);
@@ -523,7 +628,8 @@ function parsePositions(lines: PdfLine[]): PositionEntry[] {
   const lineHeight = findLineHeight(lines);
   const sameLabelGap = lineHeight * 1.15;
 
-  const rows = classifyLines(lines, bulletX, yearX);
+  const boldFont = detectBoldFont(lines);
+  const rows = classifyLines(lines, bulletX, yearX, boldFont);
   const cells = buildLabelCells(rows, sameLabelGap);
 
   const out: PositionEntry[] = cells.map((c) => ({
@@ -588,8 +694,9 @@ function parseIndustry(lines: PdfLine[], headerRest: string): {
   const yearX = findYearX(bodyLines);
   const lineHeight = findLineHeight(bodyLines);
   const sameLabelGap = lineHeight * 1.15;
+  const boldFont = detectBoldFont(bodyLines);
 
-  const rows = classifyLines(bodyLines, bulletX, yearX);
+  const rows = classifyLines(bodyLines, bulletX, yearX, boldFont);
 
   // Split rows into per-firm blocks by detecting the date-range banner row.
   interface FirmBlock {
