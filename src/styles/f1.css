@@ -15,7 +15,7 @@
   background: var(--c-bg);
   color: var(--c-text);
   font-family: 'Calibri', 'Carlito', 'Arial', sans-serif;
-  font-size: 9pt;
+  font-size: 9.5pt;
   line-height: 1.22;
   margin: 0 auto;
   box-sizing: border-box;
@@ -39,13 +39,13 @@
 
 .f1-inst-hindi {
   font-weight: bold;
-  font-size: 11.5pt;
+  font-size: 9.5pt;
   line-height: 1.15;
 }
 
 .f1-inst-eng {
   font-weight: bold;
-  font-size: 9.5pt;
+  font-size: 11.5pt;
   line-height: 1.15;
 }
 
@@ -90,7 +90,7 @@
   background: var(--c-darkbar);
   color: var(--c-white);
   font-weight: bold;
-  font-size: 9.5pt;
+  font-size: 10pt;
   text-transform: uppercase;
   padding: 1pt 6pt;
   display: flex;
@@ -103,7 +103,7 @@
 
 .f1-section-bar-right {
   font-weight: bold;
-  font-size: 9.5pt;
+  font-size: 10pt;
 }
 
 /* Tables — grey thin borders everywhere except taglines */
@@ -119,7 +119,7 @@
   padding: 1.5pt 4pt;
   vertical-align: middle;
   text-align: left;
-  font-size: 9pt;
+  font-size: 9.5pt;
   font-weight: normal;
   line-height: 1.22;
 }
@@ -146,7 +146,7 @@
 .f1-cell-year {
   text-align: center;
   vertical-align: middle;
-  font-size: 9pt;
+  font-size: 9.5pt;
   white-space: nowrap;
   padding: 1.5pt 2pt !important;
 }
@@ -169,7 +169,7 @@
 }
 
 .f1-bullet-cell {
-  font-size: 9pt;
+  font-size: 9.5pt;
   vertical-align: middle;
   text-align: justify;
   text-justify: inter-word;
@@ -268,7 +268,7 @@
   padding: 1pt 3pt;
   text-align: center;
   font-weight: bold;
-  font-size: 9.5pt;
+  font-size: 10pt;
   line-height: 1.15;
 }
 
