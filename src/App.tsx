@@ -34,45 +34,42 @@ export default function App() {
     setData(null);
   }
 
-  if (!data) {
-    return (
-      <>
+  return (
+    <>
+      {!data ? (
         <UploadStep
           onReady={(d, opts) => {
             setData(d);
             if (opts?.warnBoldLost) setShowWarning(true);
           }}
         />
-        <Analytics />
-      </>
-    );
-  }
-
-  return (
-    <div className="flex flex-col h-screen overflow-hidden">
-      <AppHeader previewRef={previewRef} onReset={onReset} />
-      {showWarning && (
-        <div className="no-print bg-yellow-50 border-b border-yellow-200 text-yellow-900 px-4 py-2 text-xs flex justify-between items-center">
-          <span>
-            Heads up: inline <strong>bold</strong> formatting wasn't recovered from your upload.
-            Use the <strong>B</strong> button on each field to re-apply.
-          </span>
-          <button onClick={() => setShowWarning(false)} className="font-bold px-2">
-            ✕
-          </button>
+      ) : (
+        <div className="flex flex-col h-screen overflow-hidden">
+          <AppHeader previewRef={previewRef} onReset={onReset} />
+          {showWarning && (
+            <div className="no-print bg-yellow-50 border-b border-yellow-200 text-yellow-900 px-4 py-2 text-xs flex justify-between items-center">
+              <span>
+                Heads up: inline <strong>bold</strong> formatting wasn't recovered from your upload.
+                Use the <strong>B</strong> button on each field to re-apply.
+              </span>
+              <button onClick={() => setShowWarning(false)} className="font-bold px-2">
+                ✕
+              </button>
+            </div>
+          )}
+          <main className="flex-1 overflow-hidden">
+            <EditorLayout
+              form={<ResumeForm data={data} onChange={update} />}
+              preview={
+                <div className="f1-screen-wrap">
+                  <ResumePreview ref={previewRef} data={data} />
+                </div>
+              }
+            />
+          </main>
         </div>
       )}
-      <main className="flex-1 overflow-hidden">
-        <EditorLayout
-          form={<ResumeForm data={data} onChange={update} />}
-          preview={
-            <div className="f1-screen-wrap">
-              <ResumePreview ref={previewRef} data={data} />
-            </div>
-          }
-        />
-      </main>
       <Analytics />
-    </div>
+    </>
   );
 }
