@@ -789,33 +789,44 @@ function parseIndustry(lines: PdfLine[], headerRest: string): {
 
 /* ------------------------------- education ------------------------------- */
 
-function parseEducation(lines: PdfLine[]): EducationRow[] {
+function parseEducation(lines: PdfLine[]): { rows: EducationRow[]; ranked: boolean } {
+  // Detect ranked variant by inspecting the header row for a "Rank" cell.
+  const ranked = lines.some((l) => {
+    const t = l.text.toLowerCase().replace(/\s+/g, ' ');
+    return /degree/.test(t) && /board|institute/.test(t) && /\brank\b/.test(t);
+  });
+
   const filtered = lines.filter((l) => {
     const t = l.text.toLowerCase();
     return (
       !/^degree\/exam/.test(t) &&
       !/^board\/institute/.test(t) &&
       !/^%\/cgpa/.test(t) &&
+      !/^rank$/.test(t) &&
       !/^year$/.test(t) &&
       !/degree.*board.*cgpa/.test(t)
     );
   });
-  if (!filtered.length) return [];
+  if (!filtered.length) return { rows: [], ranked };
 
+  const maxCells = ranked ? 5 : 4;
   const rows: EducationRow[] = [];
   for (const line of filtered) {
-    // Always take the top 3 gaps as cell separators, with a low absolute
-    // threshold (5pt) so the gpa↔year gap is still picked up even when
-    // the gpa cell text is wider than usual (e.g. "B.Tech Chemical
-    // Engineering" pushes neighbouring content closer than "MBA" does).
-    const cells = splitByTopGaps(line.items, 4, 5);
+    const cells = splitByTopGaps(line.items, maxCells, 5);
     if (cells.length < 2) continue;
-    const [degree = '', institute = '', gpa = '', year = ''] = cells;
-    if (!degree && !institute && !gpa && !year) continue;
-    if (/degree/i.test(degree) && /board|institute/i.test(institute)) continue;
-    rows.push({ degree, institute, gpa, year });
+    if (ranked) {
+      const [degree = '', institute = '', gpa = '', rank = '', year = ''] = cells;
+      if (!degree && !institute && !gpa && !rank && !year) continue;
+      if (/degree/i.test(degree) && /board|institute/i.test(institute)) continue;
+      rows.push({ degree, institute, gpa, rank, year });
+    } else {
+      const [degree = '', institute = '', gpa = '', year = ''] = cells;
+      if (!degree && !institute && !gpa && !year) continue;
+      if (/degree/i.test(degree) && /board|institute/i.test(institute)) continue;
+      rows.push({ degree, institute, gpa, year });
+    }
   }
-  return rows.slice(0, 8);
+  return { rows: rows.slice(0, 8), ranked };
 }
 
 /* -------------------------------- footer --------------------------------- */
@@ -839,7 +850,9 @@ export function parseResume(lines: PdfLine[]): Partial<ResumeData> {
     const getSection = (name: string) =>
       sections.find((s) => s.name === name);
 
-    const education = parseEducation(getSection('ACADEMIC QUALIFICATIONS')?.lines ?? []);
+    const { rows: education, ranked } = parseEducation(
+      getSection('ACADEMIC QUALIFICATIONS')?.lines ?? []
+    );
     const distinctions = parseBulletTable(
       getSection('ACADEMIC DISTINCTIONS & CO-CURRICULAR ACHIEVEMENTS')?.lines ?? []
     );
@@ -855,6 +868,7 @@ export function parseResume(lines: PdfLine[]): Partial<ResumeData> {
       name: headerInfo.name,
       mbaId: headerInfo.mbaId,
       taglines: headerInfo.taglines,
+      resumeType: ranked ? 'ranked' : 'unranked',
       education,
       distinctions,
       experience,

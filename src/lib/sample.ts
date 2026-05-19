@@ -8,11 +8,12 @@ export const SAMPLE: ResumeData = {
     'TAGLINE / HIGHLIGHT 2',
     'TAGLINE / HIGHLIGHT 3',
   ],
+  resumeType: 'unranked',
   education: [
-    { degree: 'Post-Graduate Degree', institute: 'Institute Name', gpa: 'X.XX/X', year: '20XX' },
-    { degree: 'Under-Graduate Degree', institute: 'Institute Name', gpa: 'X.XX/X', year: '20XX' },
-    { degree: 'CLASS XII', institute: 'Board Name', gpa: 'XX.XX%', year: '20XX' },
-    { degree: 'CLASS X', institute: 'Board Name', gpa: 'XX.XX%', year: '20XX' },
+    { degree: 'Post-Graduate Degree', institute: 'Institute Name', gpa: 'X.XX/X', rank: '', year: '20XX' },
+    { degree: 'Under-Graduate Degree', institute: 'Institute Name', gpa: 'X.XX/X', rank: '', year: '20XX' },
+    { degree: 'CLASS XII', institute: 'Board Name', gpa: 'XX.XX%', rank: '', year: '20XX' },
+    { degree: 'CLASS X', institute: 'Board Name', gpa: 'XX.XX%', rank: '', year: '20XX' },
   ],
   distinctions: [
     {
