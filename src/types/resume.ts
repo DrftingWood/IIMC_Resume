@@ -1,7 +1,10 @@
+export type ResumeType = 'ranked' | 'unranked';
+
 export interface ResumeData {
   name: string;
   mbaId: string;
   taglines: [string, string, string];
+  resumeType: ResumeType;
   education: EducationRow[];
   distinctions: BulletGroup[];
   industryRightText: string;
@@ -16,6 +19,7 @@ export interface EducationRow {
   degree: string;
   institute: string;
   gpa: string;
+  rank?: string;
   year: string;
 }
 
@@ -53,6 +57,7 @@ export function emptyResume(): ResumeData {
     name: '',
     mbaId: '',
     taglines: ['', '', ''],
+    resumeType: 'unranked',
     education: [],
     distinctions: [],
     industryRightText: '',

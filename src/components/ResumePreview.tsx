@@ -77,12 +77,14 @@ function SectionBar({ title, rightText }: { title: string; rightText?: string })
 }
 
 function EducationTable({ data }: { data: ResumeData }) {
+  const ranked = data.resumeType === 'ranked';
   return (
     <table className="f1-table f1-edu">
       <colgroup>
-        <col style={{ width: '40%' }} />
-        <col style={{ width: '41%' }} />
-        <col style={{ width: '12%' }} />
+        <col style={{ width: ranked ? '36%' : '40%' }} />
+        <col style={{ width: ranked ? '36%' : '41%' }} />
+        <col style={{ width: ranked ? '11%' : '12%' }} />
+        {ranked && <col style={{ width: '10%' }} />}
         <col style={{ width: '7%' }} />
       </colgroup>
       <thead>
@@ -90,6 +92,7 @@ function EducationTable({ data }: { data: ResumeData }) {
           <th>Degree/Exam</th>
           <th>Board/Institute</th>
           <th>%/CGPA</th>
+          {ranked && <th>Rank</th>}
           <th>Year</th>
         </tr>
       </thead>
@@ -99,6 +102,7 @@ function EducationTable({ data }: { data: ResumeData }) {
             <td>{row.degree}</td>
             <td>{row.institute}</td>
             <td>{row.gpa}</td>
+            {ranked && <td>{row.rank ?? ''}</td>}
             <td>{row.year}</td>
           </tr>
         ))}

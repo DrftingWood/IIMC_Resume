@@ -14,7 +14,9 @@ export function loadDraft(): ResumeData | null {
   try {
     const raw = localStorage.getItem(KEY);
     if (!raw) return null;
-    return JSON.parse(raw) as ResumeData;
+    const parsed = JSON.parse(raw) as ResumeData;
+    if (!parsed.resumeType) parsed.resumeType = 'unranked';
+    return parsed;
   } catch (e) {
     console.warn('loadDraft failed', e);
     return null;
