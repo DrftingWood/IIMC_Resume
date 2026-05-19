@@ -81,8 +81,8 @@ function EducationTable({ data }: { data: ResumeData }) {
   return (
     <table className="f1-table f1-edu">
       <colgroup>
-        <col style={{ width: ranked ? '36%' : '40%' }} />
-        <col style={{ width: ranked ? '36%' : '41%' }} />
+        <col style={{ width: ranked ? '28%' : '40%' }} />
+        <col style={{ width: ranked ? '44%' : '41%' }} />
         <col style={{ width: ranked ? '11%' : '12%' }} />
         {ranked && <col style={{ width: '10%' }} />}
         <col style={{ width: '7%' }} />
