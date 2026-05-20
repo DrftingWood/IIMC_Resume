@@ -83,6 +83,12 @@ export default function App() {
     setData(null);
   }
 
+  function onChangeTemplate() {
+    // Return to the gallery without clearing the current draft.
+    setTemplateId(null);
+    setData(null);
+  }
+
   const template = templateId ? getTemplate(templateId) : null;
 
   if (!templateId || !template || !data) {
@@ -108,6 +114,8 @@ export default function App() {
       <AppHeader
         previewRef={previewRef}
         onReset={onReset}
+        onChangeTemplate={onChangeTemplate}
+        templateLabel={template.label}
         showSections={panels.showSections}
         showForm={panels.showForm}
         onToggleSections={() =>
