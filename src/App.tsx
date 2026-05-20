@@ -8,6 +8,7 @@ import {
   setLastTemplateId,
 } from '@/lib/storage';
 import TemplateGallery from '@/components/TemplateGallery';
+import Landing from '@/components/Landing';
 import EditorLayout from '@/components/EditorLayout';
 import AppHeader from '@/components/AppHeader';
 import ErrorBoundary from '@/components/ErrorBoundary';
@@ -27,9 +28,12 @@ function loadPanelPrefs(): { showSections: boolean; showForm: boolean } {
   return { showSections: true, showForm: true };
 }
 
+type PreEditorView = 'landing' | 'gallery';
+
 export default function App() {
   const [templateId, setTemplateId] = useState<TemplateKey | null>(null);
   const [data, setData] = useState<unknown | null>(null);
+  const [preEditorView, setPreEditorView] = useState<PreEditorView>('landing');
   const [showWarning, setShowWarning] = useState(false);
   const [failedSections, setFailedSections] = useState<string[]>([]);
   const [panels, setPanels] = useState(loadPanelPrefs);
@@ -81,25 +85,39 @@ export default function App() {
     if (templateId) clearDraft(templateId);
     setTemplateId(null);
     setData(null);
+    setPreEditorView('landing');
   }
 
   function onChangeTemplate() {
     // Return to the gallery without clearing the current draft.
     setTemplateId(null);
     setData(null);
+    setPreEditorView('gallery');
   }
 
   const template = templateId ? getTemplate(templateId) : null;
 
   if (!templateId || !template || !data) {
+    if (preEditorView === 'gallery') {
+      return (
+        <>
+          <TemplateGallery
+            onReady={(id, d) => startWith(id, d)}
+            onBack={() => setPreEditorView('landing')}
+          />
+          <Analytics />
+        </>
+      );
+    }
     return (
       <>
-        <TemplateGallery
+        <Landing
           onReady={(id, d, opts) => {
             startWith(id, d);
             if (opts?.warnBoldLost) setShowWarning(true);
             if (opts?.failedSections?.length) setFailedSections(opts.failedSections);
           }}
+          onBrowseTemplates={() => setPreEditorView('gallery')}
         />
         <Analytics />
       </>
