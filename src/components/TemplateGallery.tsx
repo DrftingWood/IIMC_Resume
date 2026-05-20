@@ -57,7 +57,7 @@ function TemplateCard({
   onUseSample: () => void;
 }) {
   return (
-    <div className="ui-transition bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm flex flex-col hover:-translate-y-0.5 hover:shadow-md">
+    <div className="ui-transition hover-lift bg-white border border-slate-200 rounded-2xl overflow-hidden flex flex-col shadow-[var(--shadow-card)]">
       <div className="relative aspect-[210/297] bg-slate-50 border-b border-slate-200 flex items-center justify-center overflow-hidden">
         <img
           src={template.thumbnail}

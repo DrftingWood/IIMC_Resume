@@ -5,6 +5,14 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --ui-transition: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
+  --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.06), 0 6px 18px rgba(15, 23, 42, 0.05);
+  --shadow-lift: 0 2px 4px rgba(15, 23, 42, 0.06), 0 12px 28px rgba(15, 23, 42, 0.08);
+  --accent: #b91c1c;
+}
+
 html, body, #root {
   height: 100%;
 }
@@ -26,12 +34,24 @@ body {
 }
 
 .brand-mark .brand-mark__accent {
-  color: #b91c1c;
+  color: var(--accent);
   font-weight: 700;
 }
 
 /* Generic transition helper for interactive surfaces */
 .ui-transition {
-  transition: background-color 120ms ease, border-color 120ms ease,
-    color 120ms ease, box-shadow 120ms ease, transform 120ms ease;
+  transition:
+    background-color var(--ui-transition),
+    border-color var(--ui-transition),
+    color var(--ui-transition),
+    box-shadow var(--ui-transition),
+    transform var(--ui-transition);
+}
+
+/* Hover-lift used by gallery cards and the dropzone; disabled on touch */
+@media (hover: hover) {
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lift);
+  }
 }
