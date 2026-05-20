@@ -1,15 +1,15 @@
 import React, { forwardRef } from 'react';
 import type {
-  ResumeData,
+  IimcResumeData,
   BulletGroup,
   ExperienceEntry,
   SectionKey,
-} from '@/types/resume';
-import { DEFAULT_SECTION_ORDER } from '@/types/resume';
+} from './types';
+import { DEFAULT_SECTION_ORDER } from './types';
 import { renderInline } from '@/lib/bold';
 
 interface Props {
-  data: ResumeData;
+  data: IimcResumeData;
 }
 
 const ResumePreview = forwardRef<HTMLDivElement, Props>(({ data }, ref) => {
@@ -76,7 +76,7 @@ const ResumePreview = forwardRef<HTMLDivElement, Props>(({ data }, ref) => {
 ResumePreview.displayName = 'ResumePreview';
 export default ResumePreview;
 
-function HeaderBand({ data }: { data: ResumeData }) {
+function HeaderBand({ data }: { data: IimcResumeData }) {
   return (
     <div className="f1-header">
       <div>
@@ -110,7 +110,7 @@ function SectionBar({ title, rightText }: { title: string; rightText?: string })
   );
 }
 
-function EducationTable({ data }: { data: ResumeData }) {
+function EducationTable({ data }: { data: IimcResumeData }) {
   const ranked = data.resumeType === 'ranked';
   return (
     <table className="f1-table f1-edu">
@@ -267,7 +267,7 @@ function IndustryTable({ entries }: { entries: ExperienceEntry[] }) {
   );
 }
 
-function PositionsTable({ data }: { data: ResumeData }) {
+function PositionsTable({ data }: { data: IimcResumeData }) {
   return (
     <table className="f1-table">
       <colgroup>

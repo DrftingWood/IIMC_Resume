@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { extractLines } from '@/lib/pdfExtract';
-import { parseResume } from '@/lib/parser';
-import { emptyResume, type ResumeData } from '@/types/resume';
-import { SAMPLE } from '@/lib/sample';
+import { iimcTemplate } from '@/templates/iimc';
 
 const MAX_PDF_BYTES = 15 * 1024 * 1024;
 
@@ -10,7 +8,7 @@ export default function UploadStep({
   onReady,
 }: {
   onReady: (
-    data: ResumeData,
+    data: unknown,
     opts?: { warnBoldLost?: boolean; failedSections?: string[] }
   ) => void;
 }) {
@@ -27,9 +25,8 @@ export default function UploadStep({
     setErr(null);
     try {
       const lines = await extractLines(file);
-      const { data: parsed, failedSections } = parseResume(lines);
-      const merged: ResumeData = { ...emptyResume(), ...parsed } as ResumeData;
-      if (!merged.taglines) merged.taglines = ['', '', ''];
+      const { data: parsed, failedSections } = iimcTemplate.parse!(lines);
+      const merged = { ...iimcTemplate.emptyData(), ...parsed };
       onReady(merged, { warnBoldLost: true, failedSections });
     } catch (e: any) {
       console.error(e);
@@ -113,13 +110,13 @@ export default function UploadStep({
 
           <div className="grid grid-cols-2 gap-3">
             <button
-              onClick={() => onReady(emptyResume())}
+              onClick={() => onReady(iimcTemplate.emptyData())}
               className="ui-transition px-4 py-2.5 rounded-lg border border-slate-300 hover:border-slate-400 hover:bg-slate-50 text-sm font-medium text-slate-700"
             >
               Start blank
             </button>
             <button
-              onClick={() => onReady(SAMPLE)}
+              onClick={() => onReady(iimcTemplate.sampleData)}
               className="ui-transition px-4 py-2.5 rounded-lg border border-slate-300 hover:border-slate-400 hover:bg-slate-50 text-sm font-medium text-slate-700"
             >
               Use sample data

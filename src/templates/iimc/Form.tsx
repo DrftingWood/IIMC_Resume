@@ -1,4 +1,4 @@
-import type { ResumeData } from '@/types/resume';
+import type { IimcResumeData } from './types';
 import { HeaderForm } from './form-sections/HeaderForm';
 import { TaglineForm } from './form-sections/TaglineForm';
 import { EducationForm } from './form-sections/EducationForm';
@@ -7,12 +7,12 @@ import { IndustryForm } from './form-sections/IndustryForm';
 import { PositionsForm } from './form-sections/PositionsForm';
 import { FooterForm } from './form-sections/FooterForm';
 
-export default function ResumeForm({
+export default function IimcForm({
   data,
   onChange,
 }: {
-  data: ResumeData;
-  onChange: (patch: Partial<ResumeData>) => void;
+  data: IimcResumeData;
+  onChange: (patch: Partial<IimcResumeData>) => void;
 }) {
   return (
     <div className="space-y-2">

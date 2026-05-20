@@ -1,12 +1,12 @@
-import type { ResumeData } from '@/types/resume';
+import type { IimcResumeData } from '../types';
 import { Accordion, Field, TextInput } from './_shared';
 
 export function TaglineForm({
   data,
   onChange,
 }: {
-  data: ResumeData;
-  onChange: (patch: Partial<ResumeData>) => void;
+  data: IimcResumeData;
+  onChange: (patch: Partial<IimcResumeData>) => void;
 }) {
   function update(i: number, v: string) {
     const t = [...data.taglines] as [string, string, string];

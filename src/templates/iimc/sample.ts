@@ -1,6 +1,6 @@
-import type { ResumeData } from '@/types/resume';
+import type { IimcResumeData } from './types';
 
-export const SAMPLE: ResumeData = {
+export const SAMPLE: IimcResumeData = {
   name: 'FIRST NAME LAST NAME',
   mbaId: 'MBA/XXXX/XX',
   taglines: [
