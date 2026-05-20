@@ -92,6 +92,7 @@ export function BoldableTextarea({
         <button
           type="button"
           onClick={applyBold}
+          aria-label="Bold selected text"
           className="ui-transition text-xs font-bold px-2 py-0.5 rounded hover:bg-slate-200 text-slate-700"
           title="Select text and click B to wrap in **bold**"
         >
@@ -125,6 +126,7 @@ export function RowControls({
         type="button"
         onClick={onUp}
         disabled={!onUp}
+        aria-label="Move row up"
         className="ui-transition px-2 py-1 border border-slate-300 rounded-md text-slate-600 disabled:opacity-30 hover:bg-slate-100 hover:border-slate-400"
       >
         ↑
@@ -133,6 +135,7 @@ export function RowControls({
         type="button"
         onClick={onDown}
         disabled={!onDown}
+        aria-label="Move row down"
         className="ui-transition px-2 py-1 border border-slate-300 rounded-md text-slate-600 disabled:opacity-30 hover:bg-slate-100 hover:border-slate-400"
       >
         ↓
@@ -140,6 +143,7 @@ export function RowControls({
       <button
         type="button"
         onClick={onDelete}
+        aria-label="Delete row"
         className="ui-transition px-2 py-1 border border-red-200 text-red-700 rounded-md hover:bg-red-50 hover:border-red-300"
       >
         ✕
