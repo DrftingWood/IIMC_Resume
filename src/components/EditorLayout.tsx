@@ -64,7 +64,9 @@ export default function EditorLayout({
       style={{ gridTemplateColumns: cols.join(' ') }}
     >
       {showSections && (
-        <div className="no-print overflow-auto pr-1">{sections}</div>
+        <div className="no-print overflow-auto bg-slate-50/60 border border-slate-200/70 rounded-lg p-3">
+          {sections}
+        </div>
       )}
       {showForm && (
         <div className="no-print overflow-auto pr-1">{form}</div>

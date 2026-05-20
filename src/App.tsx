@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Analytics } from '@vercel/analytics/react';
 import {
   loadDraft,
@@ -29,6 +29,47 @@ function loadPanelPrefs(): { showSections: boolean; showForm: boolean } {
 }
 
 type PreEditorView = 'landing' | 'gallery';
+
+function AdvisoryBanner({
+  tone,
+  label,
+  onDismiss,
+  children,
+}: {
+  tone: 'info' | 'warn';
+  label: string;
+  onDismiss: () => void;
+  children: React.ReactNode;
+}) {
+  const accent =
+    tone === 'warn'
+      ? 'text-amber-900 bg-amber-50/70 border-amber-200'
+      : 'text-slate-700 bg-slate-50/70 border-slate-200';
+  return (
+    <div
+      className={`no-print border-b ${accent} px-5 py-2 text-[12px] flex items-center gap-3`}
+      role={tone === 'warn' ? 'alert' : 'status'}
+    >
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <circle cx="7" cy="7" r="5.5" />
+        <path d="M7 4.5v3" />
+        <path d="M7 9.5h.01" />
+      </svg>
+      <span className="text-[10px] uppercase tracking-[0.08em] font-semibold opacity-70">
+        {label}
+      </span>
+      <span className="flex-1">{children}</span>
+      <button
+        type="button"
+        onClick={onDismiss}
+        aria-label="Dismiss"
+        className="ui-transition inline-flex items-center justify-center w-5 h-5 rounded hover:bg-black/5 opacity-60 hover:opacity-100"
+      >
+        ✕
+      </button>
+    </div>
+  );
+}
 
 export default function App() {
   const [templateId, setTemplateId] = useState<TemplateKey | null>(null);
@@ -142,26 +183,24 @@ export default function App() {
         onToggleForm={() => setPanels((p) => ({ ...p, showForm: !p.showForm }))}
       />
       {showWarning && (
-        <div className="no-print bg-yellow-50 border-b border-yellow-200 text-yellow-900 px-4 py-2 text-xs flex justify-between items-center">
-          <span>
-            Heads up: inline <strong>bold</strong> formatting wasn't recovered from your upload.
-            Use the <strong>B</strong> button on each field to re-apply.
-          </span>
-          <button onClick={() => setShowWarning(false)} className="font-bold px-2" aria-label="Dismiss">
-            ✕
-          </button>
-        </div>
+        <AdvisoryBanner
+          tone="info"
+          onDismiss={() => setShowWarning(false)}
+          label="Tip"
+        >
+          Inline <strong>bold</strong> formatting wasn't recovered from your upload — use the{' '}
+          <strong>B</strong> button on each field to re-apply.
+        </AdvisoryBanner>
       )}
       {failedSections.length > 0 && (
-        <div className="no-print bg-orange-50 border-b border-orange-200 text-orange-900 px-4 py-2 text-xs flex justify-between items-center">
-          <span>
-            Some sections couldn't be parsed: <strong>{failedSections.join(', ')}</strong>. Review
-            and fill them in manually.
-          </span>
-          <button onClick={() => setFailedSections([])} className="font-bold px-2" aria-label="Dismiss">
-            ✕
-          </button>
-        </div>
+        <AdvisoryBanner
+          tone="warn"
+          onDismiss={() => setFailedSections([])}
+          label="Parse"
+        >
+          Some sections couldn't be parsed: <strong>{failedSections.join(', ')}</strong>. Review
+          and fill them in manually.
+        </AdvisoryBanner>
       )}
       <main className="flex-1 overflow-hidden">
         <ErrorBoundary>

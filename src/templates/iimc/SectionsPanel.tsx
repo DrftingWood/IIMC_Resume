@@ -26,25 +26,27 @@ export default function IimcSectionsPanel({
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2.5">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-slate-800">Section Order</h2>
+        <h2 className="text-[11px] font-semibold uppercase tracking-[0.06em] text-slate-500">
+          Section Order
+        </h2>
         <button
           type="button"
           onClick={reset}
-          className="ui-transition text-xs text-slate-500 hover:text-slate-800 underline underline-offset-2"
+          className="ui-transition text-[11px] text-slate-400 hover:text-slate-800"
         >
           Reset
         </button>
       </div>
-      <p className="text-[11px] text-slate-500 leading-relaxed">
+      <p className="text-[11px] text-slate-400 leading-relaxed">
         Reorder how sections appear in the preview and export.
       </p>
-      <ul className="space-y-1.5">
+      <ul className="bg-white border border-slate-200/70 rounded-md overflow-hidden divide-y divide-slate-100">
         {order.map((key, i) => (
           <li
             key={key}
-            className="flex items-center gap-2 px-2.5 py-2 bg-white border border-slate-200 rounded-md text-xs"
+            className="flex items-center gap-2 px-2.5 py-2 text-xs"
           >
             <span className="flex-1 text-slate-800">{SECTION_LABELS[key]}</span>
             <div className="flex gap-1">
@@ -53,7 +55,7 @@ export default function IimcSectionsPanel({
                 onClick={() => move(i, -1)}
                 disabled={i === 0}
                 aria-label={`Move ${SECTION_LABELS[key]} up`}
-                className="ui-transition w-6 h-6 flex items-center justify-center border border-slate-300 rounded text-slate-600 disabled:opacity-30 hover:bg-slate-100 hover:border-slate-400"
+                className="ui-transition w-6 h-6 flex items-center justify-center rounded text-slate-500 disabled:opacity-30 hover:bg-slate-100"
               >
                 ↑
               </button>
@@ -62,7 +64,7 @@ export default function IimcSectionsPanel({
                 onClick={() => move(i, 1)}
                 disabled={i === order.length - 1}
                 aria-label={`Move ${SECTION_LABELS[key]} down`}
-                className="ui-transition w-6 h-6 flex items-center justify-center border border-slate-300 rounded text-slate-600 disabled:opacity-30 hover:bg-slate-100 hover:border-slate-400"
+                className="ui-transition w-6 h-6 flex items-center justify-center rounded text-slate-500 disabled:opacity-30 hover:bg-slate-100"
               >
                 ↓
               </button>

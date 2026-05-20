@@ -117,7 +117,7 @@ export default function Landing({
           </p>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-[0_1px_2px_rgba(15,23,42,0.06),0_8px_24px_rgba(15,23,42,0.06)] border border-slate-200/70 p-6 sm:p-8">
+        <div className="bg-white rounded-2xl shadow-[var(--shadow-card)] border border-slate-200/70 p-6 sm:p-8">
           <label
             onDragOver={(e) => {
               e.preventDefault();
