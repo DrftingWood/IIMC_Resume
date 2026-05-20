@@ -4,11 +4,24 @@ import PrintButton from './PrintButton';
 export default function AppHeader({
   previewRef,
   onReset,
+  showSections,
+  showForm,
+  onToggleSections,
+  onToggleForm,
 }: {
   previewRef: React.RefObject<HTMLDivElement>;
   onReset: () => void;
+  showSections: boolean;
+  showForm: boolean;
+  onToggleSections: () => void;
+  onToggleForm: () => void;
 }) {
   const [tipOpen, setTipOpen] = useState(false);
+  const toggleClass = (active: boolean) =>
+    'ui-transition px-2.5 py-1.5 border rounded-md text-xs font-medium ' +
+    (active
+      ? 'bg-slate-900 text-white border-slate-900'
+      : 'bg-white text-slate-700 border-slate-300 hover:border-slate-400 hover:bg-slate-50');
   return (
     <header className="no-print bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/70 border-b border-slate-200 px-5 py-3 flex items-center justify-between">
       <div className="flex flex-col">
@@ -22,6 +35,27 @@ export default function AppHeader({
         </div>
       </div>
       <div className="flex items-center gap-2">
+        <div className="hidden md:flex items-center gap-1.5 mr-2 pr-2 border-r border-slate-200">
+          <span className="text-[10px] uppercase tracking-wider text-slate-400 mr-1">Panels</span>
+          <button
+            type="button"
+            onClick={onToggleSections}
+            className={toggleClass(showSections)}
+            aria-pressed={showSections}
+            title="Toggle section order panel"
+          >
+            Sections
+          </button>
+          <button
+            type="button"
+            onClick={onToggleForm}
+            className={toggleClass(showForm)}
+            aria-pressed={showForm}
+            title="Toggle editor panel"
+          >
+            Editor
+          </button>
+        </div>
         <div className="relative">
           <button
             type="button"

@@ -6,7 +6,16 @@ import type {
   ExperienceSubSection,
   PositionEntry,
   YearedBullet,
+  SectionKey,
 } from '@/types/resume';
+
+const DEFAULT_SECTION_ORDER: SectionKey[] = [
+  'education',
+  'distinctions',
+  'industry',
+  'positions',
+  'extras',
+];
 import type { PdfLine, TextItem } from './pdfExtract';
 
 const ANCHORS = [
@@ -926,6 +935,7 @@ export function parseResume(lines: PdfLine[]): ParseResult {
       mbaId: headerInfo.mbaId,
       taglines: headerInfo.taglines,
       resumeType: edu.ranked ? 'ranked' : 'unranked',
+      sectionOrder: [...DEFAULT_SECTION_ORDER],
       education: edu.rows,
       distinctions,
       experience: industry.entries,

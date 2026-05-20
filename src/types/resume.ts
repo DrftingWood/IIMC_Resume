@@ -1,10 +1,34 @@
 export type ResumeType = 'ranked' | 'unranked';
 
+export type SectionKey =
+  | 'education'
+  | 'distinctions'
+  | 'industry'
+  | 'positions'
+  | 'extras';
+
+export const DEFAULT_SECTION_ORDER: SectionKey[] = [
+  'education',
+  'distinctions',
+  'industry',
+  'positions',
+  'extras',
+];
+
+export const SECTION_LABELS: Record<SectionKey, string> = {
+  education: 'Academic Qualifications',
+  distinctions: 'Academic Distinctions & Co-Curricular Achievements',
+  industry: 'Industry Experience',
+  positions: 'Positions of Responsibility',
+  extras: 'Extra-Curricular Achievements',
+};
+
 export interface ResumeData {
   name: string;
   mbaId: string;
   taglines: [string, string, string];
   resumeType: ResumeType;
+  sectionOrder: SectionKey[];
   education: EducationRow[];
   distinctions: BulletGroup[];
   industryRightText: string;
@@ -58,6 +82,7 @@ export function emptyResume(): ResumeData {
     mbaId: '',
     taglines: ['', '', ''],
     resumeType: 'unranked',
+    sectionOrder: [...DEFAULT_SECTION_ORDER],
     education: [],
     distinctions: [],
     industryRightText: '',
