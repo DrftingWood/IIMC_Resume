@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@fontsource/carlito": "^5.0.20",
+    "@fortawesome/fontawesome-free": "^7.2.0",
     "@vercel/analytics": "^2.0.1",
     "clsx": "^2.1.1",
     "pdfjs-dist": "4.7.76",

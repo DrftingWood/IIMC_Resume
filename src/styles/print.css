@@ -60,7 +60,7 @@
 
   .print-preview-col,
   .print-preview-inner,
-  .f1-screen-wrap {
+  .preview-screen-wrap {
     display: block !important;
     overflow: visible !important;
     padding: 0 !important;
@@ -73,7 +73,8 @@
     max-height: none !important;
   }
 
-  .f1-page {
+  .f1-page,
+  .dcv-page {
     box-shadow: none !important;
     margin: 0 auto !important;
     width: 210mm !important;
@@ -82,7 +83,9 @@
 
   /* Make sure colored backgrounds and table borders actually print. */
   .f1-page,
-  .f1-page * {
+  .f1-page *,
+  .dcv-page,
+  .dcv-page * {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }

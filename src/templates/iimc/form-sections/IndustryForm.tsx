@@ -1,5 +1,5 @@
 import type { IimcResumeData, ExperienceEntry, ExperienceSubSection } from '../types';
-import { Accordion, Field, TextInput, BoldableTextarea, RowControls, AddButton, move } from './_shared';
+import { Accordion, Field, TextInput, BoldableTextarea, RowControls, AddButton, move } from '@/components/form-shared';
 
 export function IndustryForm({
   data,
