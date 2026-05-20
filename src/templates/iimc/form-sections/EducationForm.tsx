@@ -1,12 +1,12 @@
-import type { ResumeData, EducationRow } from '@/types/resume';
+import type { IimcResumeData, EducationRow } from '../types';
 import { Accordion, Field, TextInput, RowControls, AddButton, move } from './_shared';
 
 export function EducationForm({
   data,
   onChange,
 }: {
-  data: ResumeData;
-  onChange: (patch: Partial<ResumeData>) => void;
+  data: IimcResumeData;
+  onChange: (patch: Partial<IimcResumeData>) => void;
 }) {
   function update(i: number, patch: Partial<EducationRow>) {
     const next = data.education.map((r, idx) => (idx === i ? { ...r, ...patch } : r));

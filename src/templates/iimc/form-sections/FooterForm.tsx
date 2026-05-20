@@ -1,12 +1,12 @@
-import type { ResumeData } from '@/types/resume';
+import type { IimcResumeData } from '../types';
 import { Accordion, Field, TextInput } from './_shared';
 
 export function FooterForm({
   data,
   onChange,
 }: {
-  data: ResumeData;
-  onChange: (patch: Partial<ResumeData>) => void;
+  data: IimcResumeData;
+  onChange: (patch: Partial<IimcResumeData>) => void;
 }) {
   return (
     <Accordion title="Footer">

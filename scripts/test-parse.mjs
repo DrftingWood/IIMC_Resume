@@ -91,7 +91,7 @@ for (const l of sampleLines) {
 
 // Load the parser via dynamic import. We need to register a quick TS
 // loader since parser.ts has @/ aliases. Easier: ship a JS shim copy.
-const parserPath = resolve(dirname(fileURLToPath(import.meta.url)), '../src/lib/parser.ts');
+const parserPath = resolve(dirname(fileURLToPath(import.meta.url)), '../src/templates/iimc/parser.ts');
 console.log('\n==================== PARSER OUTPUT ====================');
 
 // Inline the parser logic by importing via ts-node-like transpiler isn't

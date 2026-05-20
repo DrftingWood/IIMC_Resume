@@ -1,12 +1,12 @@
-import type { ResumeData, PositionEntry } from '@/types/resume';
+import type { IimcResumeData, PositionEntry } from '../types';
 import { Accordion, Field, TextInput, BoldableTextarea, RowControls, AddButton, move } from './_shared';
 
 export function PositionsForm({
   data,
   onChange,
 }: {
-  data: ResumeData;
-  onChange: (patch: Partial<ResumeData>) => void;
+  data: IimcResumeData;
+  onChange: (patch: Partial<IimcResumeData>) => void;
 }) {
   function setPos(pi: number, patch: Partial<PositionEntry>) {
     onChange({ positions: data.positions.map((p, i) => (i === pi ? { ...p, ...patch } : p)) });

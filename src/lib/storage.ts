@@ -1,50 +1,77 @@
-import type { ResumeData, SectionKey } from '@/types/resume';
-import { DEFAULT_SECTION_ORDER } from '@/types/resume';
+import type { TemplateKey } from '@/templates/types';
+import { isTemplateKey } from '@/templates/registry';
 
-const KEY = 'iimc-resume-builder:draft:v1';
+const OLD_DRAFT_KEY = 'iimc-resume-builder:draft:v1';
+const LAST_TEMPLATE_KEY = 'iimc-resume-builder:lastTemplateId';
 
-export function saveDraft(data: ResumeData): void {
+function draftKey(templateId: TemplateKey): string {
+  return `iimc-resume-builder:draft:${templateId}:v1`;
+}
+
+/** Run once on app boot: copy a pre-multi-template draft into the iimc slot. */
+function migrateLegacyDraft(): void {
   try {
-    localStorage.setItem(KEY, JSON.stringify(data));
+    const old = localStorage.getItem(OLD_DRAFT_KEY);
+    if (!old) return;
+    const newKey = draftKey('iimc');
+    if (!localStorage.getItem(newKey)) {
+      localStorage.setItem(newKey, old);
+    }
+    localStorage.removeItem(OLD_DRAFT_KEY);
+  } catch {
+    /* ignore */
+  }
+}
+
+export function saveDraft(templateId: TemplateKey, data: unknown): void {
+  try {
+    localStorage.setItem(draftKey(templateId), JSON.stringify(data));
   } catch (e) {
     console.warn('saveDraft failed', e);
   }
 }
 
-export function loadDraft(): ResumeData | null {
+export function loadDraft<T>(templateId: TemplateKey): T | null {
+  migrateLegacyDraft();
   try {
-    const raw = localStorage.getItem(KEY);
+    const raw = localStorage.getItem(draftKey(templateId));
     if (!raw) return null;
-    const parsed = JSON.parse(raw) as ResumeData;
-    if (!parsed.resumeType) parsed.resumeType = 'unranked';
-    if (!Array.isArray(parsed.sectionOrder) || parsed.sectionOrder.length === 0) {
-      parsed.sectionOrder = [...DEFAULT_SECTION_ORDER];
-    } else {
-      // Repair: drop unknown keys, append any missing defaults so all 5 are present.
-      const seen = new Set<SectionKey>();
-      const cleaned: SectionKey[] = [];
-      for (const k of parsed.sectionOrder) {
-        if (DEFAULT_SECTION_ORDER.includes(k) && !seen.has(k)) {
-          cleaned.push(k);
-          seen.add(k);
-        }
-      }
-      for (const k of DEFAULT_SECTION_ORDER) {
-        if (!seen.has(k)) cleaned.push(k);
-      }
-      parsed.sectionOrder = cleaned;
-    }
-    return parsed;
+    return JSON.parse(raw) as T;
   } catch (e) {
     console.warn('loadDraft failed', e);
     return null;
   }
 }
 
-export function clearDraft(): void {
+export function clearDraft(templateId: TemplateKey): void {
   try {
-    localStorage.removeItem(KEY);
+    localStorage.removeItem(draftKey(templateId));
   } catch (e) {
     console.warn('clearDraft failed', e);
+  }
+}
+
+export function getLastTemplateId(): TemplateKey | null {
+  migrateLegacyDraft();
+  try {
+    const raw = localStorage.getItem(LAST_TEMPLATE_KEY);
+    if (raw && isTemplateKey(raw)) return raw;
+  } catch {
+    /* ignore */
+  }
+  // If a legacy draft existed, lastTemplateId defaults to iimc.
+  try {
+    if (localStorage.getItem(draftKey('iimc'))) return 'iimc';
+  } catch {
+    /* ignore */
+  }
+  return null;
+}
+
+export function setLastTemplateId(templateId: TemplateKey): void {
+  try {
+    localStorage.setItem(LAST_TEMPLATE_KEY, templateId);
+  } catch {
+    /* ignore */
   }
 }

@@ -1,12 +1,12 @@
-import type { ResumeData, ExperienceEntry, ExperienceSubSection } from '@/types/resume';
+import type { IimcResumeData, ExperienceEntry, ExperienceSubSection } from '../types';
 import { Accordion, Field, TextInput, BoldableTextarea, RowControls, AddButton, move } from './_shared';
 
 export function IndustryForm({
   data,
   onChange,
 }: {
-  data: ResumeData;
-  onChange: (patch: Partial<ResumeData>) => void;
+  data: IimcResumeData;
+  onChange: (patch: Partial<IimcResumeData>) => void;
 }) {
   function setEntry(ei: number, patch: Partial<ExperienceEntry>) {
     onChange({

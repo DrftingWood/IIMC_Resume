@@ -1,14 +1,19 @@
 import { useEffect, useRef, useState } from 'react';
 import { Analytics } from '@vercel/analytics/react';
-import { emptyResume, type ResumeData } from '@/types/resume';
-import { loadDraft, saveDraft, clearDraft } from '@/lib/storage';
+import {
+  loadDraft,
+  saveDraft,
+  clearDraft,
+  getLastTemplateId,
+  setLastTemplateId,
+} from '@/lib/storage';
 import UploadStep from '@/components/UploadStep';
-import ResumeForm from '@/components/ResumeForm';
-import ResumePreview from '@/components/ResumePreview';
 import EditorLayout from '@/components/EditorLayout';
 import AppHeader from '@/components/AppHeader';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import SectionOrderPanel from '@/components/SectionOrderPanel';
+import { getTemplate } from '@/templates/registry';
+import type { TemplateKey } from '@/templates/types';
 
 const PANEL_PREFS_KEY = 'iimc-resume-builder:panels:v1';
 
@@ -23,7 +28,8 @@ function loadPanelPrefs(): { showSections: boolean; showForm: boolean } {
 }
 
 export default function App() {
-  const [data, setData] = useState<ResumeData | null>(null);
+  const [templateId, setTemplateId] = useState<TemplateKey | null>(null);
+  const [data, setData] = useState<unknown | null>(null);
   const [showWarning, setShowWarning] = useState(false);
   const [failedSections, setFailedSections] = useState<string[]>([]);
   const [panels, setPanels] = useState(loadPanelPrefs);
@@ -37,33 +43,54 @@ export default function App() {
     }
   }, [panels]);
 
+  // Boot: restore last template + its draft.
   useEffect(() => {
-    const draft = loadDraft();
-    if (draft) setData(draft);
+    const last = getLastTemplateId();
+    if (!last) return;
+    const tpl = getTemplate(last);
+    if (!tpl) return;
+    const raw = loadDraft<any>(last);
+    if (!raw) return;
+    const hydrated = tpl.hydrate ? tpl.hydrate(raw) : raw;
+    setTemplateId(last);
+    setData(hydrated);
   }, []);
 
+  // Persist draft (debounced).
   useEffect(() => {
-    if (!data) return;
-    const t = setTimeout(() => saveDraft(data), 500);
+    if (!templateId || !data) return;
+    const t = setTimeout(() => saveDraft(templateId, data), 500);
     return () => clearTimeout(t);
-  }, [data]);
+  }, [templateId, data]);
 
-  function update(patch: Partial<ResumeData>) {
-    setData((prev) => (prev ? { ...prev, ...patch } : prev));
+  function update(patch: Record<string, unknown>) {
+    setData((prev: unknown) => (prev ? { ...(prev as object), ...patch } : prev));
+  }
+
+  function startWith(id: TemplateKey, initial: unknown) {
+    const tpl = getTemplate(id);
+    if (!tpl) return;
+    const hydrated = tpl.hydrate ? tpl.hydrate(initial as any) : initial;
+    setTemplateId(id);
+    setData(hydrated);
+    setLastTemplateId(id);
   }
 
   function onReset() {
     if (!confirm('Reset all data? This clears your draft.')) return;
-    clearDraft();
+    if (templateId) clearDraft(templateId);
+    setTemplateId(null);
     setData(null);
   }
 
-  if (!data) {
+  const template = templateId ? getTemplate(templateId) : null;
+
+  if (!templateId || !template || !data) {
     return (
       <>
         <UploadStep
           onReady={(d, opts) => {
-            setData(d);
+            startWith('iimc', d);
             if (opts?.warnBoldLost) setShowWarning(true);
             if (opts?.failedSections?.length) setFailedSections(opts.failedSections);
           }}
@@ -72,6 +99,9 @@ export default function App() {
       </>
     );
   }
+
+  const Form = template.Form;
+  const Preview = template.Preview;
 
   return (
     <div className="flex flex-col h-screen overflow-hidden">
@@ -112,11 +142,11 @@ export default function App() {
           <EditorLayout
             showSections={panels.showSections}
             showForm={panels.showForm}
-            sections={<SectionOrderPanel data={data} onChange={update} />}
-            form={<ResumeForm data={data} onChange={update} />}
+            sections={<SectionOrderPanel template={template} data={data} onChange={update} />}
+            form={<Form data={data} onChange={update} />}
             preview={
               <div className="f1-screen-wrap">
-                <ResumePreview ref={previewRef} data={data} />
+                <Preview ref={previewRef} data={data} />
               </div>
             }
           />

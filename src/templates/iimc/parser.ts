@@ -1,5 +1,5 @@
 import type {
-  ResumeData,
+  IimcResumeData,
   EducationRow,
   BulletGroup,
   ExperienceEntry,
@@ -7,7 +7,7 @@ import type {
   PositionEntry,
   YearedBullet,
   SectionKey,
-} from '@/types/resume';
+} from './types';
 
 const DEFAULT_SECTION_ORDER: SectionKey[] = [
   'education',
@@ -16,7 +16,7 @@ const DEFAULT_SECTION_ORDER: SectionKey[] = [
   'positions',
   'extras',
 ];
-import type { PdfLine, TextItem } from './pdfExtract';
+import type { PdfLine, TextItem } from '@/lib/pdfExtract';
 
 const ANCHORS = [
   'ACADEMIC QUALIFICATIONS',
@@ -856,7 +856,7 @@ function parseFooter(allLines: PdfLine[]): { email: string; institute: string } 
 /* ----------------------------- entry point ------------------------------- */
 
 export interface ParseResult {
-  data: Partial<ResumeData>;
+  data: Partial<IimcResumeData>;
   failedSections: string[];
 }
 
