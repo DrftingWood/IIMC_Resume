@@ -7,10 +7,12 @@ import ResumeForm from '@/components/ResumeForm';
 import ResumePreview from '@/components/ResumePreview';
 import EditorLayout from '@/components/EditorLayout';
 import AppHeader from '@/components/AppHeader';
+import ErrorBoundary from '@/components/ErrorBoundary';
 
 export default function App() {
   const [data, setData] = useState<ResumeData | null>(null);
   const [showWarning, setShowWarning] = useState(false);
+  const [failedSections, setFailedSections] = useState<string[]>([]);
   const previewRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -41,6 +43,7 @@ export default function App() {
           onReady={(d, opts) => {
             setData(d);
             if (opts?.warnBoldLost) setShowWarning(true);
+            if (opts?.failedSections?.length) setFailedSections(opts.failedSections);
           }}
         />
         <Analytics />
@@ -57,20 +60,33 @@ export default function App() {
             Heads up: inline <strong>bold</strong> formatting wasn't recovered from your upload.
             Use the <strong>B</strong> button on each field to re-apply.
           </span>
-          <button onClick={() => setShowWarning(false)} className="font-bold px-2">
+          <button onClick={() => setShowWarning(false)} className="font-bold px-2" aria-label="Dismiss">
+            ✕
+          </button>
+        </div>
+      )}
+      {failedSections.length > 0 && (
+        <div className="no-print bg-orange-50 border-b border-orange-200 text-orange-900 px-4 py-2 text-xs flex justify-between items-center">
+          <span>
+            Some sections couldn't be parsed: <strong>{failedSections.join(', ')}</strong>. Review
+            and fill them in manually.
+          </span>
+          <button onClick={() => setFailedSections([])} className="font-bold px-2" aria-label="Dismiss">
             ✕
           </button>
         </div>
       )}
       <main className="flex-1 overflow-hidden">
-        <EditorLayout
-          form={<ResumeForm data={data} onChange={update} />}
-          preview={
-            <div className="f1-screen-wrap">
-              <ResumePreview ref={previewRef} data={data} />
-            </div>
-          }
-        />
+        <ErrorBoundary>
+          <EditorLayout
+            form={<ResumeForm data={data} onChange={update} />}
+            preview={
+              <div className="f1-screen-wrap">
+                <ResumePreview ref={previewRef} data={data} />
+              </div>
+            }
+          />
+        </ErrorBoundary>
       </main>
       <Analytics />
     </div>

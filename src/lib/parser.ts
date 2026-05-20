@@ -194,7 +194,7 @@ interface Section {
 function findAnchorLine(line: PdfLine): string | null {
   const t = line.text.toUpperCase().replace(/\s+/g, ' ').trim();
   for (const a of ANCHORS) {
-    if (t === a || t.startsWith(a + ' ') || t.startsWith(a)) return a;
+    if (t.startsWith(a)) return a;
   }
   return null;
 }
@@ -398,7 +398,8 @@ function classifyLines(
       r.midText.replace(/\*\*/g, '').trim()
     );
     if (!pureSuper) continue;
-    for (let j = i + 1; j < rows.length; j++) {
+    const maxLookahead = Math.min(rows.length, i + 4);
+    for (let j = i + 1; j < maxLookahead; j++) {
       const target = rows[j];
       if (target.midItems.length === 0) continue;
       const targetSuper = ORPHAN_SUPERSCRIPT_RE.test(
@@ -726,8 +727,8 @@ function parseIndustry(lines: PdfLine[], headerRest: string): {
       ...block.banner.rightItems,
     ];
     const fullBanner = joinItems(allItems);
-    const dm = fullBanner.match(DATE_RANGE_RE)!;
-    const dates = dm[0];
+    const dm = fullBanner.match(DATE_RANGE_RE);
+    const dates = dm ? dm[0] : '';
 
     const bannerCells = splitByTopGaps(allItems, 3, 15);
     let firm = '';
@@ -826,6 +827,9 @@ function parseEducation(lines: PdfLine[]): { rows: EducationRow[]; ranked: boole
       rows.push({ degree, institute, gpa, year });
     }
   }
+  if (rows.length > 8) {
+    console.warn(`parseEducation: ${rows.length} rows found, truncating to 8`);
+  }
   return { rows: rows.slice(0, 8), ranked };
 }
 
@@ -842,48 +846,95 @@ function parseFooter(allLines: PdfLine[]): { email: string; institute: string } 
 
 /* ----------------------------- entry point ------------------------------- */
 
-export function parseResume(lines: PdfLine[]): Partial<ResumeData> {
+export interface ParseResult {
+  data: Partial<ResumeData>;
+  failedSections: string[];
+}
+
+function trySection<T>(name: string, fn: () => T, fallback: T, failed: string[]): T {
   try {
-    const { header, sections } = splitSections(lines);
-    const headerInfo = parseHeader(header);
-    const footer = parseFooter(lines);
-    const getSection = (name: string) =>
-      sections.find((s) => s.name === name);
+    return fn();
+  } catch (e) {
+    console.warn(`parseResume: section "${name}" failed`, e);
+    failed.push(name);
+    return fallback;
+  }
+}
 
-    const { rows: education, ranked } = parseEducation(
-      getSection('ACADEMIC QUALIFICATIONS')?.lines ?? []
-    );
-    const distinctions = parseBulletTable(
-      getSection('ACADEMIC DISTINCTIONS & CO-CURRICULAR ACHIEVEMENTS')?.lines ?? []
-    );
-    const industrySec = getSection('INDUSTRY EXPERIENCE');
-    const { entries: experience, rightText: industryRightText } = parseIndustry(
-      industrySec?.lines ?? [],
-      industrySec?.headerRest ?? ''
-    );
-    const positions = parsePositions(getSection('POSITIONS OF RESPONSIBILITY')?.lines ?? []);
-    const extras = parseBulletTable(getSection('EXTRA-CURRICULAR ACHIEVEMENTS')?.lines ?? []);
+export function parseResume(lines: PdfLine[]): ParseResult {
+  const failed: string[] = [];
+  let split: ReturnType<typeof splitSections>;
+  try {
+    split = splitSections(lines);
+  } catch (e) {
+    console.warn('parseResume: splitSections failed', e);
+    return { data: {}, failedSections: ['document'] };
+  }
+  const { header, sections } = split;
+  const getSection = (name: string) => sections.find((s) => s.name === name);
 
-    return {
+  const headerInfo = trySection(
+    'header',
+    () => parseHeader(header),
+    { name: '', mbaId: '', taglines: ['', '', ''] as [string, string, string] },
+    failed
+  );
+  const footer = trySection(
+    'footer',
+    () => parseFooter(lines),
+    { email: '', institute: 'Indian Institute of Management Calcutta' },
+    failed
+  );
+  const edu = trySection(
+    'education',
+    () => parseEducation(getSection('ACADEMIC QUALIFICATIONS')?.lines ?? []),
+    { rows: [], ranked: false },
+    failed
+  );
+  const distinctions = trySection(
+    'distinctions',
+    () =>
+      parseBulletTable(
+        getSection('ACADEMIC DISTINCTIONS & CO-CURRICULAR ACHIEVEMENTS')?.lines ?? []
+      ),
+    [],
+    failed
+  );
+  const industrySec = getSection('INDUSTRY EXPERIENCE');
+  const industry = trySection(
+    'industry',
+    () => parseIndustry(industrySec?.lines ?? [], industrySec?.headerRest ?? ''),
+    { entries: [], rightText: '' },
+    failed
+  );
+  const positions = trySection(
+    'positions',
+    () => parsePositions(getSection('POSITIONS OF RESPONSIBILITY')?.lines ?? []),
+    [],
+    failed
+  );
+  const extras = trySection(
+    'extras',
+    () => parseBulletTable(getSection('EXTRA-CURRICULAR ACHIEVEMENTS')?.lines ?? []),
+    [],
+    failed
+  );
+
+  return {
+    data: {
       name: headerInfo.name,
       mbaId: headerInfo.mbaId,
       taglines: headerInfo.taglines,
-      resumeType: ranked ? 'ranked' : 'unranked',
-      education,
+      resumeType: edu.ranked ? 'ranked' : 'unranked',
+      education: edu.rows,
       distinctions,
-      experience,
-      industryRightText,
+      experience: industry.entries,
+      industryRightText: industry.rightText,
       positions,
       extras,
       email: footer.email,
       institute: footer.institute,
-    };
-  } catch (e) {
-    console.warn('parseResume failed', e);
-    return {};
-  }
-}
-
-export function parseResumeText(_text: string): Partial<ResumeData> {
-  return {};
+    },
+    failedSections: failed,
+  };
 }

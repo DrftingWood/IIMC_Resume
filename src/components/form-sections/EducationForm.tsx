@@ -16,7 +16,14 @@ export function EducationForm({
     onChange({ education: [...data.education, { degree: '', institute: '', gpa: '', rank: '', year: '' }] });
   }
   function setResumeType(t: 'ranked' | 'unranked') {
-    onChange({ resumeType: t });
+    if (t === 'unranked') {
+      onChange({
+        resumeType: t,
+        education: data.education.map((r) => ({ ...r, rank: '' })),
+      });
+    } else {
+      onChange({ resumeType: t });
+    }
   }
   const ranked = data.resumeType === 'ranked';
   function remove(i: number) {

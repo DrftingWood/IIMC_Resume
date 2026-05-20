@@ -4,24 +4,33 @@ import { parseResume } from '@/lib/parser';
 import { emptyResume, type ResumeData } from '@/types/resume';
 import { SAMPLE } from '@/lib/sample';
 
+const MAX_PDF_BYTES = 15 * 1024 * 1024;
+
 export default function UploadStep({
   onReady,
 }: {
-  onReady: (data: ResumeData, opts?: { warnBoldLost?: boolean }) => void;
+  onReady: (
+    data: ResumeData,
+    opts?: { warnBoldLost?: boolean; failedSections?: string[] }
+  ) => void;
 }) {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [dragging, setDragging] = useState(false);
 
   async function consumeFile(file: File) {
+    if (file.size > MAX_PDF_BYTES) {
+      setErr(`PDF is too large (${(file.size / 1024 / 1024).toFixed(1)} MB). Limit is 15 MB.`);
+      return;
+    }
     setBusy(true);
     setErr(null);
     try {
       const lines = await extractLines(file);
-      const parsed = parseResume(lines);
+      const { data: parsed, failedSections } = parseResume(lines);
       const merged: ResumeData = { ...emptyResume(), ...parsed } as ResumeData;
       if (!merged.taglines) merged.taglines = ['', '', ''];
-      onReady(merged, { warnBoldLost: true });
+      onReady(merged, { warnBoldLost: true, failedSections });
     } catch (e: any) {
       console.error(e);
       setErr(e?.message ?? 'Failed to parse PDF');
