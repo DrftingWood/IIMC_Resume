@@ -9,6 +9,7 @@ export const SAMPLE: ResumeData = {
     'TAGLINE / HIGHLIGHT 3',
   ],
   resumeType: 'unranked',
+  sectionOrder: ['education', 'distinctions', 'industry', 'positions', 'extras'],
   education: [
     { degree: 'Post-Graduate Degree', institute: 'Institute Name', gpa: 'X.XX/X', rank: '', year: '20XX' },
     { degree: 'Under-Graduate Degree', institute: 'Institute Name', gpa: 'X.XX/X', rank: '', year: '20XX' },

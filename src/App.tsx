@@ -8,12 +8,34 @@ import ResumePreview from '@/components/ResumePreview';
 import EditorLayout from '@/components/EditorLayout';
 import AppHeader from '@/components/AppHeader';
 import ErrorBoundary from '@/components/ErrorBoundary';
+import SectionOrderPanel from '@/components/SectionOrderPanel';
+
+const PANEL_PREFS_KEY = 'iimc-resume-builder:panels:v1';
+
+function loadPanelPrefs(): { showSections: boolean; showForm: boolean } {
+  try {
+    const raw = localStorage.getItem(PANEL_PREFS_KEY);
+    if (raw) return { showSections: true, showForm: true, ...JSON.parse(raw) };
+  } catch {
+    /* ignore */
+  }
+  return { showSections: true, showForm: true };
+}
 
 export default function App() {
   const [data, setData] = useState<ResumeData | null>(null);
   const [showWarning, setShowWarning] = useState(false);
   const [failedSections, setFailedSections] = useState<string[]>([]);
+  const [panels, setPanels] = useState(loadPanelPrefs);
   const previewRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(PANEL_PREFS_KEY, JSON.stringify(panels));
+    } catch {
+      /* ignore */
+    }
+  }, [panels]);
 
   useEffect(() => {
     const draft = loadDraft();
@@ -53,7 +75,16 @@ export default function App() {
 
   return (
     <div className="flex flex-col h-screen overflow-hidden">
-      <AppHeader previewRef={previewRef} onReset={onReset} />
+      <AppHeader
+        previewRef={previewRef}
+        onReset={onReset}
+        showSections={panels.showSections}
+        showForm={panels.showForm}
+        onToggleSections={() =>
+          setPanels((p) => ({ ...p, showSections: !p.showSections }))
+        }
+        onToggleForm={() => setPanels((p) => ({ ...p, showForm: !p.showForm }))}
+      />
       {showWarning && (
         <div className="no-print bg-yellow-50 border-b border-yellow-200 text-yellow-900 px-4 py-2 text-xs flex justify-between items-center">
           <span>
@@ -79,6 +110,9 @@ export default function App() {
       <main className="flex-1 overflow-hidden">
         <ErrorBoundary>
           <EditorLayout
+            showSections={panels.showSections}
+            showForm={panels.showForm}
+            sections={<SectionOrderPanel data={data} onChange={update} />}
             form={<ResumeForm data={data} onChange={update} />}
             preview={
               <div className="f1-screen-wrap">

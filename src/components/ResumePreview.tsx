@@ -3,7 +3,9 @@ import type {
   ResumeData,
   BulletGroup,
   ExperienceEntry,
+  SectionKey,
 } from '@/types/resume';
+import { DEFAULT_SECTION_ORDER } from '@/types/resume';
 import { renderInline } from '@/lib/bold';
 
 interface Props {
@@ -11,25 +13,57 @@ interface Props {
 }
 
 const ResumePreview = forwardRef<HTMLDivElement, Props>(({ data }, ref) => {
+  const order: SectionKey[] =
+    data.sectionOrder && data.sectionOrder.length
+      ? data.sectionOrder
+      : DEFAULT_SECTION_ORDER;
+
   return (
     <div ref={ref} className="f1-page">
       <HeaderBand data={data} />
       <TaglineRow taglines={data.taglines} />
 
-      <SectionBar title="ACADEMIC QUALIFICATIONS" />
-      <EducationTable data={data} />
-
-      <SectionBar title="ACADEMIC DISTINCTIONS & CO-CURRICULAR ACHIEVEMENTS" />
-      <BulletGroupTable groups={data.distinctions} />
-
-      <SectionBar title="INDUSTRY EXPERIENCE" rightText={data.industryRightText} />
-      <IndustryTable entries={data.experience} />
-
-      <SectionBar title="POSITIONS OF RESPONSIBILITY" />
-      <PositionsTable data={data} />
-
-      <SectionBar title="EXTRA-CURRICULAR ACHIEVEMENTS" />
-      <BulletGroupTable groups={data.extras} />
+      {order.map((key) => {
+        switch (key) {
+          case 'education':
+            return (
+              <React.Fragment key={key}>
+                <SectionBar title="ACADEMIC QUALIFICATIONS" />
+                <EducationTable data={data} />
+              </React.Fragment>
+            );
+          case 'distinctions':
+            return (
+              <React.Fragment key={key}>
+                <SectionBar title="ACADEMIC DISTINCTIONS & CO-CURRICULAR ACHIEVEMENTS" />
+                <BulletGroupTable groups={data.distinctions} />
+              </React.Fragment>
+            );
+          case 'industry':
+            return (
+              <React.Fragment key={key}>
+                <SectionBar title="INDUSTRY EXPERIENCE" rightText={data.industryRightText} />
+                <IndustryTable entries={data.experience} />
+              </React.Fragment>
+            );
+          case 'positions':
+            return (
+              <React.Fragment key={key}>
+                <SectionBar title="POSITIONS OF RESPONSIBILITY" />
+                <PositionsTable data={data} />
+              </React.Fragment>
+            );
+          case 'extras':
+            return (
+              <React.Fragment key={key}>
+                <SectionBar title="EXTRA-CURRICULAR ACHIEVEMENTS" />
+                <BulletGroupTable groups={data.extras} />
+              </React.Fragment>
+            );
+          default:
+            return null;
+        }
+      })}
 
       <div className="f1-footer">
         <span className="f1-footer-line">Email: {data.email}</span>
