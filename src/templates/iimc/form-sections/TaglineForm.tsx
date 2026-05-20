@@ -1,5 +1,5 @@
 import type { IimcResumeData } from '../types';
-import { Accordion, Field, TextInput } from './_shared';
+import { Accordion, Field, TextInput } from '@/components/form-shared';
 
 export function TaglineForm({
   data,

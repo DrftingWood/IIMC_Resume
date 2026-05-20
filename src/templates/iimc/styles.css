@@ -314,7 +314,7 @@
 }
 
 /* Bordered preview wrapper (screen only) */
-.f1-screen-wrap {
+.preview-screen-wrap {
   box-shadow: 0 0 0 1px #d1d5db, 0 4px 12px rgba(0, 0, 0, 0.08);
   background: #fff;
 }

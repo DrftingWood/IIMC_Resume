@@ -1,5 +1,5 @@
 import type { BulletGroup, YearedBullet } from '../types';
-import { Accordion, Field, TextInput, BoldableTextarea, RowControls, AddButton, move } from './_shared';
+import { Accordion, Field, TextInput, BoldableTextarea, RowControls, AddButton, move } from '@/components/form-shared';
 
 export function BulletGroupsForm({
   title,

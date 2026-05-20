@@ -7,7 +7,7 @@ import {
   getLastTemplateId,
   setLastTemplateId,
 } from '@/lib/storage';
-import UploadStep from '@/components/UploadStep';
+import TemplateGallery from '@/components/TemplateGallery';
 import EditorLayout from '@/components/EditorLayout';
 import AppHeader from '@/components/AppHeader';
 import ErrorBoundary from '@/components/ErrorBoundary';
@@ -88,9 +88,9 @@ export default function App() {
   if (!templateId || !template || !data) {
     return (
       <>
-        <UploadStep
-          onReady={(d, opts) => {
-            startWith('iimc', d);
+        <TemplateGallery
+          onReady={(id, d, opts) => {
+            startWith(id, d);
             if (opts?.warnBoldLost) setShowWarning(true);
             if (opts?.failedSections?.length) setFailedSections(opts.failedSections);
           }}
@@ -145,7 +145,7 @@ export default function App() {
             sections={<SectionOrderPanel template={template} data={data} onChange={update} />}
             form={<Form data={data} onChange={update} />}
             preview={
-              <div className="f1-screen-wrap">
+              <div className="preview-screen-wrap">
                 <Preview ref={previewRef} data={data} />
               </div>
             }

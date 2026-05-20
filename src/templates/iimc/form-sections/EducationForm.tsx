@@ -1,5 +1,5 @@
 import type { IimcResumeData, EducationRow } from '../types';
-import { Accordion, Field, TextInput, RowControls, AddButton, move } from './_shared';
+import { Accordion, Field, TextInput, RowControls, AddButton, move } from '@/components/form-shared';
 
 export function EducationForm({
   data,
