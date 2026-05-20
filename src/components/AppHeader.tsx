@@ -4,6 +4,8 @@ import PrintButton from './PrintButton';
 export default function AppHeader({
   previewRef,
   onReset,
+  onChangeTemplate,
+  templateLabel,
   showSections,
   showForm,
   onToggleSections,
@@ -11,6 +13,8 @@ export default function AppHeader({
 }: {
   previewRef: React.RefObject<HTMLDivElement>;
   onReset: () => void;
+  onChangeTemplate: () => void;
+  templateLabel: string;
   showSections: boolean;
   showForm: boolean;
   onToggleSections: () => void;
@@ -35,6 +39,16 @@ export default function AppHeader({
         </div>
       </div>
       <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={onChangeTemplate}
+          className="ui-transition hidden md:flex items-center gap-1.5 px-2.5 py-1.5 border border-slate-300 rounded-md text-xs text-slate-700 hover:border-slate-500 hover:bg-slate-50 mr-2"
+          title="Switch to a different template (your current draft is preserved)"
+        >
+          <span className="text-[10px] uppercase tracking-wider text-slate-400">Template</span>
+          <span className="font-semibold">{templateLabel}</span>
+          <span className="text-slate-400">▾</span>
+        </button>
         <div className="hidden md:flex items-center gap-1.5 mr-2 pr-2 border-r border-slate-200">
           <span className="text-[10px] uppercase tracking-wider text-slate-400 mr-1">Panels</span>
           <button
