@@ -131,8 +131,8 @@ function EducationTable({ data }: { data: IimcResumeData }) {
         </tr>
       </thead>
       <tbody>
-        {data.education.map((row, i) => (
-          <tr key={i}>
+        {data.education.map((row) => (
+          <tr key={row.id}>
             <td>{row.degree}</td>
             <td>{row.institute}</td>
             <td>{row.gpa}</td>
@@ -154,9 +154,9 @@ function BulletGroupTable({ groups }: { groups: BulletGroup[] }) {
         <col style={{ width: '7%' }} />
       </colgroup>
       <tbody>
-        {groups.flatMap((g, gi) =>
+        {groups.flatMap((g) =>
           g.bullets.map((b, bi) => (
-            <tr key={`${gi}-${bi}`} className={bi > 0 ? 'f1-continuation' : ''}>
+            <tr key={b.id} className={bi > 0 ? 'f1-continuation' : ''}>
               {bi === 0 && (
                 <td className="f1-category" rowSpan={g.bullets.length}>
                   <div className="f1-label-inner">
@@ -194,7 +194,7 @@ function IndustryTable({ entries }: { entries: ExperienceEntry[] }) {
 
   const rows: React.ReactNode[] = [];
 
-  groups.forEach((grp, gi) => {
+  groups.forEach((grp) => {
     // Rows in this type-group = (firm banner row + sub-section bullet rows) per entry
     let typeRowCount = 0;
     for (const e of grp.entries) {
@@ -206,10 +206,10 @@ function IndustryTable({ entries }: { entries: ExperienceEntry[] }) {
 
     let isFirstRowOfType = true;
 
-    grp.entries.forEach((entry, ei) => {
+    grp.entries.forEach((entry) => {
       // Firm banner row: spans the sub-label + bullet columns only
       rows.push(
-        <tr key={`g${gi}-e${ei}-head`}>
+        <tr key={`${entry.id}-head`}>
           {isFirstRowOfType && (
             <td className="f1-vertical" rowSpan={typeRowCount}>
               <div className="f1-vertical-inner">
@@ -228,12 +228,14 @@ function IndustryTable({ entries }: { entries: ExperienceEntry[] }) {
       );
       isFirstRowOfType = false;
 
-      entry.subSections.forEach((sub, si) => {
-        const bullets = sub.bullets.length ? sub.bullets : [''];
+      entry.subSections.forEach((sub) => {
+        const bullets = sub.bullets.length
+          ? sub.bullets
+          : [{ id: `${sub.id}-empty`, text: '' }];
         bullets.forEach((b, bi) => {
           rows.push(
             <tr
-              key={`g${gi}-e${ei}-s${si}-b${bi}`}
+              key={b.id}
               className={bi > 0 ? 'f1-continuation' : ''}
             >
               {bi === 0 && (
@@ -246,7 +248,7 @@ function IndustryTable({ entries }: { entries: ExperienceEntry[] }) {
                 </td>
               )}
               <td className="f1-bullet-cell">
-                <span className="f1-bullet">{renderInline(b)}</span>
+                <span className="f1-bullet">{renderInline(b.text)}</span>
               </td>
             </tr>
           );
@@ -276,9 +278,9 @@ function PositionsTable({ data }: { data: IimcResumeData }) {
         <col style={{ width: '7%' }} />
       </colgroup>
       <tbody>
-        {data.positions.flatMap((p, pi) =>
+        {data.positions.flatMap((p) =>
           p.bullets.map((b, bi) => (
-            <tr key={`${pi}-${bi}`} className={bi > 0 ? 'f1-continuation' : ''}>
+            <tr key={b.id} className={bi > 0 ? 'f1-continuation' : ''}>
               {bi === 0 && (
                 <td className="f1-category" rowSpan={p.bullets.length}>
                   <div className="f1-label-inner">
@@ -289,7 +291,7 @@ function PositionsTable({ data }: { data: IimcResumeData }) {
                 </td>
               )}
               <td className="f1-bullet-cell">
-                <span className="f1-bullet">{renderInline(b)}</span>
+                <span className="f1-bullet">{renderInline(b.text)}</span>
               </td>
               {bi === 0 && (
                 <td className="f1-cell-year" rowSpan={p.bullets.length}>

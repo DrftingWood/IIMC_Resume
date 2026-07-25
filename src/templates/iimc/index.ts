@@ -1,5 +1,5 @@
 import type { TemplateConfig } from '../types';
-import type { IimcResumeData } from './types';
+import type { IimcResumeData, IimcResumeInput } from './types';
 import { emptyIimcResume } from './types';
 import { SAMPLE } from './sample';
 import { parseResume } from './parser';
@@ -26,9 +26,10 @@ const thumbnail =
     </svg>`
   );
 
-export const iimcTemplate: TemplateConfig<IimcResumeData> = {
+export const iimcTemplate: TemplateConfig<IimcResumeData, IimcResumeInput> = {
   id: 'iimc',
   label: 'IIM Calcutta',
+  universityId: 'iimc',
   description: 'Pixel-faithful clone of the IIM Calcutta placement resume.',
   thumbnail,
   emptyData: emptyIimcResume,

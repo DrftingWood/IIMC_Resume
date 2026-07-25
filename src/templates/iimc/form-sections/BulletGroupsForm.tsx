@@ -1,4 +1,5 @@
 import type { BulletGroup, YearedBullet } from '../types';
+import { newBulletGroup, newYearedBullet } from '../types';
 import { Accordion, Field, TextInput, BoldableTextarea, RowControls, AddButton, move } from '@/components/form-shared';
 
 export function BulletGroupsForm({
@@ -26,7 +27,7 @@ export function BulletGroupsForm({
     onChange(next);
   }
   function addGroup() {
-    onChange([...groups, { category: 'New Category', bullets: [] }]);
+    onChange([...groups, newBulletGroup('New Category')]);
   }
   function removeGroup(gi: number) {
     onChange(groups.filter((_, i) => i !== gi));
@@ -35,7 +36,7 @@ export function BulletGroupsForm({
     onChange(move(groups, gi, dir));
   }
   function addBullet(gi: number) {
-    setGroup(gi, { bullets: [...groups[gi].bullets, { text: '', year: '' }] });
+    setGroup(gi, { bullets: [...groups[gi].bullets, newYearedBullet()] });
   }
   function removeBullet(gi: number, bi: number) {
     setGroup(gi, { bullets: groups[gi].bullets.filter((_, j) => j !== bi) });
@@ -47,7 +48,7 @@ export function BulletGroupsForm({
   return (
     <Accordion title={title} defaultOpen={defaultOpen}>
       {groups.map((g, gi) => (
-        <div key={gi} className="border border-gray-200 rounded p-3 space-y-2 bg-gray-50">
+        <div key={g.id} className="border border-gray-200 rounded p-3 space-y-2 bg-gray-50">
           <div className="flex justify-between items-center">
             <Field label="Category">
               <TextInput value={g.category} onChange={(e) => setGroup(gi, { category: e.target.value })} />
@@ -59,7 +60,7 @@ export function BulletGroupsForm({
             />
           </div>
           {g.bullets.map((b, bi) => (
-            <div key={bi} className="border border-gray-200 rounded p-2 bg-white space-y-2">
+            <div key={b.id} className="border border-gray-200 rounded p-2 bg-white space-y-2">
               <div className="flex justify-between items-center">
                 <span className="text-xs text-gray-500">Bullet {bi + 1}</span>
                 <RowControls

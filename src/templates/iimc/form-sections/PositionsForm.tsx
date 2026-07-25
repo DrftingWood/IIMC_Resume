@@ -1,4 +1,5 @@
 import type { IimcResumeData, PositionEntry } from '../types';
+import { newBullet, newPositionEntry } from '../types';
 import { Accordion, Field, TextInput, BoldableTextarea, RowControls, AddButton, move } from '@/components/form-shared';
 
 export function PositionsForm({
@@ -12,7 +13,7 @@ export function PositionsForm({
     onChange({ positions: data.positions.map((p, i) => (i === pi ? { ...p, ...patch } : p)) });
   }
   function addPos() {
-    onChange({ positions: [...data.positions, { title: '', bullets: [], year: '' }] });
+    onChange({ positions: [...data.positions, newPositionEntry()] });
   }
   function removePos(pi: number) {
     onChange({ positions: data.positions.filter((_, i) => i !== pi) });
@@ -21,11 +22,11 @@ export function PositionsForm({
     onChange({ positions: move(data.positions, pi, dir) });
   }
   function addBullet(pi: number) {
-    setPos(pi, { bullets: [...data.positions[pi].bullets, ''] });
+    setPos(pi, { bullets: [...data.positions[pi].bullets, newBullet()] });
   }
   function setBullet(pi: number, bi: number, v: string) {
     const arr = [...data.positions[pi].bullets];
-    arr[bi] = v;
+    arr[bi] = { ...arr[bi], text: v };
     setPos(pi, { bullets: arr });
   }
   function removeBullet(pi: number, bi: number) {
@@ -37,7 +38,7 @@ export function PositionsForm({
   return (
     <Accordion title="Positions of Responsibility">
       {data.positions.map((p, pi) => (
-        <div key={pi} className="border border-gray-200 rounded p-3 bg-gray-50 space-y-2">
+        <div key={p.id} className="border border-gray-200 rounded p-3 bg-gray-50 space-y-2">
           <div className="flex justify-between items-center">
             <span className="text-xs font-semibold">Position {pi + 1}</span>
             <RowControls
@@ -58,7 +59,7 @@ export function PositionsForm({
             <TextInput value={p.year} onChange={(e) => setPos(pi, { year: e.target.value })} />
           </Field>
           {p.bullets.map((b, bi) => (
-            <div key={bi} className="space-y-1">
+            <div key={b.id} className="space-y-1">
               <div className="flex justify-between items-center">
                 <span className="text-xs text-gray-500">Bullet {bi + 1}</span>
                 <RowControls
@@ -67,7 +68,7 @@ export function PositionsForm({
                   onDelete={() => removeBullet(pi, bi)}
                 />
               </div>
-              <BoldableTextarea value={b} onChange={(v) => setBullet(pi, bi, v)} />
+              <BoldableTextarea value={b.text} onChange={(v) => setBullet(pi, bi, v)} />
             </div>
           ))}
           <AddButton onClick={() => addBullet(pi)} label="Add bullet" />

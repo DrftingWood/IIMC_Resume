@@ -1,9 +1,14 @@
 import type { IimcResumeData } from './types';
+import { hydrateIimc } from './hydrate';
 
 // Fully fictional candidate. All metrics, organisations, and outcomes are
 // invented to illustrate the layout and bold-rendering — no resemblance to
 // any real student or selection list is intended.
-export const SAMPLE: IimcResumeData = {
+//
+// Written without ids and run through hydrateIimc, which mints them — keeps
+// the literal readable and exercises the same normalisation path as a draft
+// restored from storage.
+export const SAMPLE: IimcResumeData = hydrateIimc({
   name: 'ROHAN SENGUPTA',
   mbaId: 'MBA/0247/61',
   taglines: [
@@ -137,4 +142,4 @@ export const SAMPLE: IimcResumeData = {
   ],
   email: 'rohan.sengupta2026@email.iimcal.ac.in',
   institute: 'Indian Institute of Management Calcutta',
-};
+});

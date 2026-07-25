@@ -33,17 +33,9 @@ export default function Landing({
     setErr(null);
     try {
       const lines = await extractLines(file);
-      // Try IIMC first (the brand template).
-      if (iimcTemplate.detect && iimcTemplate.detect(lines)) {
-        const { data: parsed, failedSections } = iimcTemplate.parse!(lines);
-        const merged = { ...iimcTemplate.emptyData(), ...parsed };
-        onReady(iimcTemplate.id, merged, { warnBoldLost: true, failedSections });
-        return;
-      }
-      // Then any other detector.
-      const detected = TEMPLATES.find(
-        (t) => t.id !== 'iimc' && t.detect && t.parse && t.detect(lines)
-      );
+      // First detector to claim the PDF wins; registry order is the priority
+      // order, so the house template gets first refusal.
+      const detected = TEMPLATES.find((t) => t.detect && t.parse && t.detect(lines));
       if (detected) {
         const { data: parsed, failedSections } = detected.parse!(lines);
         const merged = { ...detected.emptyData(), ...parsed };

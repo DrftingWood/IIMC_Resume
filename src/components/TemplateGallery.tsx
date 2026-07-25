@@ -1,4 +1,4 @@
-import { TEMPLATES } from '@/templates/registry';
+import { groupTemplatesByUniversity } from '@/templates/registry';
 import type { AnyTemplateConfig, TemplateKey } from '@/templates/types';
 
 export default function TemplateGallery({
@@ -32,14 +32,26 @@ export default function TemplateGallery({
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-          {TEMPLATES.map((t) => (
-            <TemplateCard
-              key={t.id}
-              template={t}
-              onStartBlank={() => startBlank(t)}
-              onUseSample={() => useSample(t)}
-            />
+        <div className="space-y-10">
+          {groupTemplatesByUniversity().map((group) => (
+            <section key={group.university?.id ?? 'general'}>
+              <div className="flex items-baseline gap-3 mb-4">
+                <h2 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-500">
+                  {group.university ? group.university.shortName : 'General'}
+                </h2>
+                <div className="flex-1 h-px bg-slate-200" />
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                {group.templates.map((t) => (
+                  <TemplateCard
+                    key={t.id}
+                    template={t}
+                    onStartBlank={() => startBlank(t)}
+                    onUseSample={() => useSample(t)}
+                  />
+                ))}
+              </div>
+            </section>
           ))}
         </div>
       </div>

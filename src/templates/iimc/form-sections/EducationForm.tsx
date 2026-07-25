@@ -1,4 +1,5 @@
 import type { IimcResumeData, EducationRow } from '../types';
+import { newEducationRow } from '../types';
 import { Accordion, Field, TextInput, RowControls, AddButton, move } from '@/components/form-shared';
 
 export function EducationForm({
@@ -13,7 +14,7 @@ export function EducationForm({
     onChange({ education: next });
   }
   function add() {
-    onChange({ education: [...data.education, { degree: '', institute: '', gpa: '', rank: '', year: '' }] });
+    onChange({ education: [...data.education, newEducationRow()] });
   }
   function setResumeType(t: 'ranked' | 'unranked') {
     if (t === 'unranked') {
@@ -62,7 +63,7 @@ export function EducationForm({
         </button>
       </div>
       {data.education.map((r, i) => (
-        <div key={i} className="border border-gray-200 rounded p-3 space-y-2">
+        <div key={r.id} className="border border-gray-200 rounded p-3 space-y-2">
           <div className="flex justify-between items-center">
             <span className="text-xs text-gray-500">Row {i + 1}</span>
             <RowControls

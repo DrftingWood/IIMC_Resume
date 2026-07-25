@@ -8,6 +8,15 @@ import type {
   YearedBullet,
   SectionKey,
 } from './types';
+import {
+  newBullet,
+  newBulletGroup,
+  newEducationRow,
+  newExperienceSubSection,
+  newPositionEntry,
+  newYearedBullet,
+} from './types';
+import { uid } from '@/lib/uid';
 
 const DEFAULT_SECTION_ORDER: SectionKey[] = [
   'education',
@@ -569,11 +578,8 @@ function parseBulletTable(lines: PdfLine[]): BulletGroup[] {
   const cells = buildLabelCells(rows, sameLabelGap);
 
   // Build groups (one per cell, plus one unlabeled if no cells).
-  const groups: BulletGroup[] = cells.map((c) => ({
-    category: c.texts.join('\n'),
-    bullets: [],
-  }));
-  if (!groups.length) groups.push({ category: '', bullets: [] });
+  const groups: BulletGroup[] = cells.map((c) => newBulletGroup(c.texts.join('\n')));
+  if (!groups.length) groups.push(newBulletGroup());
 
   const findIdx = makeCellIdxFinder(cells);
   const lastBullet: Array<YearedBullet | null> = groups.map(() => null);
@@ -599,7 +605,7 @@ function parseBulletTable(lines: PdfLine[]): BulletGroup[] {
         const stripped = stripBulletGlyph(r.midText);
         let { text, year } = splitYearTail(stripped);
         if (!year && yearFromRight) year = yearFromRight;
-        const b: YearedBullet = { text, year };
+        const b: YearedBullet = newYearedBullet(text, year);
         group.bullets.push(b);
         lastBullet[idx] = b;
       } else {
@@ -612,7 +618,7 @@ function parseBulletTable(lines: PdfLine[]): BulletGroup[] {
           if (yearFromRight && !lb.year) lb.year = yearFromRight;
         } else if (stripped) {
           const { text, year } = splitYearTail(stripped);
-          const b: YearedBullet = { text, year: year || yearFromRight };
+          const b: YearedBullet = newYearedBullet(text, year || yearFromRight);
           group.bullets.push(b);
           lastBullet[idx] = b;
         }
@@ -643,11 +649,10 @@ function parsePositions(lines: PdfLine[]): PositionEntry[] {
   const cells = buildLabelCells(rows, sameLabelGap);
 
   const out: PositionEntry[] = cells.map((c) => ({
+    ...newPositionEntry(),
     title: c.texts.join('\n'),
-    bullets: [],
-    year: '',
   }));
-  if (!out.length) out.push({ title: '', bullets: [], year: '' });
+  if (!out.length) out.push(newPositionEntry());
 
   const findIdx = makeCellIdxFinder(cells);
   const lastBulletIdx: number[] = out.map(() => -1);
@@ -665,11 +670,11 @@ function parsePositions(lines: PdfLine[]): PositionEntry[] {
       const stripped = stripBulletGlyph(r.midText);
       const isNewBullet = r.hasBulletGlyph || !glyphMode || lastBulletIdx[idx] < 0;
       if (isNewBullet) {
-        entry.bullets.push(stripped);
+        entry.bullets.push(newBullet(stripped));
         lastBulletIdx[idx] = entry.bullets.length - 1;
       } else {
         const i = lastBulletIdx[idx];
-        entry.bullets[i] = (entry.bullets[i] + ' ' + stripped).trim();
+        entry.bullets[i].text = (entry.bullets[i].text + ' ' + stripped).trim();
       }
     }
   }
@@ -761,11 +766,10 @@ function parseIndustry(lines: PdfLine[], headerRest: string): {
 
     // Apply two-pass within this firm block.
     const cells = buildLabelCells(block.body, sameLabelGap);
-    const subSections: ExperienceSubSection[] = cells.map((c) => ({
-      label: c.texts.join('\n'),
-      bullets: [],
-    }));
-    if (!subSections.length) subSections.push({ label: '', bullets: [] });
+    const subSections: ExperienceSubSection[] = cells.map((c) =>
+      newExperienceSubSection(c.texts.join('\n'))
+    );
+    if (!subSections.length) subSections.push(newExperienceSubSection());
 
     const findIdx = makeCellIdxFinder(cells);
     const lastBulletIdx: number[] = subSections.map(() => -1);
@@ -777,15 +781,16 @@ function parseIndustry(lines: PdfLine[], headerRest: string): {
       const stripped = stripBulletGlyph(r.midText);
       const isNewBullet = r.hasBulletGlyph || !glyphMode || lastBulletIdx[idx] < 0;
       if (isNewBullet) {
-        sub.bullets.push(stripped);
+        sub.bullets.push(newBullet(stripped));
         lastBulletIdx[idx] = sub.bullets.length - 1;
       } else {
         const j = lastBulletIdx[idx];
-        sub.bullets[j] = (sub.bullets[j] + ' ' + stripped).trim();
+        sub.bullets[j].text = (sub.bullets[j].text + ' ' + stripped).trim();
       }
     }
 
     return {
+      id: uid('exp'),
       type: i === 0 ? 'Full Time' : 'Intern',
       firm,
       role,
@@ -828,12 +833,12 @@ function parseEducation(lines: PdfLine[]): { rows: EducationRow[]; ranked: boole
       const [degree = '', institute = '', gpa = '', rank = '', year = ''] = cells;
       if (!degree && !institute && !gpa && !rank && !year) continue;
       if (/degree/i.test(degree) && /board|institute/i.test(institute)) continue;
-      rows.push({ degree, institute, gpa, rank, year });
+      rows.push({ ...newEducationRow(), degree, institute, gpa, rank, year });
     } else {
       const [degree = '', institute = '', gpa = '', year = ''] = cells;
       if (!degree && !institute && !gpa && !year) continue;
       if (/degree/i.test(degree) && /board|institute/i.test(institute)) continue;
-      rows.push({ degree, institute, gpa, year });
+      rows.push({ ...newEducationRow(), degree, institute, gpa, year });
     }
   }
   if (rows.length > 8) {

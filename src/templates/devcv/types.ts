@@ -79,9 +79,6 @@ export function emptyDevCv(): DevCvData {
   };
 }
 
-// uid helper, used by Form when adding rows.
-let uidCounter = 0;
-export function uid(prefix = 'id'): string {
-  uidCounter += 1;
-  return `${prefix}-${Date.now().toString(36)}-${uidCounter}`;
-}
+// Re-exported for the devcv Form, which imports it from here. The single
+// implementation lives in @/lib/uid and is shared with the IIMC template.
+export { uid } from '@/lib/uid';

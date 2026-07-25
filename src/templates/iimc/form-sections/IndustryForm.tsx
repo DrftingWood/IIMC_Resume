@@ -1,4 +1,5 @@
 import type { IimcResumeData, ExperienceEntry, ExperienceSubSection } from '../types';
+import { newBullet, newExperienceEntry, newExperienceSubSection } from '../types';
 import { Accordion, Field, TextInput, BoldableTextarea, RowControls, AddButton, move } from '@/components/form-shared';
 
 export function IndustryForm({
@@ -22,10 +23,7 @@ export function IndustryForm({
   }
   function addEntry() {
     onChange({
-      experience: [
-        ...data.experience,
-        { type: 'Full Time', firm: '', role: '', dates: '', subSections: [] },
-      ],
+      experience: [...data.experience, newExperienceEntry('Full Time')],
     });
   }
   function removeEntry(ei: number) {
@@ -36,7 +34,7 @@ export function IndustryForm({
   }
   function addSub(ei: number) {
     setEntry(ei, {
-      subSections: [...data.experience[ei].subSections, { label: '', bullets: [] }],
+      subSections: [...data.experience[ei].subSections, newExperienceSubSection()],
     });
   }
   function removeSub(ei: number, si: number) {
@@ -45,11 +43,11 @@ export function IndustryForm({
     });
   }
   function addBullet(ei: number, si: number) {
-    setSub(ei, si, { bullets: [...data.experience[ei].subSections[si].bullets, ''] });
+    setSub(ei, si, { bullets: [...data.experience[ei].subSections[si].bullets, newBullet()] });
   }
   function setBullet(ei: number, si: number, bi: number, v: string) {
     const arr = [...data.experience[ei].subSections[si].bullets];
-    arr[bi] = v;
+    arr[bi] = { ...arr[bi], text: v };
     setSub(ei, si, { bullets: arr });
   }
   function removeBullet(ei: number, si: number, bi: number) {
@@ -71,7 +69,7 @@ export function IndustryForm({
       </Field>
 
       {data.experience.map((entry, ei) => (
-        <div key={ei} className="border border-gray-200 rounded p-3 bg-gray-50 space-y-2">
+        <div key={entry.id} className="border border-gray-200 rounded p-3 bg-gray-50 space-y-2">
           <div className="flex justify-between items-center">
             <span className="text-xs font-semibold">Entry {ei + 1}</span>
             <RowControls
@@ -96,7 +94,7 @@ export function IndustryForm({
           </div>
 
           {entry.subSections.map((sub, si) => (
-            <div key={si} className="border border-gray-200 rounded p-2 bg-white space-y-2">
+            <div key={sub.id} className="border border-gray-200 rounded p-2 bg-white space-y-2">
               <div className="flex justify-between items-center">
                 <Field label="Sub-section label">
                   <TextInput value={sub.label} onChange={(e) => setSub(ei, si, { label: e.target.value })} />
@@ -104,7 +102,7 @@ export function IndustryForm({
                 <RowControls onDelete={() => removeSub(ei, si)} />
               </div>
               {sub.bullets.map((b, bi) => (
-                <div key={bi} className="space-y-1">
+                <div key={b.id} className="space-y-1">
                   <div className="flex justify-between items-center">
                     <span className="text-xs text-gray-500">Bullet {bi + 1}</span>
                     <RowControls
@@ -113,7 +111,7 @@ export function IndustryForm({
                       onDelete={() => removeBullet(ei, si, bi)}
                     />
                   </div>
-                  <BoldableTextarea value={b} onChange={(v) => setBullet(ei, si, bi, v)} />
+                  <BoldableTextarea value={b.text} onChange={(v) => setBullet(ei, si, bi, v)} />
                 </div>
               ))}
               <AddButton onClick={() => addBullet(ei, si)} label="Add bullet" />

@@ -34,6 +34,7 @@ const thumbnail =
 export const devcvTemplate: TemplateConfig<DevCvData> = {
   id: 'devcv',
   label: 'Developer CV',
+  universityId: null,
   description: 'Single-page Developer CV with skill bars and entry list — based on the LaTeX template by Jan Vorisek.',
   thumbnail,
   emptyData: emptyDevCv,
