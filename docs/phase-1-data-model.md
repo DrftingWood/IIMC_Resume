@@ -87,7 +87,7 @@ and a comment always records which text its author was actually looking at.
 | `review_invitees` | Who was asked. Supports users *and* bare emails for people without accounts |
 | `comments` | Threaded feedback anchored to a bullet id, optionally carrying a suggestion |
 | `share_links` | Tokenised links. Only the **hash** is stored |
-| `university_invites` | For people who cannot domain-verify: alumni, external mentors |
+| `university_invites` | For people who cannot domain-verify: external mentors, recruiters |
 
 ### How comments anchor to bullets
 

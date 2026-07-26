@@ -183,8 +183,9 @@ create table public.share_links (
   created_at timestamptz not null default now()
 );
 
--- For people who cannot prove membership by email domain: alumni who lost
--- their institute address, external mentors.
+-- For people who cannot prove membership by email domain. Alumni are not in
+-- this group: they keep their institute addresses and verify like students.
+-- This is for genuinely external people — industry mentors, recruiters.
 create table public.university_invites (
   id            uuid primary key default gen_random_uuid(),
   university_id text not null references public.universities(id) on delete cascade,
