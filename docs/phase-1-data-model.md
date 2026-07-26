@@ -169,32 +169,40 @@ and must never be applied to a real project.
 
 ---
 
-## Open questions
+## Decisions
 
-These need your answer before this ships. None of them block reviewing the
-design.
+All five open questions have been answered by the owner. Recorded here so the
+reasoning is not lost.
 
-1. **Is `iimcal.ac.in` right, and are there others?** Seeded from a guess. If
-   students get a different address, it is a one-line change in
-   `0004_seed_universities.sql` and `src/lib/universities.ts`.
+1. **Email domain** — *resolved.* `iimcal.ac.in` is correct. Suffix matching
+   already covers `@email.iimcal.ac.in` and any other subdomain. No change.
 
-2. **Placement committee rules.** IIMC may have policy on circulating placement
-   resumes. Worth checking before sharing is made frictionless — it could
-   force `university` visibility to be opt-in per batch, or off entirely.
+2. **Placement committee rules** — *resolved: out of scope.* Owner's call. No
+   per-batch gating is built; `university` visibility remains a plain
+   owner-chosen setting on each resume.
 
-3. **Alumni continuity.** Alumni lose their institute address and are the most
-   valuable reviewers. `university_invites` covers bringing them in, but
-   there is no secondary-email flow yet. Ship without it and risk losing them,
-   or build it in Phase 1?
+3. **Alumni continuity** — *resolved.* Alumni keep their institute addresses,
+   so they verify by domain exactly like current students. No secondary-email
+   flow needed, and `university_invites` narrows to genuinely external people
+   (industry mentors, recruiters) rather than being the alumni on-ramp.
 
-4. **DPDP compliance.** This stores grades, contact details, and employment
-   history for Indian students, which puts it in scope of the Digital Personal
-   Data Protection Act. `deleted_at` is a soft delete — a real erasure path
-   (hard-delete the user and cascade) is needed before launch, not after.
+   One consequence to be aware of: if alumni and students share a domain, the
+   domain alone cannot tell them apart, so `claim_membership()` assigns
+   `role = 'student'` to everyone. Distinguishing them needs a second signal —
+   the simplest is asking for batch year at onboarding and deriving the role
+   from it. Not built yet; it only matters once the UI wants to badge a
+   reviewer as an alumnus.
 
-5. **Google `hd` claim.** For Workspace domains the ID token carries a hosted-
-   domain claim that is stronger evidence than parsing the email string.
-   Worth preferring when present. Currently only `email` is used.
+4. **Storing grades and contacts** — *resolved: yes, store them.* Unchanged;
+   the schema always did. DPDP does not restrict what may be stored here — the
+   only thing it adds is that when a user asks to delete their account, the
+   erasure has to be real rather than a `deleted_at` flag. That is one cascade
+   function, not a constraint on the data model, and it is not built yet.
+
+5. **Google `hd` claim** — *resolved: do not gate on it.* Since alumni keep
+   institute addresses, requiring a Workspace-managed account risks locking out
+   the most valuable reviewers if those accounts are ever downgraded. Email
+   domain stays the gate. Record `hd` when Google sends it, require nothing.
 
 ---
 
