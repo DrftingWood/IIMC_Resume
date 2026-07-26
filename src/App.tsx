@@ -15,6 +15,11 @@ import ErrorBoundary from '@/components/ErrorBoundary';
 import SectionOrderPanel from '@/components/SectionOrderPanel';
 import { getTemplate } from '@/templates/registry';
 import type { TemplateKey } from '@/templates/types';
+import { ReviewProvider } from '@/review/ReviewContext';
+import ReviewPanel from '@/review/components/ReviewPanel';
+import AskForReviewModal from '@/review/components/AskForReviewModal';
+import { replaceEntityText } from '@/review/projection';
+import { reviewApi, useReviewStore } from '@/review/useReview';
 
 const PANEL_PREFS_KEY = 'iimc-resume-builder:panels:v1';
 
@@ -78,7 +83,10 @@ export default function App() {
   const [showWarning, setShowWarning] = useState(false);
   const [failedSections, setFailedSections] = useState<string[]>([]);
   const [panels, setPanels] = useState(loadPanelPrefs);
+  const [reviewOpen, setReviewOpen] = useState(false);
+  const [askIds, setAskIds] = useState<string[] | null>(null);
   const previewRef = useRef<HTMLDivElement>(null);
+  useReviewStore();
 
   useEffect(() => {
     try {
@@ -136,6 +144,14 @@ export default function App() {
     setPreEditorView('gallery');
   }
 
+  // Until resumes live server-side there is one resume per template, so a
+  // stable synthetic id is enough to key review requests against.
+  const resumeId = templateId ? `local:${templateId}` : '';
+
+  function applySuggestion(entityId: string, text: string) {
+    setData((prev: unknown) => (prev ? replaceEntityText(prev, entityId, text) : prev));
+  }
+
   const template = templateId ? getTemplate(templateId) : null;
 
   if (!templateId || !template || !data) {
@@ -168,6 +184,12 @@ export default function App() {
   const Form = template.Form;
   const Preview = template.Preview;
 
+  // Review is anchored to bullet ids, which only the IIMC data model carries.
+  const supportsReview = templateId === 'iimc';
+  const reviewCount = supportsReview
+    ? reviewApi.listRequestsByMe(resumeId).length + reviewApi.listRequestsForMe().length
+    : 0;
+
   return (
     <div className="flex flex-col h-screen overflow-hidden">
       <AppHeader
@@ -181,6 +203,8 @@ export default function App() {
           setPanels((p) => ({ ...p, showSections: !p.showSections }))
         }
         onToggleForm={() => setPanels((p) => ({ ...p, showForm: !p.showForm }))}
+        onOpenReview={supportsReview ? () => setReviewOpen(true) : undefined}
+        reviewCount={reviewCount}
       />
       {showWarning && (
         <AdvisoryBanner
@@ -204,6 +228,7 @@ export default function App() {
       )}
       <main className="flex-1 overflow-hidden">
         <ErrorBoundary>
+         <ReviewProvider value={{ askForReview: (ids) => setAskIds(ids) }}>
           <EditorLayout
             showSections={panels.showSections}
             showForm={panels.showForm}
@@ -215,8 +240,29 @@ export default function App() {
               </div>
             }
           />
+         </ReviewProvider>
         </ErrorBoundary>
       </main>
+      {supportsReview && (
+        <>
+          <ReviewPanel
+            open={reviewOpen}
+            resumeId={resumeId}
+            data={data}
+            onClose={() => setReviewOpen(false)}
+            onApplySuggestion={applySuggestion}
+          />
+          <AskForReviewModal
+            open={askIds !== null}
+            resumeId={resumeId}
+            templateId={templateId}
+            data={data}
+            entityIds={askIds ?? []}
+            onClose={() => setAskIds(null)}
+            onCreated={() => setReviewOpen(true)}
+          />
+        </>
+      )}
       <Analytics />
     </div>
   );

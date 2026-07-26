@@ -1,6 +1,7 @@
 import type { BulletGroup, YearedBullet } from '../types';
 import { newBulletGroup, newYearedBullet } from '../types';
 import { Accordion, Field, TextInput, BoldableTextarea, RowControls, AddButton, move } from '@/components/form-shared';
+import { AskForReviewButton } from '@/review/ReviewContext';
 
 export function BulletGroupsForm({
   title,
@@ -62,7 +63,10 @@ export function BulletGroupsForm({
           {g.bullets.map((b, bi) => (
             <div key={b.id} className="border border-gray-200 rounded p-2 bg-white space-y-2">
               <div className="flex justify-between items-center">
-                <span className="text-xs text-gray-500">Bullet {bi + 1}</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs text-gray-500">Bullet {bi + 1}</span>
+                  <AskForReviewButton entityId={b.id} />
+                </div>
                 <RowControls
                   onUp={bi > 0 ? () => moveBullet(gi, bi, -1) : undefined}
                   onDown={bi < g.bullets.length - 1 ? () => moveBullet(gi, bi, 1) : undefined}

@@ -10,6 +10,8 @@ export default function AppHeader({
   showForm,
   onToggleSections,
   onToggleForm,
+  onOpenReview,
+  reviewCount,
 }: {
   previewRef: React.RefObject<HTMLDivElement>;
   onReset: () => void;
@@ -19,6 +21,9 @@ export default function AppHeader({
   showForm: boolean;
   onToggleSections: () => void;
   onToggleForm: () => void;
+  /** Absent for templates that do not support review. */
+  onOpenReview?: () => void;
+  reviewCount?: number;
 }) {
   const [tipOpen, setTipOpen] = useState(false);
   const btn =
@@ -44,6 +49,21 @@ export default function AppHeader({
         </div>
       </div>
       <div className="flex items-center gap-2">
+        {onOpenReview && (
+          <button
+            type="button"
+            onClick={onOpenReview}
+            className={`${ghostBtn} gap-1.5`}
+            title="Ask for and read reviews"
+          >
+            <span>Review</span>
+            {!!reviewCount && (
+              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-slate-900 text-white tabular-nums">
+                {reviewCount}
+              </span>
+            )}
+          </button>
+        )}
         <button
           type="button"
           onClick={onChangeTemplate}

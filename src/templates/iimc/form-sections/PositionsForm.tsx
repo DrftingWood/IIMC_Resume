@@ -1,6 +1,7 @@
 import type { IimcResumeData, PositionEntry } from '../types';
 import { newBullet, newPositionEntry } from '../types';
 import { Accordion, Field, TextInput, BoldableTextarea, RowControls, AddButton, move } from '@/components/form-shared';
+import { AskForReviewButton } from '@/review/ReviewContext';
 
 export function PositionsForm({
   data,
@@ -61,7 +62,10 @@ export function PositionsForm({
           {p.bullets.map((b, bi) => (
             <div key={b.id} className="space-y-1">
               <div className="flex justify-between items-center">
-                <span className="text-xs text-gray-500">Bullet {bi + 1}</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs text-gray-500">Bullet {bi + 1}</span>
+                  <AskForReviewButton entityId={b.id} />
+                </div>
                 <RowControls
                   onUp={bi > 0 ? () => moveBullet(pi, bi, -1) : undefined}
                   onDown={bi < p.bullets.length - 1 ? () => moveBullet(pi, bi, 1) : undefined}

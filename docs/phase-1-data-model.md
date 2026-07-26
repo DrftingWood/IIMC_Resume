@@ -169,6 +169,29 @@ and must never be applied to a real project.
 
 ---
 
+## Client status: the review UI runs on a mock
+
+The review experience is built and usable today under `src/review/`, running
+against an in-memory + localStorage stand-in for this schema
+(`src/review/mockApi.ts`). A persona switcher in the panel lets one browser
+play both owner and reviewer.
+
+**What the mock proves, and what it does not.** Its permission checks mirror
+the RLS policies and `get_review_payload()` closely enough that the UI can only
+ever render data a real reviewer would receive — which is what makes the
+components correct. But it runs in the browser, over data the browser already
+holds, so it enforces nothing against a determined user. The real guarantee is
+RLS plus the `SECURITY DEFINER` RPC. A passing demo is not a security result.
+
+`src/review/projection.ts` is a deliberate twin of
+`public.jsonb_collect_entities()`. The two are tested against the same fixture
+and produce byte-identical output; if one changes, change both.
+
+Swapping in Supabase means writing one class that implements the `ReviewApi`
+interface in `src/review/api.ts`. Nothing above that line changes.
+
+---
+
 ## Decisions
 
 All five open questions have been answered by the owner. Recorded here so the

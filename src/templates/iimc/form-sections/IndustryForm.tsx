@@ -1,6 +1,7 @@
 import type { IimcResumeData, ExperienceEntry, ExperienceSubSection } from '../types';
 import { newBullet, newExperienceEntry, newExperienceSubSection } from '../types';
 import { Accordion, Field, TextInput, BoldableTextarea, RowControls, AddButton, move } from '@/components/form-shared';
+import { AskForReviewButton } from '@/review/ReviewContext';
 
 export function IndustryForm({
   data,
@@ -104,7 +105,10 @@ export function IndustryForm({
               {sub.bullets.map((b, bi) => (
                 <div key={b.id} className="space-y-1">
                   <div className="flex justify-between items-center">
-                    <span className="text-xs text-gray-500">Bullet {bi + 1}</span>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-xs text-gray-500">Bullet {bi + 1}</span>
+                      <AskForReviewButton entityId={b.id} />
+                    </div>
                     <RowControls
                       onUp={bi > 0 ? () => moveBullet(ei, si, bi, -1) : undefined}
                       onDown={bi < sub.bullets.length - 1 ? () => moveBullet(ei, si, bi, 1) : undefined}
