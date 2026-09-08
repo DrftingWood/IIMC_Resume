@@ -825,10 +825,10 @@ function parseEducation(lines: PdfLine[]): { rows: EducationRow[]; ranked: boole
     const cells = splitByTopGaps(line.items, maxCells, 5);
     if (cells.length < 2) continue;
     if (ranked) {
-      const [degree = '', institute = '', gpa = '', rank = '', year = ''] = cells;
-      if (!degree && !institute && !gpa && !rank && !year) continue;
+      const [degree = '', institute = '', gpa = '', , year = ''] = cells;
+      if (!degree && !institute && !gpa && !year) continue;
       if (/degree/i.test(degree) && /board|institute/i.test(institute)) continue;
-      rows.push({ degree, institute, gpa, rank, year });
+      rows.push({ degree, institute, gpa, year });
     } else {
       const [degree = '', institute = '', gpa = '', year = ''] = cells;
       if (!degree && !institute && !gpa && !year) continue;
@@ -934,8 +934,10 @@ export function parseResume(lines: PdfLine[]): ParseResult {
       name: headerInfo.name,
       mbaId: headerInfo.mbaId,
       taglines: headerInfo.taglines,
-      resumeType: edu.ranked ? 'ranked' : 'unranked',
       sectionOrder: [...DEFAULT_SECTION_ORDER],
+      projects: [],
+      entrepreneurial: [],
+      hiddenSections: [],
       education: edu.rows,
       distinctions,
       experience: industry.entries,

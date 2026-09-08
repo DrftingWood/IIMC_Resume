@@ -1,0 +1,44 @@
+import { describe, it, expect } from 'vitest';
+import {
+  DEFAULT_SECTION_ORDER,
+  SECTION_LABELS,
+  emptySkynetResume,
+} from '@/templates/skynet/types';
+import { hydrateSkynet } from '@/templates/skynet/hydrate';
+
+describe('skynet types', () => {
+  it('has all seven sections in document order', () => {
+    expect(DEFAULT_SECTION_ORDER).toEqual([
+      'education', 'distinctions', 'projects', 'entrepreneurial',
+      'industry', 'positions', 'extras',
+    ]);
+  });
+
+  it('labels sections with the exact PDF header strings', () => {
+    expect(SECTION_LABELS.education).toBe('Academic Profile');
+    expect(SECTION_LABELS.positions).toBe('Position of Responsibility');
+    expect(SECTION_LABELS.projects).toBe('Projects and Papers');
+    expect(SECTION_LABELS.entrepreneurial).toBe('Entrepreneurial/Non-Profit Venture');
+  });
+
+  it('starts with nothing hidden and no ranked variant', () => {
+    const empty = emptySkynetResume();
+    expect(empty.hiddenSections).toEqual([]);
+    expect(empty).not.toHaveProperty('resumeType');
+  });
+
+  it('repairs a draft missing the new fields', () => {
+    const hydrated = hydrateSkynet({ name: 'X' } as never);
+    expect(hydrated.projects).toEqual([]);
+    expect(hydrated.entrepreneurial).toEqual([]);
+    expect(hydrated.hiddenSections).toEqual([]);
+    expect(hydrated.sectionOrder).toEqual(DEFAULT_SECTION_ORDER);
+  });
+
+  it('drops unknown keys and appends missing ones in sectionOrder', () => {
+    const hydrated = hydrateSkynet({ sectionOrder: ['extras', 'bogus'] } as never);
+    expect(hydrated.sectionOrder[0]).toBe('extras');
+    expect(hydrated.sectionOrder).toHaveLength(7);
+    expect(hydrated.sectionOrder).not.toContain('bogus');
+  });
+});
