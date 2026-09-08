@@ -3,7 +3,7 @@ import type { SupersetResumeData } from './types';
 import { emptySupersetResume } from './types';
 import { SAMPLE } from './sample';
 import { parseResume } from './parser';
-import { detectSuperset } from './detect';
+import { detectSuperset, detectSupersetLayout } from './detect';
 import { hydrateSuperset } from './hydrate';
 import Preview from './Preview';
 import Form from './Form';
@@ -39,6 +39,7 @@ export const supersetTemplate: TemplateConfig<SupersetResumeData> = {
   SectionsPanel,
   parse: parseResume,
   detect: detectSuperset,
+  detectLayout: detectSupersetLayout,
   hydrate: hydrateSuperset,
   supportsPdfUpload: true,
 };

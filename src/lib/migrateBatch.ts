@@ -50,8 +50,17 @@ export function migrateBetweenBatches(
   // NOT hidden renders a bare section bar with no content into the
   // exported PDF, so hide it automatically rather than leave that visible.
   const hidden = new Set(skynetData.hiddenSections);
-  for (const key of ['projects', 'entrepreneurial'] as const) {
-    if (skynetData[key].length === 0) hidden.add(key);
+  for (const key of [
+    'education',
+    'distinctions',
+    'projects',
+    'entrepreneurial',
+    'experience',
+    'positions',
+    'extras',
+  ] as const) {
+    const sectionKey = key === 'experience' ? 'industry' : key;
+    if (skynetData[key].length === 0) hidden.add(sectionKey as never);
   }
   skynetData.hiddenSections = [...hidden];
 
