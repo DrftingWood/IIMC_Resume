@@ -1,8 +1,10 @@
 import type { AnyTemplateConfig, TemplateKey } from './types';
-import { iimcTemplate } from './iimc';
-import { devcvTemplate } from './devcv';
+import { supersetTemplate } from './superset';
+import { skynetTemplate } from './skynet';
+// devcv/ is kept on disk but intentionally unregistered — re-add it to
+// TEMPLATES to bring the multi-template gallery back.
 
-export const TEMPLATES: AnyTemplateConfig[] = [iimcTemplate, devcvTemplate];
+export const TEMPLATES: AnyTemplateConfig[] = [supersetTemplate, skynetTemplate];
 
 export function getTemplate(id: TemplateKey | string): AnyTemplateConfig | undefined {
   return TEMPLATES.find((t) => t.id === id);

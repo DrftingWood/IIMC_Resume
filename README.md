@@ -24,11 +24,31 @@ npm run preview   # serve dist/ locally
 
 Push to Vercel — no configuration required (static build of `dist/`).
 
+## Formats
+
+Two IIM Calcutta resume templates are supported:
+
+- **Superset** — 61st batch and prior.
+- **Skynet** — 62nd batch and later.
+
+The batch number is auto-detected from the MBA id on the resume (`MBA/xxxx/<batch>`), so the correct template is picked automatically on upload.
+
 ## Known limitations
 
 - **Bold formatting is not recovered on upload.** PDF text extraction loses inline weight information. Re-apply with the **B** button in each editor field.
 - **Calibri is not bundled.** On Windows the system Calibri is used automatically; on macOS / Linux / Vercel servers, the metric-compatible **Carlito** font is loaded as a fallback. Minor pixel differences are possible.
-- **F1 only.** F2/F3 templates are out of scope for v1 (data schema is template-agnostic so they can plug in later).
+
+## Testing
+
+```bash
+npm test          # unit tests against committed, anonymised fixtures
+```
+
+The full 450-resume corpus check is opt-in and never committed:
+
+```bash
+SKYNET_CORPUS_DIR="/path/to/resumes" npx vitest run test/corpus.test.ts
+```
 
 ## Tech
 

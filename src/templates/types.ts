@@ -1,7 +1,7 @@
 import type { ComponentType, ForwardRefExoticComponent, RefAttributes } from 'react';
 import type { PdfLine } from '@/lib/pdfExtract';
 
-export type TemplateKey = 'iimc' | 'devcv';
+export type TemplateKey = 'superset' | 'skynet' | 'devcv';
 
 export interface ParseResult<TData> {
   data: Partial<TData>;
@@ -16,6 +16,8 @@ export interface TemplateConfig<TData> {
   id: TemplateKey;
   label: string;
   description: string;
+  /** Batch codename shown as card subtext, e.g. "Superset". */
+  codename: string;
   thumbnail: string;
   emptyData: () => TData;
   sampleData: TData;

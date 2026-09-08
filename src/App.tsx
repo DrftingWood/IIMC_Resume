@@ -7,7 +7,6 @@ import {
   getLastTemplateId,
   setLastTemplateId,
 } from '@/lib/storage';
-import TemplateGallery from '@/components/TemplateGallery';
 import Landing from '@/components/Landing';
 import EditorLayout from '@/components/EditorLayout';
 import AppHeader from '@/components/AppHeader';
@@ -15,6 +14,7 @@ import ErrorBoundary from '@/components/ErrorBoundary';
 import SectionOrderPanel from '@/components/SectionOrderPanel';
 import { getTemplate } from '@/templates/registry';
 import type { TemplateKey } from '@/templates/types';
+import { migrateBetweenBatches } from '@/lib/migrateBatch';
 
 const PANEL_PREFS_KEY = 'iimc-resume-builder:panels:v1';
 
@@ -27,8 +27,6 @@ function loadPanelPrefs(): { showSections: boolean; showForm: boolean } {
   }
   return { showSections: true, showForm: true };
 }
-
-type PreEditorView = 'landing' | 'gallery';
 
 function AdvisoryBanner({
   tone,
@@ -74,7 +72,6 @@ function AdvisoryBanner({
 export default function App() {
   const [templateId, setTemplateId] = useState<TemplateKey | null>(null);
   const [data, setData] = useState<unknown | null>(null);
-  const [preEditorView, setPreEditorView] = useState<PreEditorView>('landing');
   const [showWarning, setShowWarning] = useState(false);
   const [failedSections, setFailedSections] = useState<string[]>([]);
   const [panels, setPanels] = useState(loadPanelPrefs);
@@ -126,30 +123,26 @@ export default function App() {
     if (templateId) clearDraft(templateId);
     setTemplateId(null);
     setData(null);
-    setPreEditorView('landing');
   }
 
   function onChangeTemplate() {
-    // Return to the gallery without clearing the current draft.
-    setTemplateId(null);
-    setData(null);
-    setPreEditorView('gallery');
+    if (!templateId) return;
+    const next: TemplateKey = templateId === 'skynet' ? 'superset' : 'skynet';
+    const { data: migrated, dropped } = migrateBetweenBatches(templateId, next, data);
+    if (dropped.length) {
+      const list = dropped.map((d) => `the "${d}" section`).join(' and ');
+      if (!confirm(`Switching to ${getTemplate(next)!.codename} will permanently delete ${list}. Continue?`)) {
+        return;
+      }
+    }
+    setTemplateId(next);
+    setData(migrated);
+    setLastTemplateId(next);
   }
 
   const template = templateId ? getTemplate(templateId) : null;
 
   if (!templateId || !template || !data) {
-    if (preEditorView === 'gallery') {
-      return (
-        <>
-          <TemplateGallery
-            onReady={(id, d) => startWith(id, d)}
-            onBack={() => setPreEditorView('landing')}
-          />
-          <Analytics />
-        </>
-      );
-    }
     return (
       <>
         <Landing
@@ -158,7 +151,6 @@ export default function App() {
             if (opts?.warnBoldLost) setShowWarning(true);
             if (opts?.failedSections?.length) setFailedSections(opts.failedSections);
           }}
-          onBrowseTemplates={() => setPreEditorView('gallery')}
         />
         <Analytics />
       </>
