@@ -723,7 +723,10 @@ function parseIndustry(lines: PdfLine[], headerRest: string): {
   // line. splitSections captured it as `headerRest`.
   let rightText = '';
   const monthsMatch = headerRest.match(/(\d+\s*MONTHS\s*\([^)]+\))/i);
-  if (monthsMatch) rightText = monthsMatch[1].toUpperCase();
+  // Keep the source casing: the template prints "34 Months (FULL-TIME)",
+  // with only the employment type in caps. Uppercasing the whole string
+  // diverged from the exported PDF.
+  if (monthsMatch) rightText = monthsMatch[1];
 
   // Rotated runs in the left margin group the entries: Full Time / Intern / Others.
   // A rotated label's y-anchor frequently lands within groupIntoLines' y-tolerance

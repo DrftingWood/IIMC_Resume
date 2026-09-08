@@ -221,8 +221,14 @@
      padding narrows it. Measured against a real 63rd-batch resume, 10pt of
      padding here forced 22 of 43 bullets onto a second line and pushed the
      page from 842pt to 1282pt - a one-page resume exporting as two. */
-  padding-left: 0 !important;
-  padding-right: 0 !important;
+  /* Insets match the source template rather than hugging the gridline: the
+     cell's left edge is x=105pt, the bullet glyph sits at 108.4pt and the text
+     at 113.2pt, so 3.4pt of left padding puts the glyph where the PDF puts it.
+     3pt on the right keeps text off the year column's rule (PDF text stops at
+     546pt against a 549pt gridline). Zero padding fitted the page but left
+     every bullet touching its border. */
+  padding-left: 3.4pt !important;
+  padding-right: 3pt !important;
   /* Browser text renders ~2.9% wider than the same string in the source
      PDF at the same nominal 9.9pt. This closes the gap so bullets sized to
      fit the real template still fit here. Measured, not guessed. */
@@ -287,7 +293,9 @@
   padding: 1.5pt 6pt;
   font-weight: bold;
   font-size: var(--body-size);
-  text-transform: uppercase;
+  /* No text-transform: the source template prints the firm and role as the
+     student typed them - "Tata Steel Limited", "Manager Environment" - not in
+     caps. Uppercasing here diverged from the exported PDF. */
 }
 
 .sk-firm-banner > :nth-child(1) {

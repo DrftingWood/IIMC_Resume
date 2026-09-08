@@ -172,9 +172,14 @@ function BulletGroupTable({ groups }: { groups: BulletGroup[] }) {
   return (
     <table className="sk-table">
       <colgroup>
-        <col style={{ width: '15%' }} />
-        <col style={{ width: '78%' }} />
-        <col style={{ width: '7%' }} />
+        {/* Derived from the corpus gridlines, not round numbers: the category
+            column runs to x=105pt, the bullet column to x=549pt and the year
+            column to the page edge at 582.3pt, over a 562.8pt content width.
+            The year column was 7% - wider than the real 5.9% - which stole the
+            width the bullet text needed and pushed it against the gridline. */}
+        <col style={{ width: '15.2%' }} />
+        <col style={{ width: '78.9%' }} />
+        <col style={{ width: '5.9%' }} />
       </colgroup>
       <tbody>
         {groups.flatMap((g, gi) =>
@@ -294,9 +299,14 @@ function PositionsTable({ data }: { data: SkynetResumeData }) {
   return (
     <table className="sk-table">
       <colgroup>
-        <col style={{ width: '15%' }} />
-        <col style={{ width: '78%' }} />
-        <col style={{ width: '7%' }} />
+        {/* Derived from the corpus gridlines, not round numbers: the category
+            column runs to x=105pt, the bullet column to x=549pt and the year
+            column to the page edge at 582.3pt, over a 562.8pt content width.
+            The year column was 7% - wider than the real 5.9% - which stole the
+            width the bullet text needed and pushed it against the gridline. */}
+        <col style={{ width: '15.2%' }} />
+        <col style={{ width: '78.9%' }} />
+        <col style={{ width: '5.9%' }} />
       </colgroup>
       <tbody>
         {data.positions.flatMap((p, pi) =>
