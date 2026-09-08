@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { extractLines } from '@/lib/pdfExtract';
-import { batchNumberFromLines, templateForBatch } from '@/lib/batch';
+import { chooseTemplate } from '@/lib/batch';
 import { TEMPLATES } from '@/templates/registry';
 import { supersetTemplate } from '@/templates/superset';
 import type { AnyTemplateConfig, TemplateKey } from '@/templates/types';
@@ -32,9 +32,7 @@ export default function Landing({
     setErr(null);
     try {
       const lines = await extractLines(file);
-      const batch = batchNumberFromLines(lines);
-      const id = batch !== null ? templateForBatch(batch) : null;
-      const chosen = id ? TEMPLATES.find((t) => t.id === id) : TEMPLATES.find((t) => t.detect?.(lines));
+      const chosen = chooseTemplate(lines, TEMPLATES);
       if (chosen?.parse) {
         const { data: parsed, failedSections } = chosen.parse(lines);
         const merged = { ...chosen.emptyData(), ...parsed };
