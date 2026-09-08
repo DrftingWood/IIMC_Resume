@@ -33,14 +33,28 @@ describe('skynet parser: anchors and glyphs', () => {
 });
 
 describe('skynet parser: industry column regime', () => {
-  it('does not truncate industry bullets', () => {
+  it('does not truncate industry bullets (full-width regime)', () => {
+    // Industry Experience has no year column; bullets run the full width.
+    // With finite yearX, far-right items (like "mines" at x~550) get clipped
+    // into the right column, truncating the bullet text. This test verifies
+    // that does not happen by asserting specific multi-word patterns that span
+    // from low-x to high-x within a single bullet.
     const bullets = parseResume(loadFixture('skynet-a')).data
       .experience!.flatMap((e) => e.subSections.flatMap((s) => s.bullets));
     expect(bullets.length).toBeGreaterThan(5);
-    // The known-truncated bullet: "...Environment Management in 3 mines".
-    const b = bullets.find((t) => /Environment Management/.test(t));
-    expect(b).toBeDefined();
-    expect(b).toMatch(/mines/);
+
+    // The critical test case: this bullet spans from low-x items ("dept. of Environment
+    // Management in") to high-x items ("mines" at ~x550). If yearX were ~547, the
+    // mid-column would end before x550, and "mines" would be cut into the right
+    // column (year column), making the bullet end at "in 3".
+    const envBullet = bullets.find((t) => /Environment Management/.test(t));
+    expect(envBullet).toBeDefined();
+    expect(envBullet).toMatch(/Environment Management/);
+    // Strip markdown bold markers for comparison
+    const clean = envBullet!.replace(/\*\*(.+?)\*\*/g, '$1');
+    expect(clean).toMatch(/Environment Management[\s\S]*mines/i);
+    // Explicit check: must not end at "in 3" when "mines" follows
+    expect(clean).not.toMatch(/in\s+3\s*$/i);
   });
 
   it('keeps the months banner off the bullets', () => {
