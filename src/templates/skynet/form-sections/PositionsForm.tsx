@@ -35,7 +35,7 @@ export function PositionsForm({
     setPos(pi, { bullets: move(data.positions[pi].bullets, bi, dir) });
   }
   return (
-    <Accordion title="Positions of Responsibility">
+    <Accordion title="Position of Responsibility">
       {data.positions.map((p, pi) => (
         <div key={pi} className="border border-gray-200 rounded p-3 bg-gray-50 space-y-2">
           <div className="flex justify-between items-center">

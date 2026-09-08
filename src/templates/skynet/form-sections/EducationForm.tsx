@@ -22,7 +22,7 @@ export function EducationForm({
     onChange({ education: move(data.education, i, dir) });
   }
   return (
-    <Accordion title="Academic Qualifications">
+    <Accordion title="Academic Profile">
       {data.education.map((r, i) => (
         <div key={i} className="border border-gray-200 rounded p-3 space-y-2">
           <div className="flex justify-between items-center">
