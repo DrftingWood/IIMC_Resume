@@ -11,7 +11,7 @@ export const SAMPLE: SkynetResumeData = {
     'EX-ZS ASSOCIATES, ASIAN PAINTS SIP',
     'NATIONAL CASE FINALIST, B.TECH NIT TRICHY',
   ],
-  sectionOrder: ['education', 'distinctions', 'industry', 'positions', 'extras'],
+  sectionOrder: ['education', 'distinctions', 'projects', 'entrepreneurial', 'industry', 'positions', 'extras'],
   hiddenSections: [],
   education: [
     { degree: 'MBA', institute: 'Indian Institute of Management Calcutta (Term 3)', gpa: '7.62/9', year: '2026' },
@@ -52,8 +52,38 @@ export const SAMPLE: SkynetResumeData = {
       ],
     },
   ],
-  projects: [],
-  entrepreneurial: [],
+  projects: [
+    {
+      category: 'Capstone &\nConsulting Projects',
+      bullets: [
+        { text: 'Led a **6-member capstone team** advising a mid-size FMCG client on **channel margin optimisation** across 4 states; findings adopted into FY26 trade policy', year: '2025' },
+        { text: 'Built a **discrete-event simulation model** for a QSR client\'s kitchen layout, cutting projected order-to-serve time by **22%** across 3 pilot outlets', year: '2025' },
+        { text: 'Co-authored a working paper on **rural fintech adoption** (30-village primary survey, n=740); accepted for presentation at the IIMC Analytics Conclave', year: '2024' },
+      ],
+    },
+    {
+      category: 'Independent\nResearch',
+      bullets: [
+        { text: 'Published a case note on **supply-chain resilience in Indian EV battery sourcing**, cited in an internal NITI Aayog working group briefing', year: '2025' },
+      ],
+    },
+  ],
+  entrepreneurial: [
+    {
+      category: 'Venture\nBuilding',
+      bullets: [
+        { text: 'Co-founded **Craftloom**, a D2C marketplace for artisan textiles; onboarded **60+ weaver clusters** and crossed **₹18L GMV** in the first 9 months', year: '22-23' },
+        { text: 'Raised **₹12L pre-seed** from a campus angel network and 2 family-office investors; grew the founding team to **6 members**', year: '2023' },
+        { text: 'Piloted a **subscription box model** that lifted repeat-purchase rate from **9% to 27%** within two quarters', year: '2023' },
+      ],
+    },
+    {
+      category: 'Non-Profit\nLeadership',
+      bullets: [
+        { text: 'Founded a **free weekend tutoring collective** serving **150+ students** across 3 municipal schools in Trichy; recruited and trained **22 volunteer tutors**', year: '21-22' },
+      ],
+    },
+  ],
   industryRightText: '22 MONTHS (FULL-TIME)',
   experience: [
     {
@@ -104,6 +134,21 @@ export const SAMPLE: SkynetResumeData = {
             'Defined a **GTM strategy for a new premium wood-finishes range** by interviewing **40+ contractors & dealers** across 4 cities',
             'Modelled a **3-yr revenue plan of ₹120 Cr+** for the launch SKU; recommendations accepted by VP Marketing for next-cycle planning',
             'Identified **2 white-space segments (₹35 Cr+ TAM each)** by triangulating Nielsen panel, primary survey and channel feedback',
+          ],
+        },
+      ],
+    },
+    {
+      type: 'Others',
+      firm: 'CENTRE FOR OPERATIONS RESEARCH, NIT TRICHY',
+      role: 'UNDERGRADUATE RESEARCH ASSISTANT',
+      dates: "Jan`21 - May`22",
+      subSections: [
+        {
+          label: 'Applied\nResearch',
+          bullets: [
+            'Assisted a faculty-led study on **queueing models for hospital emergency wards**; co-built a simulation validated against **3 partner hospitals\' data**',
+            'Co-authored a peer-reviewed conference paper accepted at a national **Industrial Engineering symposium**; presented findings to **80+ delegates**',
           ],
         },
       ],
