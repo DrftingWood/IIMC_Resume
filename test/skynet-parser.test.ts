@@ -105,6 +105,31 @@ describe('skynet parser: rotated margin labels', () => {
   });
 });
 
+describe('skynet parser: education table', () => {
+  it('reads all four columns for every row', () => {
+    for (const f of ['skynet-a', 'skynet-b', 'skynet-c', 'skynet-d']) {
+      const rows = parseResume(loadFixture(f)).data.education!;
+      expect(rows.length).toBeGreaterThanOrEqual(4);
+      for (const r of rows) {
+        expect(r.degree).not.toBe('');
+        expect(r.institute).not.toBe('');
+        expect(r.gpa).not.toBe('');
+        expect(r.year).toMatch(/^(19|20)\d{2}$|^Passed$/);
+      }
+    }
+  });
+
+  it('does not emit a rank column', () => {
+    const rows = parseResume(loadFixture('skynet-a')).data.education!;
+    for (const r of rows) expect(r).not.toHaveProperty('rank');
+  });
+
+  it('excludes the column header row from the data', () => {
+    const rows = parseResume(loadFixture('skynet-a')).data.education!;
+    expect(rows.some((r) => /Degree\/Exam/.test(r.degree))).toBe(false);
+  });
+});
+
 describe('skynet parser: optional sections', () => {
   it('parses ENTREPRENEURIAL/NON-PROFIT VENTURE as a bullet table', () => {
     const ent = parseResume(loadFixture('skynet-a')).data.entrepreneurial!;
