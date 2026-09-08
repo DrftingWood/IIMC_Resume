@@ -9,6 +9,8 @@ export interface TextItem {
   width: number;
   height: number;
   fontName: string;
+  /** True when the glyph run is not laid out left-to-right (rotated margin labels). */
+  rotated: boolean;
 }
 
 export interface PdfLine {
@@ -33,6 +35,7 @@ export async function extractTextItems(file: File): Promise<TextItem[]> {
       const y = it.transform?.[5] ?? 0;
       const height = Math.abs(it.transform?.[3] ?? it.height ?? 10);
       const width = it.width ?? 0;
+      const t = it.transform ?? [1, 0, 0, 1, 0, 0];
       items.push({
         str: it.str,
         x,
@@ -40,6 +43,7 @@ export async function extractTextItems(file: File): Promise<TextItem[]> {
         width,
         height,
         fontName: it.fontName ?? '',
+        rotated: Math.abs(t[1]) > 0.01 || Math.abs(t[2]) > 0.01,
       });
     }
   }

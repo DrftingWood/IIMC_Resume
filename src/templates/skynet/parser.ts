@@ -685,14 +685,40 @@ function parseIndustry(lines: PdfLine[], headerRest: string): {
   const monthsMatch = headerRest.match(/(\d+\s*MONTHS\s*\([^)]+\))/i);
   if (monthsMatch) rightText = monthsMatch[1].toUpperCase();
 
-  // Filter rotated "Intern" / "Full Time" labels (their items show up as
-  // tiny short lines once pdfjs unrolls the rotated glyph stream).
-  const bodyLines = lines.filter((l) => {
-    const t = l.text.trim();
-    if (/^full[- ]?time$/i.test(t)) return false;
-    if (/^intern$/i.test(t)) return false;
-    return true;
-  });
+  // Rotated runs in the left margin group the entries: Full Time / Intern / Others.
+  // A rotated label's y-anchor frequently lands within groupIntoLines' y-tolerance
+  // of an unrelated bullet row (it is a single pdfjs item whose "height" runs
+  // sideways down the margin, not a full line of its own), so the rotated items
+  // must be pulled out of whatever line they landed in rather than assumed to
+  // occupy a line by themselves.
+  const marginLabels: { y: number; text: string }[] = [];
+  const bodyLines: PdfLine[] = [];
+  for (const l of lines) {
+    const rotItems = l.items.filter((it) => it.rotated);
+    if (rotItems.length) {
+      marginLabels.push({ y: rotItems[0].y, text: joinItems(rotItems).trim() });
+    }
+    const items = l.items.filter((it) => !it.rotated);
+    if (!items.length) continue;
+    bodyLines.push({
+      y: l.y,
+      startX: Math.min(...items.map((it) => it.x)),
+      endX: Math.max(...items.map((it) => it.x + it.width)),
+      height: Math.max(...items.map((it) => it.height)),
+      items,
+      text: joinItems(items),
+    });
+  }
+
+  /** The margin label whose y is nearest the given banner row. */
+  const typeForY = (y: number): string => {
+    if (!marginLabels.length) return '';
+    let best = marginLabels[0];
+    for (const m of marginLabels) {
+      if (Math.abs(m.y - y) < Math.abs(best.y - y)) best = m;
+    }
+    return best.text;
+  };
 
   const info = findBulletXInfo(bodyLines);
   if (!info) return { entries: [], rightText };
@@ -787,7 +813,7 @@ function parseIndustry(lines: PdfLine[], headerRest: string): {
     }
 
     return {
-      type: i === 0 ? 'Full Time' : 'Intern',
+      type: typeForY(block.banner.y),
       firm,
       role,
       dates,

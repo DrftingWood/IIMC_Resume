@@ -22,6 +22,7 @@ export async function linesFromPdf(path: string): Promise<PdfLine[]> {
     const content = await (await pdf.getPage(p)).getTextContent();
     for (const it of content.items as any[]) {
       if (typeof it.str !== 'string' || it.str === '') continue;
+      const t = it.transform ?? [1, 0, 0, 1, 0, 0];
       items.push({
         str: it.str,
         x: it.transform?.[4] ?? 0,
@@ -29,6 +30,7 @@ export async function linesFromPdf(path: string): Promise<PdfLine[]> {
         height: Math.abs(it.transform?.[3] ?? it.height ?? 10),
         width: it.width ?? 0,
         fontName: it.fontName ?? '',
+        rotated: Math.abs(t[1]) > 0.01 || Math.abs(t[2]) > 0.01,
       });
     }
   }
