@@ -12,3 +12,6 @@ vite.config.d.ts
 
 # Test fixtures are generated locally and are deliberately NOT committed.
 test/fixtures/
+
+# Local working notes (SDD ledgers, security audit) - not for a public repo
+.superpowers/

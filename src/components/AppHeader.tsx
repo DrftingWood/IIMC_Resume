@@ -3,6 +3,8 @@ import PrintButton from './PrintButton';
 
 export default function AppHeader({
   previewRef,
+  onUndo,
+  canUndo,
   onReset,
   onChangeTemplate,
   templateLabel,
@@ -12,6 +14,8 @@ export default function AppHeader({
   onToggleForm,
 }: {
   previewRef: React.RefObject<HTMLDivElement>;
+  onUndo: () => void;
+  canUndo: boolean;
   onReset: () => void;
   onChangeTemplate: () => void;
   templateLabel: string;
@@ -96,6 +100,14 @@ export default function AppHeader({
             </div>
           )}
         </div>
+        <button
+          onClick={onUndo}
+          disabled={!canUndo}
+          className={ghostBtn + ' disabled:opacity-40 disabled:cursor-not-allowed'}
+          title="Undo the last change (Ctrl+Z). Deleting a bullet or a whole section is a single click, so this is the way back."
+        >
+          Undo
+        </button>
         <button onClick={onReset} className={ghostBtn}>
           Reset
         </button>
