@@ -691,12 +691,20 @@ function parseIndustry(lines: PdfLine[], headerRest: string): {
   // sideways down the margin, not a full line of its own), so the rotated items
   // must be pulled out of whatever line they landed in rather than assumed to
   // occupy a line by themselves.
-  const marginLabels: { y: number; text: string }[] = [];
+  const marginLabels: { y: number; text: string; width: number }[] = [];
   const bodyLines: PdfLine[] = [];
   for (const l of lines) {
     const rotItems = l.items.filter((it) => it.rotated);
     if (rotItems.length) {
-      marginLabels.push({ y: rotItems[0].y, text: joinItems(rotItems).trim() });
+      marginLabels.push({
+        y: rotItems[0].y,
+        text: joinItems(rotItems).trim(),
+        // Sum of the rotated items' own advance widths: an approximation of
+        // how far the label's rendered glyphs run along its (vertical, once
+        // rotated) reading direction. See the long comment at the call site
+        // below for why this is NOT the same as the visual bracket it labels.
+        width: rotItems.reduce((sum, it) => sum + it.width, 0),
+      });
     }
     const items = l.items.filter((it) => !it.rotated);
     if (!items.length) continue;
@@ -709,16 +717,6 @@ function parseIndustry(lines: PdfLine[], headerRest: string): {
       text: joinItems(items),
     });
   }
-
-  /** The margin label whose y is nearest the given banner row. */
-  const typeForY = (y: number): string => {
-    if (!marginLabels.length) return '';
-    let best = marginLabels[0];
-    for (const m of marginLabels) {
-      if (Math.abs(m.y - y) < Math.abs(best.y - y)) best = m;
-    }
-    return best.text;
-  };
 
   const info = findBulletXInfo(bodyLines);
   if (!info) return { entries: [], rightText };
@@ -749,6 +747,121 @@ function parseIndustry(lines: PdfLine[], headerRest: string): {
       blocks.push(curBlock);
     } else if (curBlock) {
       curBlock.body.push(r);
+    }
+  }
+
+  // ---- Assign each block a margin-label type. -----------------------------
+  //
+  // Attempt 1 (as specified): direct span containment. A rotated label is a
+  // single pdfjs text item anchored at one y with an advance `width` along
+  // its own (rotated) reading direction. That span is the label's OWN glyph
+  // footprint — NOT the visual bracket that groups its firm(s). Measured on
+  // skynet-d (MBA/9005/63, source corpus-resume-D.pdf — ground
+  // truth confirmed by rendering the actual PDF page, not by trusting the
+  // parser's own output): "Full Time" anchors at y=395.14 with width=36.72,
+  // so its derived span is [358.42, 431.86] — yet the firm it labels (ZS
+  // Associates) has its banner at y=474.43 and its last bullet at y=350.25;
+  // neither endpoint is inside that ~37pt span. The label's own glyph span
+  // is only ever large enough to coincidentally contain a firm banner that
+  // happened to land on the same PdfLine as the label itself (the merge case
+  // handled above) — it can never contain the banner of a firm that isn't
+  // adjacent to the label's own anchor. So containment is tried first, per
+  // block, for that narrow case, but it is expected to leave every
+  // multi-firm block unresolved, and it does on every fixture in this repo.
+  //
+  // Attempt 2 (fallback): NOT plain "nearest single anchor" — that is
+  // provably wrong. A label vertically centered over N>1 firms anchors near
+  // that GROUP's centre, not near any individual firm's banner row, so a
+  // firm at the group's edge can end up nearer a *different* label's anchor
+  // by a hair. Measured on skynet-d: "ADM Group" (banner y=330.99) is
+  // 64.15pt from the "Full Time" anchor (395.14) and 64.50pt from "Intern"
+  // (266.49) — a 0.35pt margin — yet ADM Group ("Senior Executive Intern")
+  // is visually bracketed under "Intern", confirmed against the rendered
+  // PDF. Naive nearest-anchor picks "Full Time": wrong, and user-visible in
+  // the exported resume.
+  //
+  // Instead, partition the ordered blocks into as many contiguous,
+  // non-empty, ordered groups as there are margin labels (the table layout
+  // never interleaves labels — enforced structurally by block order, not by
+  // text), and pick the partition whose per-group "extent midpoint"
+  // ((topmost + bottommost row y, across every banner and body row assigned
+  // to that group) / 2) is jointly closest — least total absolute error — to
+  // the corresponding label's own y anchor. This is still fundamentally a
+  // nearest-anchor comparison; it is solved jointly across the whole block
+  // sequence instead of independently per block, which is what makes it
+  // correct for multi-firm groups. Verified on skynet-d: the true split (ZS
+  // Associates alone under "Full Time"; ADM Group + Jayesh P Desai & Co.
+  // under "Intern") scores total error 28.4 against the (wrong) alternative
+  // split's 34.5 — so this is not a tie the way per-block nearest-anchor
+  // was.
+  const labelsTopDown = [...marginLabels].sort((a, b) => b.y - a.y);
+
+  function spanContains(label: { y: number; width: number }, y: number): boolean {
+    return y >= label.y - label.width && y <= label.y + label.width;
+  }
+
+  /** All possible ways to split `n` ordered items into `k` contiguous,
+   *  non-empty groups, expressed as the (k-1) indices to split before. */
+  function* contiguousSplits(n: number, k: number): Generator<number[]> {
+    function* rec(start: number, chosen: number[]): Generator<number[]> {
+      if (chosen.length === k - 1) {
+        yield chosen;
+        return;
+      }
+      for (let i = start; i <= n - 1; i++) yield* rec(i + 1, [...chosen, i]);
+    }
+    yield* rec(1, []);
+  }
+
+  let types: string[];
+  if (labelsTopDown.length === 0) {
+    types = blocks.map(() => '');
+  } else if (labelsTopDown.length === 1) {
+    types = blocks.map(() => labelsTopDown[0].text);
+  } else if (labelsTopDown.length > blocks.length) {
+    // Degenerate: more margin labels than firm blocks — a clean contiguous
+    // partition isn't possible (not observed in this corpus). Fall back to
+    // per-block nearest-anchor rather than fail outright; this is the one
+    // place plain nearest-y — known imperfect — is still used.
+    types = blocks.map((b) => {
+      let best = labelsTopDown[0];
+      for (const m of labelsTopDown) {
+        if (Math.abs(m.y - b.banner.y) < Math.abs(best.y - b.banner.y)) best = m;
+      }
+      return best.text;
+    });
+  } else {
+    types = blocks.map((b) => {
+      const hit = labelsTopDown.find((m) => spanContains(m, b.banner.y));
+      return hit ? hit.text : '';
+    });
+    if (types.some((t) => !t)) {
+      const blockRowYs = blocks.map((b) => [b.banner.y, ...b.body.map((r) => r.y)]);
+      let bestSplit: number[] | null = null;
+      let bestCost = Infinity;
+      for (const split of contiguousSplits(blocks.length, labelsTopDown.length)) {
+        const bounds = [0, ...split, blocks.length];
+        let cost = 0;
+        for (let g = 0; g < labelsTopDown.length; g++) {
+          const rows = blockRowYs.slice(bounds[g], bounds[g + 1]).flat();
+          if (!rows.length) {
+            cost = Infinity;
+            break;
+          }
+          const mid = (Math.max(...rows) + Math.min(...rows)) / 2;
+          cost += Math.abs(mid - labelsTopDown[g].y);
+        }
+        if (cost < bestCost) {
+          bestCost = cost;
+          bestSplit = split;
+        }
+      }
+      if (bestSplit) {
+        const bounds = [0, ...bestSplit, blocks.length];
+        for (let g = 0; g < labelsTopDown.length; g++) {
+          for (let i = bounds[g]; i < bounds[g + 1]; i++) types[i] = labelsTopDown[g].text;
+        }
+      }
     }
   }
 
@@ -813,7 +926,7 @@ function parseIndustry(lines: PdfLine[], headerRest: string): {
     }
 
     return {
-      type: typeForY(block.banner.y),
+      type: types[i],
       firm,
       role,
       dates,

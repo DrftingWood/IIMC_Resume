@@ -65,18 +65,42 @@ describe('skynet parser: industry column regime', () => {
 
 describe('skynet parser: rotated margin labels', () => {
   it('never leaks a margin label into a sub-section label', () => {
-    for (const f of ['skynet-a', 'skynet-b', 'skynet-c']) {
+    let inspected = 0;
+    for (const f of ['skynet-a', 'skynet-b', 'skynet-c', 'skynet-d']) {
       const labels = parseResume(loadFixture(f)).data
         .experience!.flatMap((e) => e.subSections.map((s) => s.label));
+      inspected += labels.length;
       for (const l of labels) {
         expect(l).not.toMatch(/Full Time|Intern|Others/);
       }
     }
+    // Guard against the assertion above being vacuous: if `experience` ever
+    // regresses to an empty array, the loops above run zero times and the
+    // test passes trivially without checking anything. Fail loudly instead.
+    expect(inspected).toBeGreaterThan(10);
   });
 
   it('assigns each experience entry a margin type', () => {
     const types = parseResume(loadFixture('skynet-a')).data.experience!.map((e) => e.type);
     expect(types.length).toBeGreaterThan(0);
     for (const t of types) expect(['Full Time', 'Intern', 'Others']).toContain(t);
+  });
+
+  it('assigns the correct margin type per firm on a multi-group resume', () => {
+    // skynet-d (MBA/9005/63, source corpus-resume-D.pdf) has BOTH a
+    // "Full Time" and an "Intern" rotated margin label, with two firms under
+    // "Intern" — the case a naive nearest-single-anchor gets wrong (see the
+    // long comment in parseIndustry). Ground truth below was read directly
+    // off a rendered image of the source PDF page (not derived from this
+    // parser's own output): the "Full Time" bracket covers only ZS
+    // Associates; the "Intern" bracket covers both ADM Group ("Senior
+    // Executive Intern" — note the role title itself contains the word
+    // "Intern", which is exactly why this must be decided structurally and
+    // not by text) and Jayesh P Desai & Co.
+    const entries = parseResume(loadFixture('skynet-d')).data.experience!;
+    const byFirm = Object.fromEntries(entries.map((e) => [e.firm, e.type]));
+    expect(byFirm['ZS Associates']).toBe('Full Time');
+    expect(byFirm['ADM Group']).toBe('Intern');
+    expect(byFirm['Jayesh P Desai & Co.']).toBe('Intern');
   });
 });
