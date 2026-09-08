@@ -48,9 +48,9 @@ export default function AppHeader({
           type="button"
           onClick={onChangeTemplate}
           className={`hidden md:inline-flex ${ghostBtn} gap-1.5`}
-          title="Switch templates (your current draft is preserved)"
+          title="Switch resume format (your content is carried over)"
         >
-          <span className="text-[10px] uppercase tracking-wider text-slate-400">Template</span>
+          <span className="text-[10px] uppercase tracking-wider text-slate-400">Format</span>
           <span className="text-slate-300">·</span>
           <span className="font-semibold">{templateLabel}</span>
         </button>
