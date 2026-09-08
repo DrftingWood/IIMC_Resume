@@ -94,8 +94,10 @@ function HeaderBand({ data }: { data: SkynetResumeData }) {
   return (
     <div className="sk-header">
       <div>
-        <div className="sk-inst-eng">Indian Institute of Management Calcutta</div>
+        {/* Hindi sits above English in the real template - verified against a
+            rendered 63rd-batch PDF, where the order was reversed here. */}
         <div className="sk-inst-hindi">भारतीय प्रबंध संस्थान कलकत्ता</div>
+        <div className="sk-inst-eng">Indian Institute of Management Calcutta</div>
       </div>
       <div className="sk-header-right">
         <div className="sk-name">{data.name || ' '}</div>
