@@ -1,4 +1,5 @@
 import type { PdfLine } from '@/lib/pdfExtract';
+import { batchNumberFromLines, templateForBatch } from '@/lib/batch';
 
 const IIMC_ANCHORS = [
   'ACADEMIC QUALIFICATIONS',
@@ -13,10 +14,13 @@ const IIMC_SIGNALS = [
   /Indian Institute of Management Calcutta/i,
 ];
 
-/** Heuristic: the PDF is an IIMC placement resume if ≥3 of the 5 canonical
- *  section headers appear, OR a strong identifier (MBA id / institute name)
- *  plus ≥2 anchors. */
+/** The MBA id is authoritative; header vocabulary is only the tiebreak.
+ *  Heuristic fallback: the PDF is an IIMC placement resume if ≥3 of the 5
+ *  canonical section headers appear, OR a strong identifier (MBA id /
+ *  institute name) plus ≥2 anchors. */
 export function detectSuperset(lines: PdfLine[]): boolean {
+  const batch = batchNumberFromLines(lines);
+  if (batch !== null) return templateForBatch(batch) === 'superset';
   const upper = lines.map((l) => l.text.toUpperCase());
   const anchorHits = IIMC_ANCHORS.filter((a) =>
     upper.some((t) => t.includes(a))

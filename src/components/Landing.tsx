@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { extractLines } from '@/lib/pdfExtract';
+import { batchNumberFromLines, templateForBatch } from '@/lib/batch';
 import { TEMPLATES } from '@/templates/registry';
 import { supersetTemplate } from '@/templates/superset';
 import type { AnyTemplateConfig, TemplateKey } from '@/templates/types';
@@ -31,24 +32,15 @@ export default function Landing({
     setErr(null);
     try {
       const lines = await extractLines(file);
-      // Try IIMC first (the brand template).
-      if (supersetTemplate.detect && supersetTemplate.detect(lines)) {
-        const { data: parsed, failedSections } = supersetTemplate.parse!(lines);
-        const merged = { ...supersetTemplate.emptyData(), ...parsed };
-        onReady(supersetTemplate.id, merged, { warnBoldLost: true, failedSections });
+      const batch = batchNumberFromLines(lines);
+      const id = batch !== null ? templateForBatch(batch) : null;
+      const chosen = id ? TEMPLATES.find((t) => t.id === id) : TEMPLATES.find((t) => t.detect?.(lines));
+      if (chosen?.parse) {
+        const { data: parsed, failedSections } = chosen.parse(lines);
+        const merged = { ...chosen.emptyData(), ...parsed };
+        onReady(chosen.id, merged, { warnBoldLost: true, failedSections });
         return;
       }
-      // Then any other detector.
-      const detected = TEMPLATES.find(
-        (t) => t.id !== 'superset' && t.detect && t.parse && t.detect(lines)
-      );
-      if (detected) {
-        const { data: parsed, failedSections } = detected.parse!(lines);
-        const merged = { ...detected.emptyData(), ...parsed };
-        onReady(detected.id, merged, { warnBoldLost: true, failedSections });
-        return;
-      }
-      // No detector matched — let the user pick.
       setPendingFile(file);
       setChooserOpen(true);
     } catch (e: any) {
