@@ -41,4 +41,26 @@ describe('skynet types', () => {
     expect(hydrated.sectionOrder).toHaveLength(7);
     expect(hydrated.sectionOrder).not.toContain('bogus');
   });
+
+  it('repairs corrupted (non-array) section fields instead of crashing the Preview', () => {
+    // Simulates a hand-edited or partially-corrupted localStorage draft
+    // where a section field holds the wrong type entirely, not just a
+    // missing key.
+    const hydrated = hydrateSkynet({
+      distinctions: 'oops',
+      projects: 42,
+      entrepreneurial: {},
+      extras: null,
+      education: 'nope',
+      experience: undefined,
+      positions: 'bogus',
+    } as never);
+    expect(hydrated.distinctions).toEqual([]);
+    expect(hydrated.projects).toEqual([]);
+    expect(hydrated.entrepreneurial).toEqual([]);
+    expect(hydrated.extras).toEqual([]);
+    expect(hydrated.education).toEqual([]);
+    expect(hydrated.experience).toEqual([]);
+    expect(hydrated.positions).toEqual([]);
+  });
 });

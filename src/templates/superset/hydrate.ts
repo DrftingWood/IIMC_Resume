@@ -9,6 +9,9 @@ export function hydrateSuperset(input: Partial<SupersetResumeData>): SupersetRes
   if (!Array.isArray(merged.taglines) || merged.taglines.length !== 3) {
     merged.taglines = ['', '', ''];
   }
+  for (const key of ['distinctions', 'extras', 'education', 'experience', 'positions'] as const) {
+    if (!Array.isArray(merged[key])) (merged as never as Record<string, unknown>)[key] = [];
+  }
 
   // Repair sectionOrder: drop unknown keys, append missing defaults.
   if (!Array.isArray(merged.sectionOrder) || merged.sectionOrder.length === 0) {

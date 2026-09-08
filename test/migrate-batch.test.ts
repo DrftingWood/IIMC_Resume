@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { migrateBetweenBatches } from '@/lib/migrateBatch';
+import { migrateBetweenBatches, SHARED_KEYS } from '@/lib/migrateBatch';
 import { SAMPLE as SKYNET } from '@/templates/skynet/sample';
 import { SAMPLE as SUPERSET } from '@/templates/superset/sample';
 
@@ -32,15 +32,45 @@ describe('cross-batch carry-over', () => {
     expect(dropped).toEqual([]);
     expect(data.projects).toEqual([]);
     expect(data.entrepreneurial).toEqual([]);
-    const SHARED_KEYS = [
-      'name', 'mbaId', 'taglines', 'education', 'distinctions',
-      'experience', 'industryRightText', 'positions', 'extras', 'email', 'institute',
-    ] as const;
+    // Iterate the REAL SHARED_KEYS from production (not a hand-copied list)
+    // so this test fails automatically if a shared key is ever added to
+    // migrateBatch.ts without being carried, or dropped without being
+    // caught here. `sectionOrder` and `hiddenSections` are excluded from
+    // the strict-equality loop below and checked separately: hydrateSkynet
+    // legitimately appends Skynet-only sections to sectionOrder, and
+    // migrateBetweenBatches legitimately adds `projects`/`entrepreneurial`
+    // to hiddenSections when they come back empty (F6) — neither is a loss.
+    const dataRec = data as unknown as Record<string, unknown>;
+    const supersetRec = SUPERSET as unknown as Record<string, unknown>;
     for (const k of SHARED_KEYS) {
-      expect(data[k]).toEqual(SUPERSET[k]);
+      if (k === 'sectionOrder' || k === 'hiddenSections') continue;
+      expect(dataRec[k]).toEqual(supersetRec[k]);
     }
     // sectionOrder is carried as a prefix; Skynet-only sections are appended by hydrateSkynet.
     expect(data.sectionOrder.slice(0, SUPERSET.sectionOrder.length)).toEqual(SUPERSET.sectionOrder);
+    // hiddenSections: nothing from Superset's own (empty) hiddenSections is lost,
+    // but the two Skynet-only sections are auto-hidden since they came back empty.
+    expect(data.hiddenSections).toEqual(['projects', 'entrepreneurial']);
+  });
+
+  it('hides projects/entrepreneurial when they come back empty on a skynet -> superset -> skynet round trip', () => {
+    const { data: toSuperset } = migrateBetweenBatches('skynet', 'superset', SKYNET) as never as
+      { data: typeof SUPERSET };
+    const { data: backToSkynet } = migrateBetweenBatches('superset', 'skynet', toSuperset) as never as
+      { data: typeof SKYNET };
+    expect(backToSkynet.projects).toEqual([]);
+    expect(backToSkynet.entrepreneurial).toEqual([]);
+    expect(backToSkynet.hiddenSections).toContain('projects');
+    expect(backToSkynet.hiddenSections).toContain('entrepreneurial');
+  });
+
+  it('round-trips resumeType: ranked superset -> skynet -> superset keeps ranked', () => {
+    const ranked = { ...SUPERSET, resumeType: 'ranked' as const };
+    const { data: toSkynet } = migrateBetweenBatches('superset', 'skynet', ranked) as never as
+      { data: typeof SKYNET };
+    const { data: backToSuperset } = migrateBetweenBatches('skynet', 'superset', toSkynet) as never as
+      { data: typeof SUPERSET };
+    expect(backToSuperset.resumeType).toBe('ranked');
   });
 
   it('carries a reordered sectionOrder from skynet to superset', () => {
