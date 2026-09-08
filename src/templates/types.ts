@@ -32,6 +32,9 @@ export interface TemplateConfig<TData> {
   }>;
   parse?: (lines: PdfLine[]) => ParseResult<TData>;
   detect?: (lines: PdfLine[]) => boolean;
+  /** Layout-only detection, ignoring the MBA id. Used to cross-check an
+   *  id-derived choice; `detect` may consult the id and would be circular. */
+  detectLayout?: (lines: PdfLine[]) => boolean;
   /** Repair a loaded draft (e.g. supply defaults for new fields, fix bad arrays). */
   hydrate?: (data: Partial<TData>) => TData;
   supportsPdfUpload: boolean;

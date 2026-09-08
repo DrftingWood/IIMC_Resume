@@ -3,7 +3,7 @@ import type { SkynetResumeData } from './types';
 import { emptySkynetResume } from './types';
 import { SAMPLE } from './sample';
 import { parseResume } from './parser';
-import { detectSkynet } from './detect';
+import { detectSkynet, detectSkynetLayout } from './detect';
 import { hydrateSkynet } from './hydrate';
 import Preview from './Preview';
 import Form from './Form';
@@ -39,6 +39,7 @@ export const skynetTemplate: TemplateConfig<SkynetResumeData> = {
   SectionsPanel,
   parse: parseResume,
   detect: detectSkynet,
+  detectLayout: detectSkynetLayout,
   hydrate: hydrateSkynet,
   supportsPdfUpload: true,
 };

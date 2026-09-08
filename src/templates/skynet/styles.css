@@ -149,7 +149,11 @@
 .sk-table th,
 .sk-table td {
   border: 0.5pt solid var(--c-border);
-  padding: 1pt 4pt;
+  /* Vertical padding is deliberately near-zero: the corpus row pitch is
+     14.6pt and line-height already consumes it, so any vertical padding
+     pushes every row past the measured pitch and compounds down the page
+     (measured: 1pt of padding per cell added ~86pt over 43 rows). */
+  padding: 0.25pt 3pt;
   vertical-align: middle;
   text-align: left;
   font-size: var(--body-size);
@@ -204,7 +208,17 @@
   text-justify: inter-word;
   text-align-last: justify;
   hyphens: none;
-  padding-left: 6pt !important;
+  /* No horizontal padding: the bullet column is exactly the measured span
+     (text x=113.2pt to the year column at x=552pt) and every point of
+     padding narrows it. Measured against a real 63rd-batch resume, 10pt of
+     padding here forced 22 of 43 bullets onto a second line and pushed the
+     page from 842pt to 1282pt - a one-page resume exporting as two. */
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  /* Browser text renders ~2.9% wider than the same string in the source
+     PDF at the same nominal 9.9pt. This closes the gap so bullets sized to
+     fit the real template still fit here. Measured, not guessed. */
+  letter-spacing: -0.01em;
 }
 
 /* Continuation row: bullet that shares a sub-category with the row
