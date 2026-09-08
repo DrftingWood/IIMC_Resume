@@ -3,7 +3,7 @@ import { TEMPLATES, getTemplate, isTemplateKey } from '@/templates/registry';
 
 describe('template registry', () => {
   it('registers only batch templates', () => {
-    expect(TEMPLATES.map((t) => t.id)).toEqual(['superset']);
+    expect(TEMPLATES.map((t) => t.id)).toEqual(['superset', 'skynet']);
   });
 
   it('does not resolve devcv', () => {
