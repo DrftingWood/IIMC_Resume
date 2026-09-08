@@ -31,3 +31,20 @@ describe('skynet parser: anchors and glyphs', () => {
     expect(parseResume(loadFixture('skynet-a')).failedSections).toEqual([]);
   });
 });
+
+describe('skynet parser: industry column regime', () => {
+  it('does not truncate industry bullets', () => {
+    const bullets = parseResume(loadFixture('skynet-a')).data
+      .experience!.flatMap((e) => e.subSections.flatMap((s) => s.bullets));
+    expect(bullets.length).toBeGreaterThan(5);
+    // The known-truncated bullet: "...Environment Management in 3 mines".
+    const b = bullets.find((t) => /Environment Management/.test(t));
+    expect(b).toBeDefined();
+    expect(b).toMatch(/mines/);
+  });
+
+  it('keeps the months banner off the bullets', () => {
+    const data = parseResume(loadFixture('skynet-a')).data;
+    expect(data.industryRightText).toMatch(/^\d+ MONTHS \(FULL-TIME\)$/);
+  });
+});

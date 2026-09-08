@@ -697,7 +697,10 @@ function parseIndustry(lines: PdfLine[], headerRest: string): {
   const info = findBulletXInfo(bodyLines);
   if (!info) return { entries: [], rightText };
   const { x: bulletX, glyphMode } = info;
-  const yearX = findYearX(bodyLines);
+  // Skynet's Industry Experience has no year column — bullets run the full
+  // width to x≈575 and dates live on the firm banner row. Deriving a year
+  // threshold here latches onto digits inside bullet text and clips them.
+  const yearX = Infinity;
   const lineHeight = findLineHeight(bodyLines);
   const sameLabelGap = lineHeight * 1.15;
   const boldFont = detectBoldFont(bodyLines);
