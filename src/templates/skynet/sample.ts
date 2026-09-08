@@ -83,7 +83,7 @@ export const SAMPLE: SkynetResumeData = {
       ],
     },
   ],
-  industryRightText: '22 MONTHS (FULL-TIME)',
+  industryRightText: '22 Months (FULL-TIME)',
   experience: [
     {
       type: 'Full Time',
