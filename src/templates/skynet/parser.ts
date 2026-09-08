@@ -266,7 +266,15 @@ function findBulletXInfo(lines: PdfLine[]): BulletXResult | null {
       if (BULLET_GLYPH_RE.test(it.str.trim())) glyphXs.push(it.x);
     }
   }
-  if (glyphXs.length >= 3) {
+  // A single ■ glyph is trustworthy: U+25A0 in DejaVuMathTeXGyre at 3.4pt is
+  // this template's distinctive bullet marker and does not otherwise appear
+  // in these documents, so there is no ambiguity to average away even with
+  // only 1-2 bullets in a short section (e.g. a 2-entry Positions or
+  // Projects section, which the >= 3 threshold used to send to the
+  // vector-path fallback below and mis-parse to empty). Confirmed empirically
+  // against the full 450-resume corpus: >= 1 recovers all such sections with
+  // no regression elsewhere (see test/corpus.test.ts).
+  if (glyphXs.length >= 1) {
     glyphXs.sort((a, b) => a - b);
     return { x: glyphXs[Math.floor(glyphXs.length / 2)], glyphMode: true };
   }

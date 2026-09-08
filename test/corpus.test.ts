@@ -30,6 +30,10 @@ const EMAIL_RE = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/;
 const INSTITUTE_FOOTER_RE = /^Indian Institute of Management Calcutta\s*$/i;
 const DATE_RANGE_RE = /[A-Za-z]+\s*[`'’]\s*\d{2}\s*[-–]\s*[A-Za-z]+\s*[`'’]\s*\d{2}/;
 const BULLET_GLYPH_LEAD_RE = /^[■▪•·●‣◦∙⋅]+\s*/;
+// The three margin labels the Industry Experience column can carry. A
+// "leaked" label means a subSection's whole label IS one of these, not that
+// it merely contains one as a substring (see the exact-match check below).
+const MARGIN_LABELS = new Set(['Full Time', 'Intern', 'Others']);
 
 /** Slice out the raw lines belonging to the INDUSTRY EXPERIENCE section. */
 function industrySectionLines(allLines: PdfLine[]): PdfLine[] {
@@ -126,8 +130,13 @@ describe.skipIf(!DIR)('skynet corpus', () => {
       for (const b of bullets) {
         if (/[■▪•]/.test(b)) problems.push(`${f}: glyph retained`);
       }
+      // A leaked margin label IS the label (exact match), not merely a
+      // label that happens to contain one of these words — an unanchored
+      // substring match false-positives on legitimate labels like
+      // "International", "Internship", "Internal Control" and "Research
+      // Intern" (confirmed: all 8 corpus hits under the old check were this).
       for (const l of (data.experience ?? []).flatMap((e) => e.subSections.map((s) => s.label))) {
-        if (/Full Time|Intern|Others/.test(l)) problems.push(`${f}: margin label leaked`);
+        if (MARGIN_LABELS.has(l.trim())) problems.push(`${f}: margin label leaked`);
       }
 
       if ((data.experience?.length ?? 0) > 0) withIndustry++;
@@ -182,9 +191,23 @@ describe.skipIf(!DIR)('skynet corpus', () => {
 
     expect(problems.slice(0, 20)).toEqual([]);
     // Independently counted from the raw PDFs during spec research.
+    //
+    // withPositions was 161 and withProjects was 116 before the
+    // findBulletXInfo glyph threshold was lowered from >= 3 to >= 1 in
+    // src/templates/skynet/parser.ts: sections with only 1-2 bullets (a
+    // 2-bullet Positions or Projects section is common) never reached the
+    // old >= 3 count, so the whole section silently fell through to the
+    // vector-path fallback heuristic and mis-parsed to empty. Fixed, these
+    // reach 164 (matching the spec-research count exactly) and 122 — one
+    // higher than the spec-research count of 121, because that manual count
+    // undercounted corpus-resume-E.pdf by one (its "Projects and
+    // Papers" header and first bullet share a raw PDF line; both are now
+    // correctly recovered). All 6 previously-empty Projects files and all 3
+    // previously-empty Positions files were individually inspected and
+    // confirmed to genuinely contain the recovered content.
     expect(withIndustry).toBe(445);
     expect(withPositions).toBe(164);
-    expect(withProjects).toBe(121);
+    expect(withProjects).toBe(122);
     expect(withEntrepreneurial).toBe(17);
 
     // Gap 1: no industry bullet may be a truncated prefix of its source line.
