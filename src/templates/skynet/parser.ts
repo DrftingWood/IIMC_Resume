@@ -8,6 +8,7 @@ import type {
   YearedBullet,
 } from './types';
 import { DEFAULT_SECTION_ORDER } from './types';
+import type { SectionKey } from './types';
 import type { PdfLine, TextItem } from '@/lib/pdfExtract';
 
 const ANCHORS = [
@@ -19,6 +20,16 @@ const ANCHORS = [
   'POSITION OF RESPONSIBILITY',
   'EXTRA-CURRICULAR ACHIEVEMENTS',
 ];
+
+const ANCHOR_TO_KEY: Record<string, SectionKey> = {
+  'ACADEMIC PROFILE': 'education',
+  'ACADEMIC DISTINCTIONS & CO-CURRICULAR ACHIEVEMENTS': 'distinctions',
+  'PROJECTS AND PAPERS': 'projects',
+  'ENTREPRENEURIAL/NON-PROFIT VENTURE': 'entrepreneurial',
+  'INDUSTRY EXPERIENCE': 'industry',
+  'POSITION OF RESPONSIBILITY': 'positions',
+  'EXTRA-CURRICULAR ACHIEVEMENTS': 'extras',
+};
 
 // U+25A0 BLACK SQUARE is the Skynet bullet, set in DejaVuMathTeXGyre at 3.4pt.
 // The others are retained so a hand-edited resume still parses.
@@ -1049,6 +1060,18 @@ export function parseResume(lines: PdfLine[]): ParseResult {
     [],
     failed
   );
+  const projects = trySection(
+    'projects',
+    () => parseBulletTable(getSection('PROJECTS AND PAPERS')?.lines ?? []),
+    [],
+    failed
+  );
+  const entrepreneurial = trySection(
+    'entrepreneurial',
+    () => parseBulletTable(getSection('ENTREPRENEURIAL/NON-PROFIT VENTURE')?.lines ?? []),
+    [],
+    failed
+  );
   const industrySec = getSection('INDUSTRY EXPERIENCE');
   const industry = trySection(
     'industry',
@@ -1069,15 +1092,29 @@ export function parseResume(lines: PdfLine[]): ParseResult {
     failed
   );
 
+  // Order follows the document; sections the document omits start hidden.
+  const present = sections
+    .map((s) => ANCHOR_TO_KEY[s.name])
+    .filter((k): k is SectionKey => Boolean(k));
+  const seenKeys = new Set(present);
+  const sectionOrder: SectionKey[] = [...present];
+  const hiddenSections: SectionKey[] = [];
+  for (const k of DEFAULT_SECTION_ORDER) {
+    if (!seenKeys.has(k)) {
+      sectionOrder.push(k);
+      hiddenSections.push(k);
+    }
+  }
+
   return {
     data: {
       name: headerInfo.name,
       mbaId: headerInfo.mbaId,
       taglines: headerInfo.taglines,
-      sectionOrder: [...DEFAULT_SECTION_ORDER],
-      projects: [],
-      entrepreneurial: [],
-      hiddenSections: [],
+      sectionOrder,
+      hiddenSections,
+      projects,
+      entrepreneurial,
       education: edu.rows,
       distinctions,
       experience: industry.entries,
