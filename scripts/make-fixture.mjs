@@ -8,7 +8,13 @@
  * output afterward — that is exactly how a real name leaked once already.
  */
 import { readFile, writeFile } from 'node:fs/promises';
-import { basename, extname } from 'node:path';
+import { basename, extname, dirname, resolve } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+
+// Reuse the app's own line-reconstruction (x-gap-aware word spacing, y-tolerance
+// line grouping) for the id leak scan below — see the comment at check 1.
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const { groupIntoLines } = await import(pathToFileURL(resolve(__dirname, '../src/lib/pdfExtract.ts')));
 
 const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs');
 const [input, out, fakeName, fakeId] = process.argv.slice(2);
@@ -81,20 +87,38 @@ const joined = items.map((i) => i.str).join('');
 //    single item matches the per-item regex above that *found* it) — the
 //    exact bug class that let the real name leak the first time. A
 //    `realId &&`-guarded check would vacuously pass in that case even though
-//    the real id is sitting right there in the joined text. So: every
-//    MBA/<digits>/<digits> pattern found in the scrubbed output must be
-//    exactly the fake id, and at least one must be found at all (every one
-//    of these resumes carries an id; zero means extraction silently broke).
-//    Digit-group widths are bounded to the fake id's own widths (not
-//    open-ended \d+) so the scan can't bleed into an unrelated digit run
-//    from an adjacent, no-separator-joined text item and flag a *correctly*
-//    scrubbed id as a mismatch.
-const fakeIdShape = fakeId.match(/^MBA\/(\d+)\/(\d+)$/);
-if (!fakeIdShape) {
-  fail(`fake id "${fakeId}" is not in the expected MBA/<digits>/<digits> shape`);
-}
-const idScanPattern = new RegExp(`MBA\\/\\d{${fakeIdShape[1].length}}\\/\\d{${fakeIdShape[2].length}}`, 'g');
-const idMatches = joined.match(idScanPattern) ?? [];
+//    the real id is sitting right there in the text. Two earlier attempts at
+//    this scan failed for different reasons, both worth recording:
+//      - Bounding the digit-group widths to the fake id's own shape (e.g.
+//        \d{4}\/\d{2}) made a differently-shaped real id (e.g. MBA/123/63)
+//        invisible to the scan instead of flagged, and — worse — a partial
+//        scrub where SOME occurrences correctly became the fake id could
+//        satisfy "at least one match, all matches equal fakeId" while a
+//        differently-shaped real id survived elsewhere undetected.
+//      - Switching to an open-ended `/(?!\d)MBA\/\d+\/\d+(?<!\d)/g` on the
+//        naively `.join('')`-ed items does NOT fix bleed-over: a greedy \d+
+//        always maximal-munches every contiguous digit before the lookahead
+//        is even checked, so the lookahead is trivially satisfied and never
+//        forces backtracking. Confirmed empirically on the real skynet-a
+//        fixture: `items.map(i=>i.str).join('')` puts "MBA/9001/63" (a page
+//        header item at y=810) directly next to "34 Months (FULL-TIME)" (an
+//        unrelated item at y=472 — a totally different line) purely because
+//        of PDF content-stream *array order*, which is not reading order.
+//        Both the plain and lookaround regexes matched "MBA/9001/6334" on
+//        that text — a false leak on a correctly-scrubbed fixture.
+//    The actual fix: don't scan the naive array-order join at all. Scan the
+//    same line-reconstructed text the app itself produces (groupIntoLines:
+//    y-tolerance line grouping + x-gap-aware word spacing from
+//    src/lib/pdfExtract.ts), which puts a real separator between genuinely
+//    unrelated content and only concatenates text that is actually touching
+//    on the actual page — including an id split across two text runs on the
+//    same line, which is exactly the case this check must still catch.
+//    The digit widths stay open-ended (no fake-id-shape assumption), and the
+//    lookahead/lookbehind stay on as a harmless extra guard against a
+//    same-run digit collision that line-reconstruction wouldn't itself space
+//    out.
+const reconstructedText = groupIntoLines(items).map((l) => l.text).join('\n');
+const idMatches = reconstructedText.match(/(?<!\d)MBA\/\d+\/\d+(?!\d)/g) ?? [];
 if (idMatches.length === 0) {
   fail('no MBA id pattern found anywhere in the output — extraction likely broke silently');
 }
