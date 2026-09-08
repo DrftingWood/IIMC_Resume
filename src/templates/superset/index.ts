@@ -30,6 +30,7 @@ export const supersetTemplate: TemplateConfig<SupersetResumeData> = {
   id: 'superset',
   label: '61st batch and prior',
   description: 'Superset — the IIM Calcutta placement resume used up to the 61st batch.',
+  codename: 'Superset',
   thumbnail,
   emptyData: emptySupersetResume,
   sampleData: SAMPLE,

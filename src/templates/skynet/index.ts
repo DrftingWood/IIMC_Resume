@@ -30,6 +30,7 @@ export const skynetTemplate: TemplateConfig<SkynetResumeData> = {
   id: 'skynet',
   label: '62nd batch and later',
   description: 'Skynet — the IIM Calcutta placement resume used from the 62nd batch onward.',
+  codename: 'Skynet',
   thumbnail,
   emptyData: emptySkynetResume,
   sampleData: SAMPLE,

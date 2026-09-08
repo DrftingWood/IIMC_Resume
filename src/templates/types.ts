@@ -16,6 +16,8 @@ export interface TemplateConfig<TData> {
   id: TemplateKey;
   label: string;
   description: string;
+  /** Batch codename shown as card subtext, e.g. "Superset". */
+  codename: string;
   thumbnail: string;
   emptyData: () => TData;
   sampleData: TData;
