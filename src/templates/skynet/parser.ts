@@ -208,9 +208,30 @@ interface Section {
 }
 
 function findAnchorLine(line: PdfLine): string | null {
-  const t = line.text.toUpperCase().replace(/\s+/g, ' ').trim();
+  const normalized = line.text.replace(/\s+/g, ' ').trim();
+  const upper = normalized.toUpperCase();
   for (const a of ANCHORS) {
-    if (t.startsWith(a)) return a;
+    if (!upper.startsWith(a)) continue;
+    // Guard 1: the header phrase itself must already be rendered ALL-CAPS
+    // in the raw (non-uppercased) text. Real section headers are ALL-CAPS
+    // in every one of these documents; a Title-Case bullet-table category
+    // label (e.g. "Projects and Papers" as a category under Academic
+    // Distinctions, alongside "Industry Accolades", "Competitive Exams",
+    // "Scholastic Achievements") only matches an anchor after naive
+    // uppercasing, not in its raw form — that impostor previously both
+    // invented a spurious PROJECTS AND PAPERS section AND truncated
+    // ACADEMIC DISTINCTIONS at the category's y-position, losing real
+    // bullets. Compared over just the anchor-length prefix (not the whole
+    // line) because a genuine header line can carry trailing mixed-case
+    // content — e.g. "INDUSTRY EXPERIENCE 46 Months (FULL-TIME)" — that
+    // would fail a whole-line all-caps check even though the header
+    // phrase itself is caps.
+    if (normalized.slice(0, a.length) !== a) continue;
+    // Guard 2: section headers render at 11.2pt; category labels at
+    // 9.9pt. An independent signal, belt-and-braces against any other
+    // Title-Case-but-coincidentally-typed-in-caps impostor.
+    if (line.height < 10.5) continue;
+    return a;
   }
   return null;
 }
