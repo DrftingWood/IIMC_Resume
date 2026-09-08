@@ -75,10 +75,32 @@ for (const it of items) {
 // Do this before writing anything, so a failed run never leaves output on disk.
 const joined = items.map((i) => i.str).join('');
 
-// 1. The original MBA id must be gone (every occurrence was replaced above;
-//    if the literal substring still appears, some occurrence was missed).
-if (realId && realId !== fakeId && joined.includes(realId)) {
-  fail(`original MBA id "${realId}" still present in output after scrubbing`);
+// 1. Scan the OUTPUT itself for every MBA id pattern, rather than asking
+//    whether the pre-extracted `realId` variable still appears. `realId` can
+//    be `undefined` when the real id is split across multiple text runs (no
+//    single item matches the per-item regex above that *found* it) — the
+//    exact bug class that let the real name leak the first time. A
+//    `realId &&`-guarded check would vacuously pass in that case even though
+//    the real id is sitting right there in the joined text. So: every
+//    MBA/<digits>/<digits> pattern found in the scrubbed output must be
+//    exactly the fake id, and at least one must be found at all (every one
+//    of these resumes carries an id; zero means extraction silently broke).
+//    Digit-group widths are bounded to the fake id's own widths (not
+//    open-ended \d+) so the scan can't bleed into an unrelated digit run
+//    from an adjacent, no-separator-joined text item and flag a *correctly*
+//    scrubbed id as a mismatch.
+const fakeIdShape = fakeId.match(/^MBA\/(\d+)\/(\d+)$/);
+if (!fakeIdShape) {
+  fail(`fake id "${fakeId}" is not in the expected MBA/<digits>/<digits> shape`);
+}
+const idScanPattern = new RegExp(`MBA\\/\\d{${fakeIdShape[1].length}}\\/\\d{${fakeIdShape[2].length}}`, 'g');
+const idMatches = joined.match(idScanPattern) ?? [];
+if (idMatches.length === 0) {
+  fail('no MBA id pattern found anywhere in the output — extraction likely broke silently');
+}
+const leakedIds = [...new Set(idMatches.filter((m) => m !== fakeId))];
+if (leakedIds.length) {
+  fail(`MBA id pattern(s) in output do not match the fake id: ${leakedIds.join(', ')}`);
 }
 
 // 2. No email other than the fake one may remain. Checked per-item, not on
