@@ -9,14 +9,12 @@ const MAX_PDF_BYTES = 15 * 1024 * 1024;
 
 export default function Landing({
   onReady,
-  onBrowseTemplates,
 }: {
   onReady: (
     templateId: TemplateKey,
     data: unknown,
     opts?: { warnBoldLost?: boolean; failedSections?: string[] }
   ) => void;
-  onBrowseTemplates: () => void;
 }) {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
@@ -179,18 +177,6 @@ export default function Landing({
               {err}
             </p>
           )}
-        </div>
-
-        <div className="mt-5 text-center">
-          <button
-            onClick={onBrowseTemplates}
-            className="ui-transition text-xs text-slate-500 hover:text-slate-800"
-          >
-            Looking for something else?{' '}
-            <span className="underline underline-offset-2 text-slate-700">
-              Browse other templates →
-            </span>
-          </button>
         </div>
 
         <p className="text-xs text-slate-500 mt-6 text-center px-4 leading-relaxed">
