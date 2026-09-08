@@ -14,6 +14,7 @@ import ErrorBoundary from '@/components/ErrorBoundary';
 import SectionOrderPanel from '@/components/SectionOrderPanel';
 import { getTemplate } from '@/templates/registry';
 import type { TemplateKey } from '@/templates/types';
+import { migrateBetweenBatches } from '@/lib/migrateBatch';
 
 const PANEL_PREFS_KEY = 'iimc-resume-builder:panels:v1';
 
@@ -125,8 +126,18 @@ export default function App() {
   }
 
   function onChangeTemplate() {
-    setTemplateId(null);
-    setData(null);
+    if (!templateId) return;
+    const next: TemplateKey = templateId === 'skynet' ? 'superset' : 'skynet';
+    const { data: migrated, dropped } = migrateBetweenBatches(templateId, next, data);
+    if (dropped.length) {
+      const list = dropped.join(' and ');
+      if (!confirm(`The ${getTemplate(next)!.label} format has no ${list} section. Switching will delete that content. Continue?`)) {
+        return;
+      }
+    }
+    setTemplateId(next);
+    setData(migrated);
+    setLastTemplateId(next);
   }
 
   const template = templateId ? getTemplate(templateId) : null;
