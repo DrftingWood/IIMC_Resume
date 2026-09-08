@@ -127,11 +127,17 @@ function SectionBar({ title, rightText }: { title: string; rightText?: string })
 function EducationTable({ data }: { data: SkynetResumeData }) {
   return (
     <table className="sk-table sk-edu">
+      {/* Column widths derive from the measured education column CENTRES
+          (114.6 / 339.6 / 508.2 / 564.6pt), not a round split. Text is
+          centred in each cell, so cell centre = text centre, giving each
+          boundary b_i = 2*c_i - b_(i-1) from the left content edge
+          L=19.5pt: boundaries 19.5 / 209.7 / 469.5 / 546.9 / 582.3, table
+          width 562.8pt. Do not revert these to round numbers. */}
       <colgroup>
-        <col style={{ width: '40%' }} />
-        <col style={{ width: '41%' }} />
-        <col style={{ width: '12%' }} />
-        <col style={{ width: '7%' }} />
+        <col style={{ width: '33.80%' }} />
+        <col style={{ width: '46.16%' }} />
+        <col style={{ width: '13.75%' }} />
+        <col style={{ width: '6.29%' }} />
       </colgroup>
       <thead>
         <tr>
@@ -147,7 +153,7 @@ function EducationTable({ data }: { data: SkynetResumeData }) {
             <td>{row.degree}</td>
             <td>{row.institute}</td>
             <td>{row.gpa}</td>
-            <td>{row.year}</td>
+            <td className="sk-cell-year">{row.year}</td>
           </tr>
         ))}
       </tbody>

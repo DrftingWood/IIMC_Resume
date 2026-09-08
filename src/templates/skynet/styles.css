@@ -13,9 +13,12 @@
   --row-pitch: 14.6pt;
   --bullet-x: 108.4pt;
   --bullet-text-x: 113.2pt;
-  --year-x: 552pt;
-  --year-w: 23pt;
   --footer-size: 8.2pt;
+  /* No --year-x / --year-w here: the corpus only gives the year TEXT
+     extent (552-575pt), and a table cell's width is not derivable from
+     the text extent inside it. The year column's actual width is
+     whatever each table's <col> percentage says, pending visual
+     confirmation against a real exported PDF. */
 
   --c-text: #000000;
   --c-bg: #ffffff;
@@ -153,11 +156,11 @@
   text-align: center;
 }
 
-/* Year column — measured width of 23pt (x=552-575pt), identical across
-   Distinctions / Positions / Extras / Education so the 20XX cells line up
-   at the same x position no matter which section they're in. */
+/* Year column — width is set per-table by each <col> percentage (not by
+   a shared constant here): the corpus only measured the year TEXT extent
+   (x=552-575pt), and cell width isn't derivable from text extent alone.
+   Pending visual confirmation against a real exported PDF. */
 .sk-cell-year {
-  width: var(--year-w);
   text-align: center !important;
   vertical-align: middle !important;
   font-size: var(--body-size);
