@@ -13,6 +13,8 @@ import AppHeader from '@/components/AppHeader';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import SectionOrderPanel from '@/components/SectionOrderPanel';
 import { getTemplate } from '@/templates/registry';
+import { usePageOverflow } from '@/lib/usePageOverflow';
+import { emptyHistory, record, undo as undoHistory, canUndo } from '@/lib/history';
 import type { TemplateKey } from '@/templates/types';
 import { migrateBetweenBatches } from '@/lib/migrateBatch';
 
@@ -76,6 +78,14 @@ export default function App() {
   const [failedSections, setFailedSections] = useState<string[]>([]);
   const [panels, setPanels] = useState(loadPanelPrefs);
   const previewRef = useRef<HTMLDivElement>(null);
+  const overflow = usePageOverflow(previewRef, Boolean(templateId && data));
+  const [overflowDismissed, setOverflowDismissed] = useState(false);
+  const [history, setHistory] = useState(() => emptyHistory<unknown>());
+  // Re-arm the warning once the resume fits again, so dismissing it once does
+  // not hide a later overflow the student introduces by adding more content.
+  useEffect(() => {
+    if (overflow.fits) setOverflowDismissed(false);
+  }, [overflow.fits]);
 
   useEffect(() => {
     try {
@@ -106,8 +116,36 @@ export default function App() {
   }, [templateId, data]);
 
   function update(patch: Record<string, unknown>) {
-    setData((prev: unknown) => (prev ? { ...(prev as object), ...patch } : prev));
+    setData((prev: unknown) => {
+      if (!prev) return prev;
+      // Snapshot the state BEFORE the change. Bursts of keystrokes coalesce so
+      // one undo steps back over the burst rather than a single character.
+      setHistory((h) => record(h, prev, Date.now()));
+      return { ...(prev as object), ...patch };
+    });
   }
+
+  function onUndo() {
+    setHistory((h) => {
+      const { history: next, snapshot } = undoHistory(h);
+      if (snapshot !== undefined) setData(snapshot);
+      return next;
+    });
+  }
+
+  // Ctrl/Cmd+Z, except while typing in a field where the browser's own
+  // text undo is the more useful behaviour.
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (!((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') || e.shiftKey) return;
+      const el = e.target as HTMLElement | null;
+      if (el && /^(INPUT|TEXTAREA)$/.test(el.tagName)) return;
+      e.preventDefault();
+      onUndo();
+    }
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  });
 
   function startWith(id: TemplateKey, initial: unknown) {
     const tpl = getTemplate(id);
@@ -164,6 +202,8 @@ export default function App() {
     <div className="flex flex-col h-screen overflow-hidden">
       <AppHeader
         previewRef={previewRef}
+        onUndo={onUndo}
+        canUndo={canUndo(history)}
         onReset={onReset}
         onChangeTemplate={onChangeTemplate}
         templateLabel={template.label}
@@ -182,6 +222,17 @@ export default function App() {
         >
           Inline <strong>bold</strong> formatting wasn't recovered from your upload — use the{' '}
           <strong>B</strong> button on each field to re-apply.
+        </AdvisoryBanner>
+      )}
+      {!overflow.fits && !overflowDismissed && (
+        <AdvisoryBanner
+          tone="warn"
+          onDismiss={() => setOverflowDismissed(true)}
+          label="Length"
+        >
+          This resume is <strong>{overflow.pages} pages</strong> long — about{' '}
+          <strong>{overflow.overflowPt}pt</strong> over a single A4 sheet, so the export
+          will spill onto a second page. Trim bullets, or hide a section you are not using.
         </AdvisoryBanner>
       )}
       {failedSections.length > 0 && (
