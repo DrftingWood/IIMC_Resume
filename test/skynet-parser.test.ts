@@ -107,9 +107,13 @@ describe('skynet parser: rotated margin labels', () => {
 
 describe('skynet parser: education table', () => {
   it('reads all four columns for every row', () => {
+    // Academic Profile table lists pre-MBA qualifications only, so row counts
+    // vary by candidate background: a=5 (CFA+degree+minor+school), b=3 (no extras),
+    // c=4, d=3. Exact counts guard against both dropped and spurious rows (e.g. header leak).
+    const expected = { 'skynet-a': 5, 'skynet-b': 3, 'skynet-c': 4, 'skynet-d': 3 };
     for (const f of ['skynet-a', 'skynet-b', 'skynet-c', 'skynet-d']) {
       const rows = parseResume(loadFixture(f)).data.education!;
-      expect(rows.length).toBeGreaterThanOrEqual(4);
+      expect(rows.length).toBe(expected[f as keyof typeof expected]);
       for (const r of rows) {
         expect(r.degree).not.toBe('');
         expect(r.institute).not.toBe('');
