@@ -197,17 +197,28 @@ describe.skipIf(!DIR)('skynet corpus', () => {
     // src/templates/skynet/parser.ts: sections with only 1-2 bullets (a
     // 2-bullet Positions or Projects section is common) never reached the
     // old >= 3 count, so the whole section silently fell through to the
-    // vector-path fallback heuristic and mis-parsed to empty. Fixed, these
-    // reach 164 (matching the spec-research count exactly) and 122 — one
-    // higher than the spec-research count of 121, because that manual count
-    // undercounted corpus-resume-E.pdf by one (its "Projects and
-    // Papers" header and first bullet share a raw PDF line; both are now
-    // correctly recovered). All 6 previously-empty Projects files and all 3
-    // previously-empty Positions files were individually inspected and
-    // confirmed to genuinely contain the recovered content.
+    // vector-path fallback heuristic and mis-parsed to empty. Fixed,
+    // withPositions reaches 164, matching the spec-research count exactly.
+    //
+    // withProjects briefly regressed to 122 in between: findAnchorLine used
+    // to promote ANY line whose uppercased text started with an anchor
+    // phrase, so corpus-resume-E.pdf's Title-Case "Projects and
+    // Papers" bullet-table CATEGORY (inside Academic Distinctions, sibling
+    // to "Industry Accolades" / "Competitive Exams" / "Scholastic
+    // Achievements") was mistaken for a genuine PROJECTS AND PAPERS section
+    // header — inventing a spurious section AND truncating that student's
+    // real Academic Distinctions content at the category's y-position.
+    // findAnchorLine now additionally requires the header phrase to be
+    // rendered ALL-CAPS in the raw text and >= 10.5pt tall (real headers are
+    // both; this category label was Title Case at 9.9pt), which restores
+    // withProjects to the correct 121 and fixes the data corruption on that
+    // one file (confirmed: it now parses to exactly its 4 real sections, and
+    // "Projects and Papers" is retained as a category under distinctions
+    // with its bullets intact). Re-checked the whole corpus for this same
+    // collision — corpus-resume-E.pdf was the only file affected.
     expect(withIndustry).toBe(445);
     expect(withPositions).toBe(164);
-    expect(withProjects).toBe(122);
+    expect(withProjects).toBe(121);
     expect(withEntrepreneurial).toBe(17);
 
     // Gap 1: no industry bullet may be a truncated prefix of its source line.
