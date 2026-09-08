@@ -46,9 +46,8 @@ export async function extractTextItems(file: File): Promise<TextItem[]> {
   return items;
 }
 
-/** Group items into visual lines by y coordinate (with small tolerance). */
-export async function extractLines(file: File): Promise<PdfLine[]> {
-  const items = await extractTextItems(file);
+/** Group raw text items into visual lines by y coordinate (small tolerance). */
+export function groupIntoLines(items: TextItem[]): PdfLine[] {
   if (!items.length) return [];
 
   const sorted = [...items].sort((a, b) => b.y - a.y);
@@ -56,10 +55,7 @@ export async function extractLines(file: File): Promise<PdfLine[]> {
   const TOL = 4.5;
 
   for (const it of sorted) {
-    if (!it.str.trim() && it.str !== ' ') {
-      // keep spaces (they matter for joining) but skip empty
-      if (it.str === '') continue;
-    }
+    if (it.str === '') continue;
     const existing = lines.find((l) => Math.abs(l.y - it.y) <= TOL);
     if (existing) {
       existing.items.push(it);
@@ -78,7 +74,6 @@ export async function extractLines(file: File): Promise<PdfLine[]> {
     }
   }
 
-  // Sort items left-to-right per line and build text
   for (const ln of lines) {
     ln.items.sort((a, b) => a.x - b.x);
     let prevEnd = -Infinity;
@@ -93,8 +88,11 @@ export async function extractLines(file: File): Promise<PdfLine[]> {
     ln.text = buf.replace(/\s+/g, ' ').trim();
   }
 
-  // Filter out fully empty lines
   return lines.filter((l) => l.text.length > 0).sort((a, b) => b.y - a.y);
+}
+
+export async function extractLines(file: File): Promise<PdfLine[]> {
+  return groupIntoLines(await extractTextItems(file));
 }
 
 /** Backwards-compat plain-text extractor (no longer used by the parser). */
