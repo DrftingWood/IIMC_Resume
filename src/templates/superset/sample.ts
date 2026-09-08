@@ -1,9 +1,9 @@
-import type { IimcResumeData } from './types';
+import type { SupersetResumeData } from './types';
 
 // Fully fictional candidate. All metrics, organisations, and outcomes are
 // invented to illustrate the layout and bold-rendering — no resemblance to
 // any real student or selection list is intended.
-export const SAMPLE: IimcResumeData = {
+export const SAMPLE: SupersetResumeData = {
   name: 'ROHAN SENGUPTA',
   mbaId: 'MBA/0247/61',
   taglines: [

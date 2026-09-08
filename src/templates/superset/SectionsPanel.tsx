@@ -1,12 +1,12 @@
-import type { IimcResumeData, SectionKey } from './types';
+import type { SupersetResumeData, SectionKey } from './types';
 import { DEFAULT_SECTION_ORDER, SECTION_LABELS } from './types';
 
-export default function IimcSectionsPanel({
+export default function SupersetSectionsPanel({
   data,
   onChange,
 }: {
-  data: IimcResumeData;
-  onChange: (patch: Partial<IimcResumeData>) => void;
+  data: SupersetResumeData;
+  onChange: (patch: Partial<SupersetResumeData>) => void;
 }) {
   const order: SectionKey[] =
     data.sectionOrder && data.sectionOrder.length

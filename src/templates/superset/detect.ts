@@ -16,7 +16,7 @@ const IIMC_SIGNALS = [
 /** Heuristic: the PDF is an IIMC placement resume if ≥3 of the 5 canonical
  *  section headers appear, OR a strong identifier (MBA id / institute name)
  *  plus ≥2 anchors. */
-export function detectIimc(lines: PdfLine[]): boolean {
+export function detectSuperset(lines: PdfLine[]): boolean {
   const upper = lines.map((l) => l.text.toUpperCase());
   const anchorHits = IIMC_ANCHORS.filter((a) =>
     upper.some((t) => t.includes(a))

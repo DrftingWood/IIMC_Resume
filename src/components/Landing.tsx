@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { extractLines } from '@/lib/pdfExtract';
 import { TEMPLATES } from '@/templates/registry';
-import { iimcTemplate } from '@/templates/iimc';
+import { supersetTemplate } from '@/templates/superset';
 import type { AnyTemplateConfig, TemplateKey } from '@/templates/types';
 import TemplateChooserModal from './TemplateChooserModal';
 
@@ -34,15 +34,15 @@ export default function Landing({
     try {
       const lines = await extractLines(file);
       // Try IIMC first (the brand template).
-      if (iimcTemplate.detect && iimcTemplate.detect(lines)) {
-        const { data: parsed, failedSections } = iimcTemplate.parse!(lines);
-        const merged = { ...iimcTemplate.emptyData(), ...parsed };
-        onReady(iimcTemplate.id, merged, { warnBoldLost: true, failedSections });
+      if (supersetTemplate.detect && supersetTemplate.detect(lines)) {
+        const { data: parsed, failedSections } = supersetTemplate.parse!(lines);
+        const merged = { ...supersetTemplate.emptyData(), ...parsed };
+        onReady(supersetTemplate.id, merged, { warnBoldLost: true, failedSections });
         return;
       }
       // Then any other detector.
       const detected = TEMPLATES.find(
-        (t) => t.id !== 'iimc' && t.detect && t.parse && t.detect(lines)
+        (t) => t.id !== 'superset' && t.detect && t.parse && t.detect(lines)
       );
       if (detected) {
         const { data: parsed, failedSections } = detected.parse!(lines);
@@ -161,13 +161,13 @@ export default function Landing({
 
           <div className="grid grid-cols-2 gap-3">
             <button
-              onClick={() => onReady(iimcTemplate.id, iimcTemplate.emptyData())}
+              onClick={() => onReady(supersetTemplate.id, supersetTemplate.emptyData())}
               className="ui-transition px-4 py-2.5 rounded-lg border border-slate-300 hover:border-slate-400 hover:bg-slate-50 text-sm font-medium text-slate-700"
             >
               Start blank
             </button>
             <button
-              onClick={() => onReady(iimcTemplate.id, iimcTemplate.sampleData)}
+              onClick={() => onReady(supersetTemplate.id, supersetTemplate.sampleData)}
               className="ui-transition px-4 py-2.5 rounded-lg bg-slate-900 text-white hover:bg-slate-800 text-sm font-medium"
             >
               Use sample

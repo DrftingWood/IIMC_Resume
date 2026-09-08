@@ -1,12 +1,12 @@
-import type { IimcResumeData } from '../types';
+import type { SupersetResumeData } from '../types';
 import { Accordion, Field, TextInput } from '@/components/form-shared';
 
 export function FooterForm({
   data,
   onChange,
 }: {
-  data: IimcResumeData;
-  onChange: (patch: Partial<IimcResumeData>) => void;
+  data: SupersetResumeData;
+  onChange: (patch: Partial<SupersetResumeData>) => void;
 }) {
   return (
     <Accordion title="Footer">

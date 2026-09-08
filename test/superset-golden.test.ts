@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { loadFixture } from './support/pdf';
-import { parseResume } from '@/templates/iimc/parser';
+import { parseResume } from '@/templates/superset/parser';
 
 describe('superset parser (frozen)', () => {
   it('parses the 61st-batch fixture without failed sections', () => {

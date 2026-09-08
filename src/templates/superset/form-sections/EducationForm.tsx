@@ -1,12 +1,12 @@
-import type { IimcResumeData, EducationRow } from '../types';
+import type { SupersetResumeData, EducationRow } from '../types';
 import { Accordion, Field, TextInput, RowControls, AddButton, move } from '@/components/form-shared';
 
 export function EducationForm({
   data,
   onChange,
 }: {
-  data: IimcResumeData;
-  onChange: (patch: Partial<IimcResumeData>) => void;
+  data: SupersetResumeData;
+  onChange: (patch: Partial<SupersetResumeData>) => void;
 }) {
   function update(i: number, patch: Partial<EducationRow>) {
     const next = data.education.map((r, idx) => (idx === i ? { ...r, ...patch } : r));

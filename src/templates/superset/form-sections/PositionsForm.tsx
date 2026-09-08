@@ -1,12 +1,12 @@
-import type { IimcResumeData, PositionEntry } from '../types';
+import type { SupersetResumeData, PositionEntry } from '../types';
 import { Accordion, Field, TextInput, BoldableTextarea, RowControls, AddButton, move } from '@/components/form-shared';
 
 export function PositionsForm({
   data,
   onChange,
 }: {
-  data: IimcResumeData;
-  onChange: (patch: Partial<IimcResumeData>) => void;
+  data: SupersetResumeData;
+  onChange: (patch: Partial<SupersetResumeData>) => void;
 }) {
   function setPos(pi: number, patch: Partial<PositionEntry>) {
     onChange({ positions: data.positions.map((p, i) => (i === pi ? { ...p, ...patch } : p)) });

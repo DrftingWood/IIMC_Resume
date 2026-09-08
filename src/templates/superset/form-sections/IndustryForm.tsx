@@ -1,12 +1,12 @@
-import type { IimcResumeData, ExperienceEntry, ExperienceSubSection } from '../types';
+import type { SupersetResumeData, ExperienceEntry, ExperienceSubSection } from '../types';
 import { Accordion, Field, TextInput, BoldableTextarea, RowControls, AddButton, move } from '@/components/form-shared';
 
 export function IndustryForm({
   data,
   onChange,
 }: {
-  data: IimcResumeData;
-  onChange: (patch: Partial<IimcResumeData>) => void;
+  data: SupersetResumeData;
+  onChange: (patch: Partial<SupersetResumeData>) => void;
 }) {
   function setEntry(ei: number, patch: Partial<ExperienceEntry>) {
     onChange({
