@@ -13,13 +13,13 @@ interface Props {
 }
 
 const ResumePreview = forwardRef<HTMLDivElement, Props>(({ data }, ref) => {
-  const order: SectionKey[] =
-    data.sectionOrder && data.sectionOrder.length
-      ? data.sectionOrder
-      : DEFAULT_SECTION_ORDER;
+  const hidden = new Set(data.hiddenSections ?? []);
+  const order: SectionKey[] = (
+    data.sectionOrder && data.sectionOrder.length ? data.sectionOrder : DEFAULT_SECTION_ORDER
+  ).filter((k) => !hidden.has(k));
 
   return (
-    <div ref={ref} className="f1-page">
+    <div ref={ref} className="skynet-page">
       <HeaderBand data={data} />
       <TaglineRow taglines={data.taglines} />
 
@@ -28,7 +28,7 @@ const ResumePreview = forwardRef<HTMLDivElement, Props>(({ data }, ref) => {
           case 'education':
             return (
               <React.Fragment key={key}>
-                <SectionBar title="ACADEMIC QUALIFICATIONS" />
+                <SectionBar title="ACADEMIC PROFILE" />
                 <EducationTable data={data} />
               </React.Fragment>
             );
@@ -37,6 +37,20 @@ const ResumePreview = forwardRef<HTMLDivElement, Props>(({ data }, ref) => {
               <React.Fragment key={key}>
                 <SectionBar title="ACADEMIC DISTINCTIONS & CO-CURRICULAR ACHIEVEMENTS" />
                 <BulletGroupTable groups={data.distinctions} />
+              </React.Fragment>
+            );
+          case 'projects':
+            return (
+              <React.Fragment key={key}>
+                <SectionBar title="PROJECTS AND PAPERS" />
+                <BulletGroupTable groups={data.projects} />
+              </React.Fragment>
+            );
+          case 'entrepreneurial':
+            return (
+              <React.Fragment key={key}>
+                <SectionBar title="ENTREPRENEURIAL/NON-PROFIT VENTURE" />
+                <BulletGroupTable groups={data.entrepreneurial} />
               </React.Fragment>
             );
           case 'industry':
@@ -49,7 +63,7 @@ const ResumePreview = forwardRef<HTMLDivElement, Props>(({ data }, ref) => {
           case 'positions':
             return (
               <React.Fragment key={key}>
-                <SectionBar title="POSITIONS OF RESPONSIBILITY" />
+                <SectionBar title="POSITION OF RESPONSIBILITY" />
                 <PositionsTable data={data} />
               </React.Fragment>
             );
@@ -65,9 +79,9 @@ const ResumePreview = forwardRef<HTMLDivElement, Props>(({ data }, ref) => {
         }
       })}
 
-      <div className="f1-footer">
-        <span className="f1-footer-line">Email: {data.email}</span>
-        <span className="f1-footer-line">{data.institute}</span>
+      <div className="sk-footer">
+        <span className="sk-footer-line">Email: {data.email}</span>
+        <span className="sk-footer-line">{data.institute}</span>
       </div>
     </div>
   );
@@ -78,14 +92,14 @@ export default ResumePreview;
 
 function HeaderBand({ data }: { data: SkynetResumeData }) {
   return (
-    <div className="f1-header">
+    <div className="sk-header">
       <div>
-        <div className="f1-inst-eng">Indian Institute of Management Calcutta</div>
-        <div className="f1-inst-hindi">भारतीय प्रबंध संस्थान कलकत्ता</div>
+        <div className="sk-inst-eng">Indian Institute of Management Calcutta</div>
+        <div className="sk-inst-hindi">भारतीय प्रबंध संस्थान कलकत्ता</div>
       </div>
-      <div className="f1-header-right">
-        <div className="f1-name">{data.name || ' '}</div>
-        <div className="f1-mbaid">{data.mbaId || ' '}</div>
+      <div className="sk-header-right">
+        <div className="sk-name">{data.name || ' '}</div>
+        <div className="sk-mbaid">{data.mbaId || ' '}</div>
       </div>
     </div>
   );
@@ -93,9 +107,9 @@ function HeaderBand({ data }: { data: SkynetResumeData }) {
 
 function TaglineRow({ taglines }: { taglines: [string, string, string] }) {
   return (
-    <div className="f1-tagline-row">
+    <div className="sk-tagline-row">
       {taglines.map((t, i) => (
-        <div key={i} className="f1-tagline">{t}</div>
+        <div key={i} className="sk-tagline">{t}</div>
       ))}
     </div>
   );
@@ -103,16 +117,16 @@ function TaglineRow({ taglines }: { taglines: [string, string, string] }) {
 
 function SectionBar({ title, rightText }: { title: string; rightText?: string }) {
   return (
-    <div className="f1-section-bar">
-      <span>{title}</span>
-      {rightText ? <span className="f1-section-bar-right">{rightText}</span> : null}
+    <div className="sk-section-bar">
+      <h2 className="sk-section-title">{title}</h2>
+      {rightText ? <span className="sk-section-bar-right">{rightText}</span> : null}
     </div>
   );
 }
 
 function EducationTable({ data }: { data: SkynetResumeData }) {
   return (
-    <table className="f1-table f1-edu">
+    <table className="sk-table sk-edu">
       <colgroup>
         <col style={{ width: '40%' }} />
         <col style={{ width: '41%' }} />
@@ -143,7 +157,7 @@ function EducationTable({ data }: { data: SkynetResumeData }) {
 
 function BulletGroupTable({ groups }: { groups: BulletGroup[] }) {
   return (
-    <table className="f1-table">
+    <table className="sk-table">
       <colgroup>
         <col style={{ width: '15%' }} />
         <col style={{ width: '78%' }} />
@@ -152,20 +166,20 @@ function BulletGroupTable({ groups }: { groups: BulletGroup[] }) {
       <tbody>
         {groups.flatMap((g, gi) =>
           g.bullets.map((b, bi) => (
-            <tr key={`${gi}-${bi}`} className={bi > 0 ? 'f1-continuation' : ''}>
+            <tr key={`${gi}-${bi}`} className={bi > 0 ? 'sk-continuation' : ''}>
               {bi === 0 && (
-                <td className="f1-category" rowSpan={g.bullets.length}>
-                  <div className="f1-label-inner">
+                <td className="sk-category" rowSpan={g.bullets.length}>
+                  <div className="sk-label-inner">
                     {g.category.split('\n').map((line, li) => (
                       <div key={li}>{line}</div>
                     ))}
                   </div>
                 </td>
               )}
-              <td className="f1-bullet-cell">
-                <span className="f1-bullet">{renderInline(b.text)}</span>
+              <td className="sk-bullet-cell">
+                <span className="sk-bullet">{renderInline(b.text)}</span>
               </td>
-              <td className="f1-cell-year">{b.year}</td>
+              <td className="sk-cell-year">{b.year}</td>
             </tr>
           ))
         )}
@@ -176,7 +190,7 @@ function BulletGroupTable({ groups }: { groups: BulletGroup[] }) {
 
 function IndustryTable({ entries }: { entries: ExperienceEntry[] }) {
   if (!entries.length) {
-    return <table className="f1-table"><tbody></tbody></table>;
+    return <table className="sk-table"><tbody></tbody></table>;
   }
 
   // Group consecutive entries by type so vertical Intern/Full-Time stays
@@ -207,14 +221,14 @@ function IndustryTable({ entries }: { entries: ExperienceEntry[] }) {
       rows.push(
         <tr key={`g${gi}-e${ei}-head`}>
           {isFirstRowOfType && (
-            <td className="f1-vertical" rowSpan={typeRowCount}>
-              <div className="f1-vertical-inner">
+            <td className="sk-vertical" rowSpan={typeRowCount}>
+              <div className="sk-vertical-inner">
                 <span>{grp.type}</span>
               </div>
             </td>
           )}
-          <td className="f1-firm-banner-cell" colSpan={2}>
-            <div className="f1-firm-banner">
+          <td className="sk-firm-banner-cell" colSpan={2}>
+            <div className="sk-firm-banner">
               <span>{entry.firm}</span>
               <span>{entry.role}</span>
               <span>{entry.dates}</span>
@@ -230,19 +244,19 @@ function IndustryTable({ entries }: { entries: ExperienceEntry[] }) {
           rows.push(
             <tr
               key={`g${gi}-e${ei}-s${si}-b${bi}`}
-              className={bi > 0 ? 'f1-continuation' : ''}
+              className={bi > 0 ? 'sk-continuation' : ''}
             >
               {bi === 0 && (
-                <td className="f1-exp-sublabel" rowSpan={bullets.length}>
-                  <div className="f1-label-inner">
+                <td className="sk-exp-sublabel" rowSpan={bullets.length}>
+                  <div className="sk-label-inner">
                     {sub.label.split('\n').map((line, li) => (
                       <div key={li}>{line}</div>
                     ))}
                   </div>
                 </td>
               )}
-              <td className="f1-bullet-cell">
-                <span className="f1-bullet">{renderInline(b)}</span>
+              <td className="sk-bullet-cell">
+                <span className="sk-bullet">{renderInline(b)}</span>
               </td>
             </tr>
           );
@@ -252,7 +266,7 @@ function IndustryTable({ entries }: { entries: ExperienceEntry[] }) {
   });
 
   return (
-    <table className="f1-table">
+    <table className="sk-table">
       <colgroup>
         <col style={{ width: '0.45cm' }} />
         <col style={{ width: 'calc(15% - 0.45cm)' }} />
@@ -265,7 +279,7 @@ function IndustryTable({ entries }: { entries: ExperienceEntry[] }) {
 
 function PositionsTable({ data }: { data: SkynetResumeData }) {
   return (
-    <table className="f1-table">
+    <table className="sk-table">
       <colgroup>
         <col style={{ width: '15%' }} />
         <col style={{ width: '78%' }} />
@@ -274,21 +288,21 @@ function PositionsTable({ data }: { data: SkynetResumeData }) {
       <tbody>
         {data.positions.flatMap((p, pi) =>
           p.bullets.map((b, bi) => (
-            <tr key={`${pi}-${bi}`} className={bi > 0 ? 'f1-continuation' : ''}>
+            <tr key={`${pi}-${bi}`} className={bi > 0 ? 'sk-continuation' : ''}>
               {bi === 0 && (
-                <td className="f1-category" rowSpan={p.bullets.length}>
-                  <div className="f1-label-inner">
+                <td className="sk-category" rowSpan={p.bullets.length}>
+                  <div className="sk-label-inner">
                     {p.title.split('\n').map((line, li) => (
                       <div key={li}>{line}</div>
                     ))}
                   </div>
                 </td>
               )}
-              <td className="f1-bullet-cell">
-                <span className="f1-bullet">{renderInline(b)}</span>
+              <td className="sk-bullet-cell">
+                <span className="sk-bullet">{renderInline(b)}</span>
               </td>
               {bi === 0 && (
-                <td className="f1-cell-year" rowSpan={p.bullets.length}>
+                <td className="sk-cell-year" rowSpan={p.bullets.length}>
                   {p.year}
                 </td>
               )}

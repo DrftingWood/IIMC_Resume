@@ -74,6 +74,7 @@
   }
 
   .f1-page,
+  .skynet-page,
   .dcv-page {
     box-shadow: none !important;
     margin: 0 auto !important;
@@ -84,6 +85,8 @@
   /* Make sure colored backgrounds and table borders actually print. */
   .f1-page,
   .f1-page *,
+  .skynet-page,
+  .skynet-page *,
   .dcv-page,
   .dcv-page * {
     -webkit-print-color-adjust: exact !important;
