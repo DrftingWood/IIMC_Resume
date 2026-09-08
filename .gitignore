@@ -10,3 +10,7 @@ vite.config.d.ts
 
 .parser.bundled.mjs
 corpus-report.json
+
+# Test fixtures are generated locally from real student resumes and are
+# deliberately NOT committed - this repo is public. See README "Testing".
+test/fixtures/
