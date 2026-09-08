@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { extractLines } from '@/lib/pdfExtract';
+import { chooseTemplate } from '@/lib/batch';
 import { TEMPLATES } from '@/templates/registry';
-import { iimcTemplate } from '@/templates/iimc';
 import type { AnyTemplateConfig, TemplateKey } from '@/templates/types';
 import TemplateChooserModal from './TemplateChooserModal';
 
@@ -9,14 +9,12 @@ const MAX_PDF_BYTES = 15 * 1024 * 1024;
 
 export default function Landing({
   onReady,
-  onBrowseTemplates,
 }: {
   onReady: (
     templateId: TemplateKey,
     data: unknown,
     opts?: { warnBoldLost?: boolean; failedSections?: string[] }
   ) => void;
-  onBrowseTemplates: () => void;
 }) {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
@@ -33,24 +31,13 @@ export default function Landing({
     setErr(null);
     try {
       const lines = await extractLines(file);
-      // Try IIMC first (the brand template).
-      if (iimcTemplate.detect && iimcTemplate.detect(lines)) {
-        const { data: parsed, failedSections } = iimcTemplate.parse!(lines);
-        const merged = { ...iimcTemplate.emptyData(), ...parsed };
-        onReady(iimcTemplate.id, merged, { warnBoldLost: true, failedSections });
+      const chosen = chooseTemplate(lines, TEMPLATES);
+      if (chosen?.parse) {
+        const { data: parsed, failedSections } = chosen.parse(lines);
+        const merged = { ...chosen.emptyData(), ...parsed };
+        onReady(chosen.id, merged, { warnBoldLost: true, failedSections });
         return;
       }
-      // Then any other detector.
-      const detected = TEMPLATES.find(
-        (t) => t.id !== 'iimc' && t.detect && t.parse && t.detect(lines)
-      );
-      if (detected) {
-        const { data: parsed, failedSections } = detected.parse!(lines);
-        const merged = { ...detected.emptyData(), ...parsed };
-        onReady(detected.id, merged, { warnBoldLost: true, failedSections });
-        return;
-      }
-      // No detector matched — let the user pick.
       setPendingFile(file);
       setChooserOpen(true);
     } catch (e: any) {
@@ -155,23 +142,35 @@ export default function Landing({
 
           <div className="flex items-center gap-3 my-5">
             <div className="flex-1 h-px bg-slate-200" />
-            <span className="text-[11px] uppercase tracking-wider text-slate-400">or</span>
+            <span className="text-[11px] uppercase tracking-wider text-slate-400">
+              or start blank
+            </span>
             <div className="flex-1 h-px bg-slate-200" />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <button
-              onClick={() => onReady(iimcTemplate.id, iimcTemplate.emptyData())}
-              className="ui-transition px-4 py-2.5 rounded-lg border border-slate-300 hover:border-slate-400 hover:bg-slate-50 text-sm font-medium text-slate-700"
-            >
-              Start blank
-            </button>
-            <button
-              onClick={() => onReady(iimcTemplate.id, iimcTemplate.sampleData)}
-              className="ui-transition px-4 py-2.5 rounded-lg bg-slate-900 text-white hover:bg-slate-800 text-sm font-medium"
-            >
-              Use sample
-            </button>
+            {TEMPLATES.map((t) => (
+              <button
+                key={t.id}
+                onClick={() => onReady(t.id, t.emptyData())}
+                className="ui-transition px-4 py-3 rounded-lg border border-slate-300 hover:border-slate-900 hover:bg-slate-50 text-center"
+              >
+                <div className="text-sm font-semibold text-slate-800">{t.label}</div>
+                <div className="text-[11px] text-slate-500 mt-0.5">{t.codename}</div>
+              </button>
+            ))}
+          </div>
+
+          <div className="flex justify-center gap-4 mt-3">
+            {TEMPLATES.map((t) => (
+              <button
+                key={t.id}
+                onClick={() => onReady(t.id, t.sampleData)}
+                className="ui-transition text-[11px] text-slate-400 hover:text-slate-800 underline underline-offset-2"
+              >
+                See a sample — {t.label}
+              </button>
+            ))}
           </div>
 
           {err && (
@@ -179,18 +178,6 @@ export default function Landing({
               {err}
             </p>
           )}
-        </div>
-
-        <div className="mt-5 text-center">
-          <button
-            onClick={onBrowseTemplates}
-            className="ui-transition text-xs text-slate-500 hover:text-slate-800"
-          >
-            Looking for something else?{' '}
-            <span className="underline underline-offset-2 text-slate-700">
-              Browse other templates →
-            </span>
-          </button>
         </div>
 
         <p className="text-xs text-slate-500 mt-6 text-center px-4 leading-relaxed">

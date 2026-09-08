@@ -6,8 +6,8 @@ export default function TemplateChooserModal({
   busy = false,
   onPick,
   onCancel,
-  title = "Couldn't auto-detect the template",
-  body = 'Pick a template to parse this PDF with. Templates without a parser will open with sample data.',
+  title = "Couldn't work out which batch this is",
+  body = 'Pick the format your resume uses.',
 }: {
   open: boolean;
   busy?: boolean;
@@ -31,9 +31,7 @@ export default function TemplateChooserModal({
               className="ui-transition text-left px-3 py-2 border border-slate-300 rounded-md hover:border-slate-500 hover:bg-slate-50 disabled:opacity-50"
             >
               <div className="font-semibold text-sm text-slate-800">{t.label}</div>
-              <div className="text-[11px] text-slate-500">
-                {t.parse ? 'Has a parser' : 'No parser — opens with sample data'}
-              </div>
+              <div className="text-[11px] text-slate-500">{t.codename}</div>
             </button>
           ))}
         </div>

@@ -1,0 +1,247 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`superset parser (frozen) > matches its golden snapshot 1`] = `
+{
+  "data": {
+    "distinctions": [
+      {
+        "bullets": [
+          {
+            "text": "**Secured** 99.99%ile/2.8L+ **candidates in CAT,** 100%ile in DILR; Admission Rank 4/4.8K+",
+            "year": "",
+          },
+          {
+            "text": "**Achieved** AIR 1638/1.5L+ **candidates in** JEE (Advanced)**;** 99.84%ile/10.4L+ **candidates in**",
+            "year": "",
+          },
+          {
+            "text": "**Ranked** 7/1L+ **candidates in Maharashtra Talent Exam;** Bronze/75K+ **applicants in** Homi",
+            "year": "",
+          },
+        ],
+        "category": "Competitive
+Examinations",
+      },
+      {
+        "bullets": [
+          {
+            "text": "**Recipient of** KVPY Fellowship **by** IISc Bangalore **with** AIR 192/90K+**, awarded a** fellowship",
+            "year": "",
+          },
+          {
+            "text": "**Conferred the** NTSE Scholarship **by** NCERT, **given to** 0.1%/12L+, **received a** scholarship",
+            "year": "",
+          },
+          {
+            "text": "7/3L+ **Rao IIT Entrance Exam:** 100% waiver (₹5L+)**;** 11/4K+ **Pace IIT Ace of Pace:** 75%",
+            "year": "",
+          },
+        ],
+        "category": "National
+Scholarships",
+      },
+      {
+        "bullets": [
+          {
+            "text": "**Managed equity portfolio of** INR 11L+ **with a** XIRR 105% **over the past year beating** Nifty",
+            "year": "",
+          },
+          {
+            "text": "Ntl’ Finalists, ITC Interrobang; Ntl’ Semis/35k+, Flipkart Wired 9.0; Top 30/3.5K+ **teams**",
+            "year": "",
+          },
+          {
+            "text": "**Top** 50/1.8K+ **teams,** Bajaj **Finserv Atom**; 2nd/2K+ **CFO Challenge, IIM B;** 3rd/80+ teams",
+            "year": "",
+          },
+        ],
+        "category": "Portfolio and
+Case
+Competitions",
+      },
+      {
+        "bullets": [
+          {
+            "text": "**Ranked** 1/70+ applicants **from 480 for** CEMs MiM (QS MiM #4) **in** Intl’ **Management** at",
+            "year": "",
+          },
+          {
+            "text": "**Coached** U15 Indian **squad for** Oxford ICYD **who were crowned** Champions **among** 48 global",
+            "year": "",
+          },
+          {
+            "text": "**Trained** 100+ school debaters **in the** APAC **region at academies in Singapore, China and**",
+            "year": "",
+          },
+        ],
+        "category": "Certifications and
+International
+Mentorship",
+      },
+    ],
+    "education": [
+      {
+        "degree": "CEMS MiM in International Management",
+        "gpa": "2026",
+        "institute": "HEC Paris",
+        "year": "",
+      },
+      {
+        "degree": "MBA",
+        "gpa": "7.13/9",
+        "institute": "Indian Institute of Management, Calcutta",
+        "year": "2026",
+      },
+      {
+        "degree": "B.Tech Chemical Engineering",
+        "gpa": "8.25/10",
+        "institute": "Indian Institute of Technology, Bombay",
+        "year": "2022",
+      },
+      {
+        "degree": "CLASS XII",
+        "gpa": "91.69 %",
+        "institute": "Higher Secondary Certificate",
+        "year": "2018",
+      },
+      {
+        "degree": "CLASS X",
+        "gpa": "96.83 %",
+        "institute": "Indian Certificate of Secondary Education",
+        "year": "2016",
+      },
+    ],
+    "email": "",
+    "experience": [
+      {
+        "dates": "Aug\`22 - May\`24",
+        "firm": "AB INBEV",
+        "role": "DATA SCIENTIST",
+        "subSections": [
+          {
+            "bullets": [
+              "**1 of 28/96 interns** to be offered a **PPO**; Placed **1/150+ FTEs** in the AB-InBev onboarding case competition",
+              "**1/220 employees** felicitated with the **Cicerone & Pint Awards** by the Command Centre **senior leadership**",
+              "**NASSCOM** award-winning ML team member, ethically streamlining risk identification across **60+ countries**",
+            ],
+            "label": "Awards and
+Recognition",
+          },
+          {
+            "bullets": [
+              "Achieved **40% cost savings** of **$50K annually** by leading platform migration of **12 dashboards** to **Delta Lake**",
+              "Saved **200+ FTE hours annually** by achieving a **43% run-time reduction** redesigning **Data Factory** pipelines",
+              "Attained **10% runtime decrease** of **100+ hrs** & **20% code reduction** leading a code modularization project",
+            ],
+            "label": "Cost
+Optimization",
+          },
+          {
+            "bullets": [
+              "Analyzed **$40B+ vendor transactions** across **80M+ invoices detecting at-risk payments** of **$168M+ via ML**",
+              "Oversaw data of **250K+ employees**, automating a risk-triggered mail suite to **80+** zonal compliance officers",
+              "Reclaimed **150+ FTE hours** annually developing a **QA automation** test suite utilizing Selenium web scraping",
+            ],
+            "label": "Intelligent
+Process
+Automation",
+          },
+          {
+            "bullets": [
+              "Advised **80 compliance officers** across **6 global zones** on **financial** report quality by designing a **NLP** model",
+              "Empowered **100+ global compliance managers** in **7 BUs** by managing the daily operations of 2 dashboards",
+              "Conducted **200+ hrs** of KT for 7 employees; Trained **2 interns** in **10+** industry leading compliance practices",
+            ],
+            "label": "Stakeholder
+Management",
+          },
+        ],
+        "type": "Full Time",
+      },
+      {
+        "dates": "May\`25 - June\`25",
+        "firm": "MCKINSEY",
+        "role": "SUMMERASSOCIATE",
+        "subSections": [
+          {
+            "bullets": [
+              "Led omnichannel app redesign for a $6B BFSI client serving 2M+ users; launched 7+ new customer journeys",
+              "Benchmarked **20+** global peers across **50+ metrics** identifying 10+ key missing features across TFX, RMM, etc",
+              "Liaised with **10+** cross-functional teams inc. visibility of **$10M** delayed priority builds for **MD & Partners**",
+            ],
+            "label": "Banking and
+Finance",
+          },
+        ],
+        "type": "Intern",
+      },
+    ],
+    "extras": [
+      {
+        "bullets": [
+          {
+            "text": "3rd Rank **Team** (Highest Rank by an Indian Team ever) **&** 10th Best Speaker **at**",
+            "year": "",
+          },
+          {
+            "text": "**QF Judge at** Korea, Belgrade & Vietnam **World Championships with** 900+ **debaters**",
+            "year": "",
+          },
+          {
+            "text": "6 times National Champion; 10/180 teams **Shanghai ABP with** 500+ debaters **from**",
+            "year": "",
+          },
+          {
+            "text": "**Judged Finals at** 30+ **Intl. competitions inc.** Yale, Tokyo, Oxford & Sydney **with remuneration**",
+            "year": "",
+          },
+        ],
+        "category": "International
+Debating",
+      },
+    ],
+    "industryRightText": "22 MONTHS (FULL-TIME)",
+    "institute": "Indian Institute of Management Calcutta",
+    "mbaId": "MBA/9004/61",
+    "name": "Devika Iyer Devika Iyer Devika Iyer",
+    "positions": [
+      {
+        "bullets": [
+          "Elected rep. **of** 30 Univ. from 7 countries **to oversee** 400+ debates **at the** Asian AP Championships",
+          "**Led a** 10 member **team, supervising the** Malaysian UADC **with** 400+ participants **from** 12 countries",
+          "**Amended** 15+ statutes **to modernize** UADC constitution**; Distributed** $1K+ **need based scholarships**",
+        ],
+        "title": "Council Chair,
+United Asian Debate
+Union",
+        "year": "2022",
+      },
+      {
+        "bullets": [
+          "**Led a** 25 member team **to host one of** India's biggest **debate championship with** 300+ participants",
+          "**Administered budget worth** INR 2.5L+ **& achieved** 100% y-o-y **growth in** international **participation**",
+          "**Collaborated with a team of six Core Judges who were** World, European, and Australian Champions",
+        ],
+        "title": "Tournament
+Director,
+IIT Bombay Debate",
+        "year": "2021",
+      },
+    ],
+    "resumeType": "unranked",
+    "sectionOrder": [
+      "education",
+      "distinctions",
+      "industry",
+      "positions",
+      "extras",
+    ],
+    "taglines": [
+      "McKinsey SA, ITC (PPI), Ab-InBev DS",
+      "99.99%ILE CAT; NTSE & KVPY SCHOLAR",
+      "CEMS Rank 1; 6X NATL. DEBATE CHAMPION",
+    ],
+  },
+  "failedSections": [],
+}
+`;
