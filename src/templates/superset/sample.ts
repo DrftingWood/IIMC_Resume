@@ -13,6 +13,7 @@ export const SAMPLE: SupersetResumeData = {
   ],
   resumeType: 'unranked',
   sectionOrder: ['education', 'distinctions', 'industry', 'positions', 'extras'],
+  hiddenSections: [],
   education: [
     { degree: 'MBA', institute: 'Indian Institute of Management Calcutta (Term 3)', gpa: '7.62/9', rank: '', year: '2026' },
     { degree: 'B.Tech Mechanical Engineering', institute: 'National Institute of Technology Tiruchirappalli', gpa: '8.91/10', rank: '', year: '2022' },

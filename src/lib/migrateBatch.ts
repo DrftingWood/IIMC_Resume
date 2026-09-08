@@ -5,7 +5,7 @@ import { hydrateSkynet } from '@/templates/skynet/hydrate';
 const SHARED_KEYS = [
   'name', 'mbaId', 'taglines', 'education', 'distinctions',
   'experience', 'industryRightText', 'positions', 'extras', 'email', 'institute',
-  'sectionOrder',
+  'sectionOrder', 'hiddenSections',
 ] as const;
 
 /** Sections that exist only in Skynet, with the labels shown in the confirm. */

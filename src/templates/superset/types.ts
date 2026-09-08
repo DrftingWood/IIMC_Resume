@@ -29,6 +29,7 @@ export interface SupersetResumeData {
   taglines: [string, string, string];
   resumeType: ResumeType;
   sectionOrder: SectionKey[];
+  hiddenSections: SectionKey[];
   education: EducationRow[];
   distinctions: BulletGroup[];
   industryRightText: string;
@@ -83,6 +84,7 @@ export function emptySupersetResume(): SupersetResumeData {
     taglines: ['', '', ''],
     resumeType: 'unranked',
     sectionOrder: [...DEFAULT_SECTION_ORDER],
+    hiddenSections: [],
     education: [],
     distinctions: [],
     industryRightText: '',

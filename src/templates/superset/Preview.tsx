@@ -13,10 +13,10 @@ interface Props {
 }
 
 const ResumePreview = forwardRef<HTMLDivElement, Props>(({ data }, ref) => {
-  const order: SectionKey[] =
-    data.sectionOrder && data.sectionOrder.length
-      ? data.sectionOrder
-      : DEFAULT_SECTION_ORDER;
+  const hidden = new Set(data.hiddenSections ?? []);
+  const order: SectionKey[] = (
+    data.sectionOrder && data.sectionOrder.length ? data.sectionOrder : DEFAULT_SECTION_ORDER
+  ).filter((k) => !hidden.has(k));
 
   return (
     <div ref={ref} className="f1-page">
