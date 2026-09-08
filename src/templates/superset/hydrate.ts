@@ -28,5 +28,8 @@ export function hydrateSuperset(input: Partial<SupersetResumeData>): SupersetRes
     merged.sectionOrder = cleaned;
   }
 
+  merged.hiddenSections = (Array.isArray(merged.hiddenSections) ? merged.hiddenSections : [])
+    .filter((k) => DEFAULT_SECTION_ORDER.includes(k));
+
   return merged;
 }

@@ -12,6 +12,7 @@ export default function SkynetSectionsPanel({
     data.sectionOrder && data.sectionOrder.length
       ? data.sectionOrder
       : DEFAULT_SECTION_ORDER;
+  const hidden = data.hiddenSections ?? [];
 
   function move(i: number, dir: -1 | 1) {
     const j = i + dir;
@@ -48,7 +49,20 @@ export default function SkynetSectionsPanel({
             key={key}
             className="flex items-center gap-2 px-2.5 py-2 text-xs"
           >
-            <span className="flex-1 text-slate-800">{SECTION_LABELS[key]}</span>
+            <input
+              type="checkbox"
+              checked={!hidden.includes(key)}
+              onChange={() =>
+                onChange({
+                  hiddenSections: hidden.includes(key)
+                    ? hidden.filter((k) => k !== key)
+                    : [...hidden, key],
+                })
+              }
+              aria-label={SECTION_LABELS[key]}
+              className="w-3.5 h-3.5 accent-slate-900"
+            />
+            <span className={'flex-1 ' + (hidden.includes(key) ? 'text-slate-400 line-through' : 'text-slate-800')}>{SECTION_LABELS[key]}</span>
             <div className="flex gap-1">
               <button
                 type="button"
