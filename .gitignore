@@ -7,3 +7,6 @@ public/pdf.worker.min.mjs
 *.tsbuildinfo
 vite.config.js
 vite.config.d.ts
+
+.parser.bundled.mjs
+corpus-report.json
