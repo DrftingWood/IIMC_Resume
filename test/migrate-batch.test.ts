@@ -32,6 +32,21 @@ describe('cross-batch carry-over', () => {
     expect(dropped).toEqual([]);
     expect(data.projects).toEqual([]);
     expect(data.entrepreneurial).toEqual([]);
-    expect(data.name).toBe(SUPERSET.name);
+    const SHARED_KEYS = [
+      'name', 'mbaId', 'taglines', 'education', 'distinctions',
+      'experience', 'industryRightText', 'positions', 'extras', 'email', 'institute',
+    ] as const;
+    for (const k of SHARED_KEYS) {
+      expect(data[k]).toEqual(SUPERSET[k]);
+    }
+    // sectionOrder is carried as a prefix; Skynet-only sections are appended by hydrateSkynet.
+    expect(data.sectionOrder.slice(0, SUPERSET.sectionOrder.length)).toEqual(SUPERSET.sectionOrder);
+  });
+
+  it('carries a reordered sectionOrder from skynet to superset', () => {
+    const reordered = { ...SKYNET, sectionOrder: ['extras', 'education', 'distinctions', 'projects', 'entrepreneurial', 'industry', 'positions'] };
+    const { data } = migrateBetweenBatches('skynet', 'superset', reordered) as never as
+      { data: typeof SUPERSET };
+    expect(data.sectionOrder[0]).toBe('extras');
   });
 });
