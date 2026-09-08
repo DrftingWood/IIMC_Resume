@@ -12,8 +12,15 @@ describe('draft migration', () => {
   });
 
   it('rewrites a stored lastTemplateId of iimc to superset', () => {
-    localStorage.setItem('iimc-resume-builder:draft:iimc:v1', JSON.stringify({ name: 'X' }));
     localStorage.setItem('iimc-resume-builder:lastTemplateId', 'iimc');
     expect(getLastTemplateId()).toBe('superset');
+  });
+
+  it('prefers the newer (pre-rename) draft over the older (pre-multi-template) draft', () => {
+    localStorage.setItem('iimc-resume-builder:draft:v1', JSON.stringify({ name: 'OLD' }));
+    localStorage.setItem('iimc-resume-builder:draft:iimc:v1', JSON.stringify({ name: 'NEW' }));
+    expect(loadDraft<{ name: string }>('superset')).toEqual({ name: 'NEW' });
+    expect(localStorage.getItem('iimc-resume-builder:draft:v1')).toBeNull();
+    expect(localStorage.getItem('iimc-resume-builder:draft:iimc:v1')).toBeNull();
   });
 });

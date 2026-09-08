@@ -13,7 +13,11 @@ function draftKey(templateId: TemplateKey): string {
 function migrateLegacyDraft(): void {
   try {
     const target = draftKey('superset');
-    for (const legacy of [OLD_DRAFT_KEY, IIMC_DRAFT_KEY]) {
+    // Newest-first: IIMC_DRAFT_KEY (post-multi-template, pre-rename) is more recent than
+    // OLD_DRAFT_KEY (pre-multi-template). If both exist, the first one processed wins the
+    // target slot — so IIMC_DRAFT_KEY must come first, or a user's newer draft gets silently
+    // discarded in favour of a stale one. Both keys are still removed either way.
+    for (const legacy of [IIMC_DRAFT_KEY, OLD_DRAFT_KEY]) {
       const old = localStorage.getItem(legacy);
       if (!old) continue;
       if (!localStorage.getItem(target)) localStorage.setItem(target, old);
