@@ -1049,6 +1049,13 @@ export function parseResume(lines: PdfLine[]): ParseResult {
   const { header, sections } = split;
   const getSection = (name: string) => sections.find((s) => s.name === name);
 
+  // Zero anchors means splitSections recognised nothing. Every section then
+  // parses to empty and every key lands in hiddenSections, but trySection only
+  // records a failure when something THROWS — so without this the user is
+  // dropped into an editor holding a header and nothing else, with no warning.
+  // Surface it as a document-level failure so the UI shows its parse advisory.
+  if (sections.length === 0) failed.push('document');
+
   const headerInfo = trySection(
     'header',
     () => parseHeader(header),
