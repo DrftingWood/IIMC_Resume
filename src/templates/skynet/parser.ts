@@ -715,6 +715,28 @@ function parsePositions(lines: PdfLine[]): PositionEntry[] {
 
 /* -------------------------------- industry ------------------------------- */
 
+/* The contiguous-partition search below is exponential in the number of
+   margin labels: it enumerates C(n-1, k-1) partitions of n firm blocks across
+   k labels. Real resumes are tiny here - at most 3 labels over a handful of
+   firms, roughly 20 partitions - but a crafted PDF with many rotated runs and
+   many date-banner rows can drive this into the tens of millions and hang the
+   tab. Measured: 40 blocks / 6 labels = 575,757 partitions (240ms); 50 / 8 =
+   85,900,584 (still running after 4s). The cap is ~1000x the real-world worst
+   case, and exceeding it degrades to nearest-anchor rather than failing. */
+const MAX_PARTITIONS = 20000;
+
+/** C(n-1, k-1), the number of contiguous partitions, computed without
+ *  overflowing: returns Infinity rather than a wrong number for large inputs. */
+function partitionCount(n: number, k: number): number {
+  if (k <= 1 || n < k) return 1;
+  let r = 1;
+  for (let i = 0; i < k - 1; i++) {
+    r = (r * (n - 1 - i)) / (i + 1);
+    if (!Number.isFinite(r) || r > MAX_PARTITIONS) return Infinity;
+  }
+  return Math.round(r);
+}
+
 function parseIndustry(lines: PdfLine[], headerRest: string): {
   entries: ExperienceEntry[];
   rightText: string;
@@ -878,7 +900,7 @@ function parseIndustry(lines: PdfLine[], headerRest: string): {
       const hit = labelsTopDown.find((m) => spanContains(m, b.banner.y));
       return hit ? hit.text : '';
     });
-    if (types.some((t) => !t)) {
+    if (types.some((t) => !t) && partitionCount(blocks.length, labelsTopDown.length) <= MAX_PARTITIONS) {
       const blockRowYs = blocks.map((b) => [b.banner.y, ...b.body.map((r) => r.y)]);
       let bestSplit: number[] | null = null;
       let bestCost = Infinity;
@@ -904,6 +926,17 @@ function parseIndustry(lines: PdfLine[], headerRest: string): {
         for (let g = 0; g < labelsTopDown.length; g++) {
           for (let i = bounds[g]; i < bounds[g + 1]; i++) types[i] = labelsTopDown[g].text;
         }
+      }
+    } else if (types.some((t) => !t)) {
+      // Search refused (see MAX_PARTITIONS): degrade to per-block nearest
+      // anchor rather than enumerate a combinatorial number of partitions.
+      for (let i = 0; i < types.length; i++) {
+        if (types[i]) continue;
+        let best = labelsTopDown[0];
+        for (const m of labelsTopDown) {
+          if (Math.abs(m.y - blocks[i].banner.y) < Math.abs(best.y - blocks[i].banner.y)) best = m;
+        }
+        types[i] = best.text;
       }
     }
   }

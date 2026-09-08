@@ -14,3 +14,6 @@ corpus-report.json
 # Test fixtures are generated locally from real student resumes and are
 # deliberately NOT committed - this repo is public. See README "Testing".
 test/fixtures/
+
+# Local working notes (SDD ledgers, security audit) - not for a public repo
+.superpowers/
