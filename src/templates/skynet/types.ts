@@ -1,8 +1,8 @@
-export type ResumeType = 'ranked' | 'unranked';
-
 export type SectionKey =
   | 'education'
   | 'distinctions'
+  | 'projects'
+  | 'entrepreneurial'
   | 'industry'
   | 'positions'
   | 'extras';
@@ -10,16 +10,20 @@ export type SectionKey =
 export const DEFAULT_SECTION_ORDER: SectionKey[] = [
   'education',
   'distinctions',
+  'projects',
+  'entrepreneurial',
   'industry',
   'positions',
   'extras',
 ];
 
 export const SECTION_LABELS: Record<SectionKey, string> = {
-  education: 'Academic Qualifications',
+  education: 'Academic Profile',
   distinctions: 'Academic Distinctions & Co-Curricular Achievements',
+  projects: 'Projects and Papers',
+  entrepreneurial: 'Entrepreneurial/Non-Profit Venture',
   industry: 'Industry Experience',
-  positions: 'Positions of Responsibility',
+  positions: 'Position of Responsibility',
   extras: 'Extra-Curricular Achievements',
 };
 
@@ -27,10 +31,12 @@ export interface SkynetResumeData {
   name: string;
   mbaId: string;
   taglines: [string, string, string];
-  resumeType: ResumeType;
   sectionOrder: SectionKey[];
+  hiddenSections: SectionKey[];
   education: EducationRow[];
   distinctions: BulletGroup[];
+  projects: BulletGroup[];
+  entrepreneurial: BulletGroup[];
   industryRightText: string;
   experience: ExperienceEntry[];
   positions: PositionEntry[];
@@ -39,11 +45,30 @@ export interface SkynetResumeData {
   institute: string;
 }
 
+export function emptySkynetResume(): SkynetResumeData {
+  return {
+    name: '',
+    mbaId: '',
+    taglines: ['', '', ''],
+    sectionOrder: [...DEFAULT_SECTION_ORDER],
+    hiddenSections: [],
+    education: [],
+    distinctions: [],
+    projects: [],
+    entrepreneurial: [],
+    industryRightText: '',
+    experience: [],
+    positions: [],
+    extras: [],
+    email: '',
+    institute: 'Indian Institute of Management Calcutta',
+  };
+}
+
 export interface EducationRow {
   degree: string;
   institute: string;
   gpa: string;
-  rank?: string;
   year: string;
 }
 
@@ -74,22 +99,4 @@ export interface PositionEntry {
   title: string;
   bullets: string[];
   year: string;
-}
-
-export function emptySkynetResume(): SkynetResumeData {
-  return {
-    name: '',
-    mbaId: '',
-    taglines: ['', '', ''],
-    resumeType: 'unranked',
-    sectionOrder: [...DEFAULT_SECTION_ORDER],
-    education: [],
-    distinctions: [],
-    industryRightText: '',
-    experience: [],
-    positions: [],
-    extras: [],
-    email: '',
-    institute: 'Indian Institute of Management Calcutta',
-  };
 }

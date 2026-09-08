@@ -11,13 +11,13 @@ export const SAMPLE: SkynetResumeData = {
     'EX-ZS ASSOCIATES, ASIAN PAINTS SIP',
     'NATIONAL CASE FINALIST, B.TECH NIT TRICHY',
   ],
-  resumeType: 'unranked',
   sectionOrder: ['education', 'distinctions', 'industry', 'positions', 'extras'],
+  hiddenSections: [],
   education: [
-    { degree: 'MBA', institute: 'Indian Institute of Management Calcutta (Term 3)', gpa: '7.62/9', rank: '', year: '2026' },
-    { degree: 'B.Tech Mechanical Engineering', institute: 'National Institute of Technology Tiruchirappalli', gpa: '8.91/10', rank: '', year: '2022' },
-    { degree: 'CLASS XII (CBSE)', institute: 'Delhi Public School, Ruby Park, Kolkata', gpa: '96.4 %', rank: '', year: '2018' },
-    { degree: 'CLASS X (CBSE)', institute: 'Delhi Public School, Ruby Park, Kolkata', gpa: '95.8 %', rank: '', year: '2016' },
+    { degree: 'MBA', institute: 'Indian Institute of Management Calcutta (Term 3)', gpa: '7.62/9', year: '2026' },
+    { degree: 'B.Tech Mechanical Engineering', institute: 'National Institute of Technology Tiruchirappalli', gpa: '8.91/10', year: '2022' },
+    { degree: 'CLASS XII (CBSE)', institute: 'Delhi Public School, Ruby Park, Kolkata', gpa: '96.4 %', year: '2018' },
+    { degree: 'CLASS X (CBSE)', institute: 'Delhi Public School, Ruby Park, Kolkata', gpa: '95.8 %', year: '2016' },
   ],
   distinctions: [
     {
@@ -52,6 +52,8 @@ export const SAMPLE: SkynetResumeData = {
       ],
     },
   ],
+  projects: [],
+  entrepreneurial: [],
   industryRightText: '22 MONTHS (FULL-TIME)',
   experience: [
     {
