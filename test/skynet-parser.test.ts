@@ -59,7 +59,10 @@ describe('skynet parser: industry column regime', () => {
 
   it('keeps the months banner off the bullets', () => {
     const data = parseResume(loadFixture('skynet-a')).data;
-    expect(data.industryRightText).toMatch(/^\d+ MONTHS \(FULL-TIME\)$/);
+    // Source casing is preserved: the template prints "34 Months (FULL-TIME)"
+    // with only the employment type capitalised, so a fully-uppercased value
+    // would mean we diverged from the exported PDF.
+    expect(data.industryRightText).toMatch(/^\d+ Months \(FULL-TIME\)$/);
   });
 });
 
