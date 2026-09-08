@@ -6,27 +6,23 @@ import type {
   ExperienceSubSection,
   PositionEntry,
   YearedBullet,
-  SectionKey,
 } from './types';
-
-const DEFAULT_SECTION_ORDER: SectionKey[] = [
-  'education',
-  'distinctions',
-  'industry',
-  'positions',
-  'extras',
-];
+import { DEFAULT_SECTION_ORDER } from './types';
 import type { PdfLine, TextItem } from '@/lib/pdfExtract';
 
 const ANCHORS = [
-  'ACADEMIC QUALIFICATIONS',
+  'ACADEMIC PROFILE',
   'ACADEMIC DISTINCTIONS & CO-CURRICULAR ACHIEVEMENTS',
+  'PROJECTS AND PAPERS',
+  'ENTREPRENEURIAL/NON-PROFIT VENTURE',
   'INDUSTRY EXPERIENCE',
-  'POSITIONS OF RESPONSIBILITY',
+  'POSITION OF RESPONSIBILITY',
   'EXTRA-CURRICULAR ACHIEVEMENTS',
 ];
 
-const BULLET_GLYPHS = '•·●▪‣◦∙⋅';
+// U+25A0 BLACK SQUARE is the Skynet bullet, set in DejaVuMathTeXGyre at 3.4pt.
+// The others are retained so a hand-edited resume still parses.
+const BULLET_GLYPHS = '■•·●▪‣◦∙⋅';
 const BULLET_GLYPH_RE = new RegExp('^[' + BULLET_GLYPHS + ']');
 const YEAR_TOKEN_RE = /^(?:(?:19|20)\d{2}|\d{2}\s*-\s*\d{2}|\d{2}\s*,\s*\d{2}|\d{2})$/;
 const YEAR_TAIL_RE = /\s+((?:19|20)\d{2}|\d{2}\s*-\s*\d{2}|\d{2}\s*,\s*\d{2}|\d{2})\s*$/;
@@ -896,7 +892,7 @@ export function parseResume(lines: PdfLine[]): ParseResult {
   );
   const edu = trySection(
     'education',
-    () => parseEducation(getSection('ACADEMIC QUALIFICATIONS')?.lines ?? []),
+    () => parseEducation(getSection('ACADEMIC PROFILE')?.lines ?? []),
     { rows: [], ranked: false },
     failed
   );
@@ -918,7 +914,7 @@ export function parseResume(lines: PdfLine[]): ParseResult {
   );
   const positions = trySection(
     'positions',
-    () => parsePositions(getSection('POSITIONS OF RESPONSIBILITY')?.lines ?? []),
+    () => parsePositions(getSection('POSITION OF RESPONSIBILITY')?.lines ?? []),
     [],
     failed
   );
