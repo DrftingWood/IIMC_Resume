@@ -19,6 +19,11 @@
   --hdr-size: 11.2pt;
   --body-size: 9.9pt;
   --row-pitch: 14.6pt;
+  /* The 14.6pt corpus pitch is the WHOLE row in the source PDF - gridlines
+     included. In CSS a row is line-height + padding + collapsed borders, so
+     line-height has to absorb the borders rather than sit on top of them.
+     13.4pt measures back to a 14.61pt row against the 14.6pt target. */
+  --row-line: 13.4pt;
   --bullet-x: 108.4pt;
   --bullet-text-x: 113.2pt;
   --footer-size: 8.2pt;
@@ -153,12 +158,12 @@
      14.6pt and line-height already consumes it, so any vertical padding
      pushes every row past the measured pitch and compounds down the page
      (measured: 1pt of padding per cell added ~86pt over 43 rows). */
-  padding: 0.25pt 3pt;
+  padding: 0 3pt;
   vertical-align: middle;
   text-align: left;
   font-size: var(--body-size);
   font-weight: normal;
-  line-height: var(--row-pitch);
+  line-height: var(--row-line);
 }
 
 .sk-table th {
@@ -177,7 +182,10 @@
   vertical-align: middle !important;
   font-size: var(--body-size);
   white-space: nowrap;
-  padding: 1pt 2pt !important;
+  /* Zero vertical padding: this cell is the tallest in its row, so 1pt here
+     set the pitch for the whole bullet table regardless of the line-height
+     tuned above (measured: forced 15.98pt rows against a 14.6pt target). */
+  padding: 0 2pt !important;
   letter-spacing: 0.01em;
 }
 
