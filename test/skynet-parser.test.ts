@@ -62,3 +62,21 @@ describe('skynet parser: industry column regime', () => {
     expect(data.industryRightText).toMatch(/^\d+ MONTHS \(FULL-TIME\)$/);
   });
 });
+
+describe('skynet parser: rotated margin labels', () => {
+  it('never leaks a margin label into a sub-section label', () => {
+    for (const f of ['skynet-a', 'skynet-b', 'skynet-c']) {
+      const labels = parseResume(loadFixture(f)).data
+        .experience!.flatMap((e) => e.subSections.map((s) => s.label));
+      for (const l of labels) {
+        expect(l).not.toMatch(/Full Time|Intern|Others/);
+      }
+    }
+  });
+
+  it('assigns each experience entry a margin type', () => {
+    const types = parseResume(loadFixture('skynet-a')).data.experience!.map((e) => e.type);
+    expect(types.length).toBeGreaterThan(0);
+    for (const t of types) expect(['Full Time', 'Intern', 'Others']).toContain(t);
+  });
+});
