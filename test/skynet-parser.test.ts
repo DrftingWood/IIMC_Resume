@@ -104,3 +104,31 @@ describe('skynet parser: rotated margin labels', () => {
     expect(byFirm['Jayesh P Desai & Co.']).toBe('Intern');
   });
 });
+
+describe('skynet parser: optional sections', () => {
+  it('parses ENTREPRENEURIAL/NON-PROFIT VENTURE as a bullet table', () => {
+    const ent = parseResume(loadFixture('skynet-a')).data.entrepreneurial!;
+    expect(ent.length).toBeGreaterThan(0);
+    expect(ent[0].bullets.length).toBeGreaterThan(0);
+    expect(ent[0].bullets[0].year).toMatch(/\d/);
+  });
+
+  it('parses PROJECTS AND PAPERS as a bullet table', () => {
+    const proj = parseResume(loadFixture('skynet-c')).data.projects!;
+    expect(proj.length).toBeGreaterThan(0);
+  });
+
+  it('reports section order as it appears in the document', () => {
+    // skynet-c places Projects before Industry.
+    const order = parseResume(loadFixture('skynet-c')).data.sectionOrder!;
+    expect(order.indexOf('projects')).toBeLessThan(order.indexOf('industry'));
+  });
+
+  it('hides sections the source document does not contain', () => {
+    // skynet-a has no Projects and no Position of Responsibility.
+    const hidden = parseResume(loadFixture('skynet-a')).data.hiddenSections!;
+    expect(hidden).toContain('projects');
+    expect(hidden).toContain('positions');
+    expect(hidden).not.toContain('education');
+  });
+});
