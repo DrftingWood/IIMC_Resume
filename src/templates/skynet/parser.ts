@@ -950,47 +950,34 @@ function parseIndustry(lines: PdfLine[], headerRest: string): {
 
 /* ------------------------------- education ------------------------------- */
 
-function parseEducation(lines: PdfLine[]): { rows: EducationRow[]; ranked: boolean } {
-  // Detect ranked variant by inspecting the header row for a "Rank" cell.
-  const ranked = lines.some((l) => {
-    const t = l.text.toLowerCase().replace(/\s+/g, ' ');
-    return /degree/.test(t) && /board|institute/.test(t) && /\brank\b/.test(t);
-  });
-
+function parseEducation(lines: PdfLine[]): { rows: EducationRow[] } {
+  // Skynet's Academic Profile is always four columns:
+  // Degree/Exam | Board/Institute | %/CGPA | Year. There is no Rank column.
   const filtered = lines.filter((l) => {
     const t = l.text.toLowerCase();
     return (
       !/^degree\/exam/.test(t) &&
       !/^board\/institute/.test(t) &&
       !/^%\/cgpa/.test(t) &&
-      !/^rank$/.test(t) &&
       !/^year$/.test(t) &&
       !/degree.*board.*cgpa/.test(t)
     );
   });
-  if (!filtered.length) return { rows: [], ranked };
+  if (!filtered.length) return { rows: [] };
 
-  const maxCells = ranked ? 5 : 4;
   const rows: EducationRow[] = [];
   for (const line of filtered) {
-    const cells = splitByTopGaps(line.items, maxCells, 5);
+    const cells = splitByTopGaps(line.items, 4, 5);
     if (cells.length < 2) continue;
-    if (ranked) {
-      const [degree = '', institute = '', gpa = '', , year = ''] = cells;
-      if (!degree && !institute && !gpa && !year) continue;
-      if (/degree/i.test(degree) && /board|institute/i.test(institute)) continue;
-      rows.push({ degree, institute, gpa, year });
-    } else {
-      const [degree = '', institute = '', gpa = '', year = ''] = cells;
-      if (!degree && !institute && !gpa && !year) continue;
-      if (/degree/i.test(degree) && /board|institute/i.test(institute)) continue;
-      rows.push({ degree, institute, gpa, year });
-    }
+    const [degree = '', institute = '', gpa = '', year = ''] = cells;
+    if (!degree && !institute && !gpa && !year) continue;
+    if (/degree/i.test(degree) && /board|institute/i.test(institute)) continue;
+    rows.push({ degree, institute, gpa, year });
   }
   if (rows.length > 8) {
     console.warn(`parseEducation: ${rows.length} rows found, truncating to 8`);
   }
-  return { rows: rows.slice(0, 8), ranked };
+  return { rows: rows.slice(0, 8) };
 }
 
 /* -------------------------------- footer --------------------------------- */
@@ -1048,7 +1035,7 @@ export function parseResume(lines: PdfLine[]): ParseResult {
   const edu = trySection(
     'education',
     () => parseEducation(getSection('ACADEMIC PROFILE')?.lines ?? []),
-    { rows: [], ranked: false },
+    { rows: [] },
     failed
   );
   const distinctions = trySection(
