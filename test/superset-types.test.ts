@@ -21,4 +21,22 @@ describe('superset hydrate — hiddenSections', () => {
     const hydrated = hydrateSuperset({ hiddenSections: ['positions'] } as never);
     expect(hydrated.hiddenSections).toEqual(['positions']);
   });
+
+  it('repairs corrupted (non-array) section fields instead of crashing the Preview', () => {
+    // Simulates a hand-edited or partially-corrupted localStorage draft
+    // where a section field holds the wrong type entirely, not just a
+    // missing key. Mirrors the equivalent Skynet repair loop/test.
+    const hydrated = hydrateSuperset({
+      distinctions: 'oops',
+      extras: 42,
+      education: {},
+      experience: null,
+      positions: 'bogus',
+    } as never);
+    expect(hydrated.distinctions).toEqual([]);
+    expect(hydrated.extras).toEqual([]);
+    expect(hydrated.education).toEqual([]);
+    expect(hydrated.experience).toEqual([]);
+    expect(hydrated.positions).toEqual([]);
+  });
 });

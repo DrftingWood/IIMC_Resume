@@ -53,6 +53,48 @@ function industrySectionLines(allLines: PdfLine[]): PdfLine[] {
   return filtered.slice(start, end);
 }
 
+/** Section-header anchors actually present (in document order, deduped) in
+ *  the raw PdfLines of one resume — independent of the parser's own
+ *  section-detection, for the F4 check below. Deliberately re-derives the
+ *  same two guards as parser.ts's findAnchorLine (not imported — the parser
+ *  is frozen/not-imported-for-this-purpose elsewhere in this file): a bare
+ *  case-insensitive prefix match false-positives on Title-Case bullet-table
+ *  CATEGORY labels that happen to read the same as a section name (e.g.
+ *  "Projects and Papers" as a category under Academic Distinctions on
+ *  corpus-resume-E.pdf — see the long comment further down this
+ *  file). A genuine header is (1) already ALL-CAPS in the raw text, over
+ *  just the anchor-length prefix, and (2) rendered at >= 10.5pt (headers are
+ *  11.2pt, category labels 9.9pt). */
+function presentSectionAnchors(allLines: PdfLine[]): string[] {
+  const filtered = allLines.filter(
+    (l) => !EMAIL_RE.test(l.text) && !INSTITUTE_FOOTER_RE.test(l.text.trim())
+  );
+  const found: string[] = [];
+  for (const l of filtered) {
+    const normalized = l.text.replace(/\s+/g, ' ').trim();
+    const upper = normalized.toUpperCase();
+    for (const a of ANCHORS) {
+      if (!upper.startsWith(a)) continue;
+      if (normalized.slice(0, a.length) !== a) continue;
+      if (l.height < 10.5) continue;
+      if (!found.includes(a)) found.push(a);
+      break;
+    }
+  }
+  return found;
+}
+
+/** Anchor text -> the parsed-data array field that section should land in. */
+const SECTION_ANCHOR_TO_FIELD: Record<string, string> = {
+  'ACADEMIC PROFILE': 'education',
+  'ACADEMIC DISTINCTIONS & CO-CURRICULAR ACHIEVEMENTS': 'distinctions',
+  'PROJECTS AND PAPERS': 'projects',
+  'ENTREPRENEURIAL/NON-PROFIT VENTURE': 'entrepreneurial',
+  'INDUSTRY EXPERIENCE': 'experience',
+  'POSITION OF RESPONSIBILITY': 'positions',
+  'EXTRA-CURRICULAR ACHIEVEMENTS': 'extras',
+};
+
 /** Distinct rotated margin-label strings and firm-banner ("date range") row
  *  count within the industry section — independent counts for gaps 2 & 3. */
 function marginLabelsAndBlocks(sectionLines: PdfLine[]): {
@@ -114,6 +156,14 @@ describe.skipIf(!DIR)('skynet corpus', () => {
     // Gap 3: margin labels outnumbering firm blocks — believed unreachable.
     const degenerateFiles: string[] = [];
 
+    // F4: a section header present in the source that parses to an EMPTY
+    // array never reaches `failedSections` (trySection only catches
+    // throws, not empty results) — that exact bug class has bitten twice
+    // on this branch. Collect every (file, section) where the header text
+    // is present in the raw lines but the corresponding parsed array is
+    // empty, independent of the parser's own section detection.
+    const emptyDespitePresentHeader: string[] = [];
+
     for (const f of files) {
       const lines = await linesFromPdf(join(DIR!, f));
       const { data, failedSections } = parseResume(lines);
@@ -172,6 +222,15 @@ describe.skipIf(!DIR)('skynet corpus', () => {
       if (labels.length > blockCount) {
         degenerateFiles.push(`${f} (labels=${labels.length}, blocks=${blockCount})`);
       }
+
+      // ---- F4: header present but parsed array is empty.
+      for (const anchor of presentSectionAnchors(lines)) {
+        const field = SECTION_ANCHOR_TO_FIELD[anchor];
+        const arr = (data as unknown as Record<string, unknown[] | undefined>)[field];
+        if (!arr || arr.length === 0) {
+          emptyDespitePresentHeader.push(`${f}: ${anchor} (-> ${field})`);
+        }
+      }
     }
 
     console.log('--- corpus summary ---');
@@ -187,6 +246,10 @@ describe.skipIf(!DIR)('skynet corpus', () => {
     );
     console.log(`[gap 2] label present but missing from parsed types:`, othersMismatchFiles);
     console.log(`[gap 3] degenerate branch (labels > blocks): ${degenerateFiles.length}`, degenerateFiles);
+    console.log(
+      `[F4] header present but parsed empty: ${emptyDespitePresentHeader.length}`,
+      emptyDespitePresentHeader
+    );
     console.log(`problems (first 20):`, problems.slice(0, 20));
 
     expect(problems.slice(0, 20)).toEqual([]);
@@ -228,9 +291,18 @@ describe.skipIf(!DIR)('skynet corpus', () => {
     // group end to end (label present in the PDF -> "Others" in parsed data).
     expect(othersLabelFiles.length).toBeGreaterThan(0);
     expect(othersReflectedInParsedType).toBeGreaterThan(0);
+    // `> 0` above is vacuous against partial failure (e.g. 1 of 12 files
+    // matching would still pass): assert NONE of the label-bearing files
+    // are missing "Others" from their parsed experience[].type.
+    expect(othersMismatchFiles).toEqual([]);
 
     // Gap 3: the "more labels than firm blocks" branch is believed
     // unreachable on this corpus. Report, do not silently allow.
     expect(degenerateFiles).toEqual([]);
+
+    // F4: no section header present in the source may parse to an empty
+    // array. If this ever fails for real, do NOT relax it — report the
+    // filenames/sections above and leave it failing for adjudication.
+    expect(emptyDespitePresentHeader).toEqual([]);
   }, 600_000);
 });

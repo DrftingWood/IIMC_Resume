@@ -8,6 +8,14 @@
   --page-w: 595pt;
   --page-h: 842pt;
   --hdr-x: 19.5pt;
+  /* Right content margin is NOT --hdr-x: the education colgroup percentages
+     in Preview.tsx were derived for a content box 562.8pt wide, left edge
+     at x=19.5pt, right edge at x=582.3pt (measured column centres 114.6 /
+     339.6 / 508.2 / 564.6pt) — i.e. a 12.7pt right margin against the
+     595pt A4 page (595 - 19.5 - 562.8 = 12.7). Using --hdr-x on both sides
+     would give a content width of 556pt instead, shifting every column
+     centre off its measured position. Do not make this symmetric again. */
+  --hdr-x-right: 12.7pt;
   --hdr-size: 11.2pt;
   --body-size: 9.9pt;
   --row-pitch: 14.6pt;
@@ -29,7 +37,7 @@
 
   width: var(--page-w);
   min-height: var(--page-h);
-  padding: 21.6pt var(--hdr-x) 14.4pt var(--hdr-x);
+  padding: 21.6pt var(--hdr-x-right) 14.4pt var(--hdr-x);
   background: var(--c-bg);
   color: var(--c-text);
   font-family: Calibri, Carlito, Arial, sans-serif;

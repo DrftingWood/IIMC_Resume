@@ -5,7 +5,7 @@ import type { SkynetResumeData } from './types';
 // any real student or selection list is intended.
 export const SAMPLE: SkynetResumeData = {
   name: 'ROHAN SENGUPTA',
-  mbaId: 'MBA/0247/61',
+  mbaId: 'MBA/0247/63',
   taglines: [
     'IIM CALCUTTA, TOP 8% (PGP1)',
     'EX-ZS ASSOCIATES, ASIAN PAINTS SIP',
@@ -14,7 +14,6 @@ export const SAMPLE: SkynetResumeData = {
   sectionOrder: ['education', 'distinctions', 'projects', 'entrepreneurial', 'industry', 'positions', 'extras'],
   hiddenSections: [],
   education: [
-    { degree: 'MBA', institute: 'Indian Institute of Management Calcutta (Term 3)', gpa: '7.62/9', year: '2026' },
     { degree: 'B.Tech Mechanical Engineering', institute: 'National Institute of Technology Tiruchirappalli', gpa: '8.91/10', year: '2022' },
     { degree: 'CLASS XII (CBSE)', institute: 'Delhi Public School, Ruby Park, Kolkata', gpa: '96.4 %', year: '2018' },
     { degree: 'CLASS X (CBSE)', institute: 'Delhi Public School, Ruby Park, Kolkata', gpa: '95.8 %', year: '2016' },

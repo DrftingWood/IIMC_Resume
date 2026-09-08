@@ -132,7 +132,12 @@ function EducationTable({ data }: { data: SkynetResumeData }) {
           centred in each cell, so cell centre = text centre, giving each
           boundary b_i = 2*c_i - b_(i-1) from the left content edge
           L=19.5pt: boundaries 19.5 / 209.7 / 469.5 / 546.9 / 582.3, table
-          width 562.8pt. Do not revert these to round numbers. */}
+          width 562.8pt. Do not revert these to round numbers.
+          This assumes a content box exactly 562.8pt wide, from x=19.5pt to
+          x=582.3pt on the 595pt A4 page — i.e. a 19.5pt LEFT margin and a
+          12.7pt RIGHT margin (--hdr-x / --hdr-x-right in styles.css), NOT a
+          symmetric 19.5pt/19.5pt margin (that would give 556pt and shift
+          every centre above off its measured position). */}
       <colgroup>
         <col style={{ width: '33.80%' }} />
         <col style={{ width: '46.16%' }} />

@@ -64,6 +64,14 @@ describe('skynet parser: industry column regime', () => {
 });
 
 describe('skynet parser: rotated margin labels', () => {
+  // The three margin labels the Industry Experience column can carry. A
+  // "leaked" label means a subSection's whole label IS one of these, not
+  // that it merely contains one as a substring — an unanchored regex here
+  // false-positives on legitimate labels like "International", "Internship"
+  // and "Research Intern" (matches test/corpus.test.ts's MARGIN_LABELS
+  // exact-match check).
+  const MARGIN_LABELS = new Set(['Full Time', 'Intern', 'Others']);
+
   it('never leaks a margin label into a sub-section label', () => {
     let inspected = 0;
     for (const f of ['skynet-a', 'skynet-b', 'skynet-c', 'skynet-d']) {
@@ -71,7 +79,7 @@ describe('skynet parser: rotated margin labels', () => {
         .experience!.flatMap((e) => e.subSections.map((s) => s.label));
       inspected += labels.length;
       for (const l of labels) {
-        expect(l).not.toMatch(/Full Time|Intern|Others/);
+        expect(MARGIN_LABELS.has(l.trim())).toBe(false);
       }
     }
     // Guard against the assertion above being vacuous: if `experience` ever
