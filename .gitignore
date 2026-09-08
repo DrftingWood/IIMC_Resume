@@ -9,3 +9,6 @@ vite.config.js
 vite.config.d.ts
 
 .parser.bundled.mjs
+
+# Test fixtures are generated locally and are deliberately NOT committed.
+test/fixtures/
