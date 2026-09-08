@@ -20,9 +20,19 @@ export default function SkynetForm({
       <TaglineForm data={data} onChange={onChange} />
       <EducationForm data={data} onChange={onChange} />
       <BulletGroupsForm
-        title="Academic Distinctions & Co-curricular Achievements"
+        title="Academic Distinctions & Co-Curricular Achievements"
         groups={data.distinctions}
         onChange={(distinctions) => onChange({ distinctions })}
+      />
+      <BulletGroupsForm
+        title="Projects and Papers"
+        groups={data.projects}
+        onChange={(projects) => onChange({ projects })}
+      />
+      <BulletGroupsForm
+        title="Entrepreneurial/Non-Profit Venture"
+        groups={data.entrepreneurial}
+        onChange={(entrepreneurial) => onChange({ entrepreneurial })}
       />
       <IndustryForm data={data} onChange={onChange} />
       <PositionsForm data={data} onChange={onChange} />
