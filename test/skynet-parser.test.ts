@@ -116,12 +116,20 @@ describe('skynet parser: optional sections', () => {
   it('parses PROJECTS AND PAPERS as a bullet table', () => {
     const proj = parseResume(loadFixture('skynet-c')).data.projects!;
     expect(proj.length).toBeGreaterThan(0);
+    expect(proj[0].bullets.length).toBeGreaterThan(0);
+    expect(proj[0].bullets[0].year).toMatch(/\d/);
   });
 
   it('reports section order as it appears in the document', () => {
-    // skynet-c places Projects before Industry.
-    const order = parseResume(loadFixture('skynet-c')).data.sectionOrder!;
-    expect(order.indexOf('projects')).toBeLessThan(order.indexOf('industry'));
+    // skynet-c places Projects before Industry — real document content.
+    const orderC = parseResume(loadFixture('skynet-c')).data.sectionOrder!;
+    expect(orderC.indexOf('projects')).toBeLessThan(orderC.indexOf('industry'));
+
+    // skynet-a places Industry Experience BEFORE Entrepreneurial in the
+    // document, the opposite of DEFAULT_SECTION_ORDER. This assertion
+    // therefore fails if sectionOrder is ever hardcoded again.
+    const order = parseResume(loadFixture('skynet-a')).data.sectionOrder!;
+    expect(order.indexOf('industry')).toBeLessThan(order.indexOf('entrepreneurial'));
   });
 
   it('hides sections the source document does not contain', () => {
