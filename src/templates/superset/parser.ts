@@ -1,5 +1,5 @@
 import type {
-  IimcResumeData,
+  SupersetResumeData,
   EducationRow,
   BulletGroup,
   ExperienceEntry,
@@ -856,7 +856,7 @@ function parseFooter(allLines: PdfLine[]): { email: string; institute: string } 
 /* ----------------------------- entry point ------------------------------- */
 
 export interface ParseResult {
-  data: Partial<IimcResumeData>;
+  data: Partial<SupersetResumeData>;
   failedSections: string[];
 }
 

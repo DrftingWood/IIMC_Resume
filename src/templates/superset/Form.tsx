@@ -1,4 +1,4 @@
-import type { IimcResumeData } from './types';
+import type { SupersetResumeData } from './types';
 import { HeaderForm } from './form-sections/HeaderForm';
 import { TaglineForm } from './form-sections/TaglineForm';
 import { EducationForm } from './form-sections/EducationForm';
@@ -7,12 +7,12 @@ import { IndustryForm } from './form-sections/IndustryForm';
 import { PositionsForm } from './form-sections/PositionsForm';
 import { FooterForm } from './form-sections/FooterForm';
 
-export default function IimcForm({
+export default function SupersetForm({
   data,
   onChange,
 }: {
-  data: IimcResumeData;
-  onChange: (patch: Partial<IimcResumeData>) => void;
+  data: SupersetResumeData;
+  onChange: (patch: Partial<SupersetResumeData>) => void;
 }) {
   return (
     <div className="space-y-2">

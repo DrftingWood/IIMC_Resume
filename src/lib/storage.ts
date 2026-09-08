@@ -2,22 +2,26 @@ import type { TemplateKey } from '@/templates/types';
 import { isTemplateKey } from '@/templates/registry';
 
 const OLD_DRAFT_KEY = 'iimc-resume-builder:draft:v1';
+const IIMC_DRAFT_KEY = 'iimc-resume-builder:draft:iimc:v1';
 const LAST_TEMPLATE_KEY = 'iimc-resume-builder:lastTemplateId';
 
 function draftKey(templateId: TemplateKey): string {
   return `iimc-resume-builder:draft:${templateId}:v1`;
 }
 
-/** Run once on app boot: copy a pre-multi-template draft into the iimc slot. */
+/** Run once on app boot: fold pre-multi-template and pre-rename drafts into `superset`. */
 function migrateLegacyDraft(): void {
   try {
-    const old = localStorage.getItem(OLD_DRAFT_KEY);
-    if (!old) return;
-    const newKey = draftKey('iimc');
-    if (!localStorage.getItem(newKey)) {
-      localStorage.setItem(newKey, old);
+    const target = draftKey('superset');
+    for (const legacy of [OLD_DRAFT_KEY, IIMC_DRAFT_KEY]) {
+      const old = localStorage.getItem(legacy);
+      if (!old) continue;
+      if (!localStorage.getItem(target)) localStorage.setItem(target, old);
+      localStorage.removeItem(legacy);
     }
-    localStorage.removeItem(OLD_DRAFT_KEY);
+    if (localStorage.getItem(LAST_TEMPLATE_KEY) === 'iimc') {
+      localStorage.setItem(LAST_TEMPLATE_KEY, 'superset');
+    }
   } catch {
     /* ignore */
   }
@@ -59,9 +63,8 @@ export function getLastTemplateId(): TemplateKey | null {
   } catch {
     /* ignore */
   }
-  // If a legacy draft existed, lastTemplateId defaults to iimc.
   try {
-    if (localStorage.getItem(draftKey('iimc'))) return 'iimc';
+    if (localStorage.getItem(draftKey('superset'))) return 'superset';
   } catch {
     /* ignore */
   }

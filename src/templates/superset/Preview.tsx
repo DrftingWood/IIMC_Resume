@@ -1,6 +1,6 @@
 import React, { forwardRef } from 'react';
 import type {
-  IimcResumeData,
+  SupersetResumeData,
   BulletGroup,
   ExperienceEntry,
   SectionKey,
@@ -9,7 +9,7 @@ import { DEFAULT_SECTION_ORDER } from './types';
 import { renderInline } from '@/lib/bold';
 
 interface Props {
-  data: IimcResumeData;
+  data: SupersetResumeData;
 }
 
 const ResumePreview = forwardRef<HTMLDivElement, Props>(({ data }, ref) => {
@@ -76,7 +76,7 @@ const ResumePreview = forwardRef<HTMLDivElement, Props>(({ data }, ref) => {
 ResumePreview.displayName = 'ResumePreview';
 export default ResumePreview;
 
-function HeaderBand({ data }: { data: IimcResumeData }) {
+function HeaderBand({ data }: { data: SupersetResumeData }) {
   return (
     <div className="f1-header">
       <div>
@@ -110,7 +110,7 @@ function SectionBar({ title, rightText }: { title: string; rightText?: string })
   );
 }
 
-function EducationTable({ data }: { data: IimcResumeData }) {
+function EducationTable({ data }: { data: SupersetResumeData }) {
   const ranked = data.resumeType === 'ranked';
   return (
     <table className="f1-table f1-edu">
@@ -267,7 +267,7 @@ function IndustryTable({ entries }: { entries: ExperienceEntry[] }) {
   );
 }
 
-function PositionsTable({ data }: { data: IimcResumeData }) {
+function PositionsTable({ data }: { data: SupersetResumeData }) {
   return (
     <table className="f1-table">
       <colgroup>

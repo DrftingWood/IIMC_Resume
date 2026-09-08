@@ -1,10 +1,10 @@
 import type { TemplateConfig } from '../types';
-import type { IimcResumeData } from './types';
-import { emptyIimcResume } from './types';
+import type { SupersetResumeData } from './types';
+import { emptySupersetResume } from './types';
 import { SAMPLE } from './sample';
 import { parseResume } from './parser';
-import { detectIimc } from './detect';
-import { hydrateIimc } from './hydrate';
+import { detectSuperset } from './detect';
+import { hydrateSuperset } from './hydrate';
 import Preview from './Preview';
 import Form from './Form';
 import SectionsPanel from './SectionsPanel';
@@ -26,18 +26,18 @@ const thumbnail =
     </svg>`
   );
 
-export const iimcTemplate: TemplateConfig<IimcResumeData> = {
-  id: 'iimc',
-  label: 'IIM Calcutta',
-  description: 'Pixel-faithful clone of the IIM Calcutta placement resume.',
+export const supersetTemplate: TemplateConfig<SupersetResumeData> = {
+  id: 'superset',
+  label: '61st batch and prior',
+  description: 'Superset — the IIM Calcutta placement resume used up to the 61st batch.',
   thumbnail,
-  emptyData: emptyIimcResume,
+  emptyData: emptySupersetResume,
   sampleData: SAMPLE,
   Preview,
   Form,
   SectionsPanel,
   parse: parseResume,
-  detect: detectIimc,
-  hydrate: hydrateIimc,
+  detect: detectSuperset,
+  hydrate: hydrateSuperset,
   supportsPdfUpload: true,
 };

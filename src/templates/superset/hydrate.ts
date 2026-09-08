@@ -1,9 +1,9 @@
-import type { IimcResumeData, SectionKey } from './types';
-import { emptyIimcResume, DEFAULT_SECTION_ORDER } from './types';
+import type { SupersetResumeData, SectionKey } from './types';
+import { emptySupersetResume, DEFAULT_SECTION_ORDER } from './types';
 
-export function hydrateIimc(input: Partial<IimcResumeData>): IimcResumeData {
-  const base = emptyIimcResume();
-  const merged: IimcResumeData = { ...base, ...input } as IimcResumeData;
+export function hydrateSuperset(input: Partial<SupersetResumeData>): SupersetResumeData {
+  const base = emptySupersetResume();
+  const merged: SupersetResumeData = { ...base, ...input } as SupersetResumeData;
 
   if (!merged.resumeType) merged.resumeType = 'unranked';
   if (!Array.isArray(merged.taglines) || merged.taglines.length !== 3) {

@@ -1,7 +1,7 @@
 import type { ComponentType, ForwardRefExoticComponent, RefAttributes } from 'react';
 import type { PdfLine } from '@/lib/pdfExtract';
 
-export type TemplateKey = 'iimc' | 'devcv';
+export type TemplateKey = 'superset' | 'skynet' | 'devcv';
 
 export interface ParseResult<TData> {
   data: Partial<TData>;

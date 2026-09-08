@@ -23,7 +23,7 @@ export const SECTION_LABELS: Record<SectionKey, string> = {
   extras: 'Extra-Curricular Achievements',
 };
 
-export interface IimcResumeData {
+export interface SupersetResumeData {
   name: string;
   mbaId: string;
   taglines: [string, string, string];
@@ -76,7 +76,7 @@ export interface PositionEntry {
   year: string;
 }
 
-export function emptyIimcResume(): IimcResumeData {
+export function emptySupersetResume(): SupersetResumeData {
   return {
     name: '',
     mbaId: '',
