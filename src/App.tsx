@@ -130,8 +130,8 @@ export default function App() {
     const next: TemplateKey = templateId === 'skynet' ? 'superset' : 'skynet';
     const { data: migrated, dropped } = migrateBetweenBatches(templateId, next, data);
     if (dropped.length) {
-      const list = dropped.join(' and ');
-      if (!confirm(`The ${getTemplate(next)!.label} format has no ${list} section. Switching will delete that content. Continue?`)) {
+      const list = dropped.map((d) => `the "${d}" section`).join(' and ');
+      if (!confirm(`Switching to ${getTemplate(next)!.codename} will permanently delete ${list}. Continue?`)) {
         return;
       }
     }
