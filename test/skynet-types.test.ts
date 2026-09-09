@@ -21,9 +21,12 @@ describe('skynet types', () => {
     expect(SECTION_LABELS.entrepreneurial).toBe('Entrepreneurial/Non-Profit Venture');
   });
 
-  it('starts with nothing hidden and no ranked variant', () => {
+  it('starts with the optional sections switched off and no ranked variant', () => {
     const empty = emptySkynetResume();
-    expect(empty.hiddenSections).toEqual([]);
+    // A blank resume should not open as seven empty section bars. These three
+    // are the ones the corpus shows are optional; all seven remain listed in
+    // the Sections panel, so this is a default rather than a restriction.
+    expect(empty.hiddenSections).toEqual(['projects', 'entrepreneurial', 'positions']);
     expect(empty).not.toHaveProperty('resumeType');
   });
 
@@ -31,7 +34,12 @@ describe('skynet types', () => {
     const hydrated = hydrateSkynet({ name: 'X' } as never);
     expect(hydrated.projects).toEqual([]);
     expect(hydrated.entrepreneurial).toEqual([]);
-    expect(hydrated.hiddenSections).toEqual([]);
+    // A draft with no hiddenSections field predates it. Hidden is derived from
+    // emptiness so a section that already has content is never hidden.
+    expect(hydrated.hiddenSections).toEqual([
+      'education', 'distinctions', 'projects', 'entrepreneurial',
+      'industry', 'positions', 'extras',
+    ]);
     expect(hydrated.sectionOrder).toEqual(DEFAULT_SECTION_ORDER);
   });
 
@@ -62,5 +70,19 @@ describe('skynet types', () => {
     expect(hydrated.education).toEqual([]);
     expect(hydrated.experience).toEqual([]);
     expect(hydrated.positions).toEqual([]);
+  });
+});
+
+describe('hydrate never hides a section that has content', () => {
+  it('keeps a legacy draft\'s populated sections visible', async () => {
+    const { hydrateSkynet } = await import('@/templates/skynet/hydrate');
+    // Saved before hiddenSections existed, with real Projects content.
+    const legacy = {
+      name: 'X',
+      projects: [{ category: 'Capstone', bullets: [{ text: 'Did a thing', year: '2025' }] }],
+    } as never;
+    const hydrated = hydrateSkynet(legacy);
+    expect(hydrated.hiddenSections).not.toContain('projects');
+    expect(hydrated.projects).toHaveLength(1);
   });
 });

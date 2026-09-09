@@ -51,7 +51,14 @@ export function emptySkynetResume(): SkynetResumeData {
     mbaId: '',
     taglines: ['', '', ''],
     sectionOrder: [...DEFAULT_SECTION_ORDER],
-    hiddenSections: [],
+    /* A blank resume starts with the optional sections switched off, so it does
+       not open as seven empty section bars that would print as empty bars.
+       These are the three the corpus shows are genuinely optional: Position of
+       Responsibility appears in 164 of 450 resumes, Projects in 121 and
+       Entrepreneurial in 17. All seven stay listed in the Sections panel with
+       their checkboxes, so nothing is hidden from view - it is a default, not
+       a restriction. */
+    hiddenSections: ['projects', 'entrepreneurial', 'positions'],
     education: [],
     distinctions: [],
     projects: [],
