@@ -7,15 +7,17 @@
 .skynet-page {
   --page-w: 595pt;
   --page-h: 842pt;
-  --hdr-x: 19.5pt;
-  /* Right content margin is NOT --hdr-x: the education colgroup percentages
-     in Preview.tsx were derived for a content box 562.8pt wide, left edge
-     at x=19.5pt, right edge at x=582.3pt (measured column centres 114.6 /
-     339.6 / 508.2 / 564.6pt) — i.e. a 12.7pt right margin against the
-     595pt A4 page (595 - 19.5 - 562.8 = 12.7). Using --hdr-x on both sides
-     would give a content width of 556pt instead, shifting every column
-     centre off its measured position. Do not make this symmetric again. */
-  --hdr-x-right: 12.7pt;
+  /* Content box = 16.1pt to 578.9pt, 562.8pt wide, measured from the vertical
+     gridline centres of 60 corpus PDFs: the outer frame is a 0.75pt rule
+     spanning 15.75-16.50 on the left and 578.50-579.25 on the right, so its
+     centres are 16.125 and 578.875. Confirmation: the education column
+     boundaries measured at 213.20 / 466.10 / 550.40 put the header centres at
+     114.65 / 339.65 / 508.25 / 564.65, matching the measured text centres
+     (114.6 / 339.6 / 508.2 / 564.6) to 0.05pt. The box is symmetric — the
+     earlier 19.5pt/12.7pt asymmetry sat the whole document 3.4pt too far
+     right and is what made the section bars protrude past the tables. */
+  --hdr-x: 16.1pt;
+  --hdr-x-right: 16.1pt;
   --hdr-size: 11.2pt;
   --body-size: 9.9pt;
   --row-pitch: 14.6pt;
@@ -130,12 +132,13 @@
 .sk-section-bar {
   background: var(--c-darkbar);
   color: var(--c-white);
-  /* The source PDF's dark bar starts at x=16.5pt and its text at 19.5pt - a
-     3pt inset, not 6pt. With the page's 19.5pt left padding this needs a 3pt
-     outdent so the bar edge and the text both land where the source puts them. */
-  padding: 1pt 3pt;
-  margin-left: -3pt;
-  margin-right: -3pt;
+  /* Flush with the tables. In the source the dark bars and the table gridlines
+     share the same edges (both 15.75-579.25 at the outer stroke), which is what
+     makes the document read as one block, so the bar spans the content box
+     exactly — no outdent. Its 3.4pt left padding sits the CAPS text at the
+     measured x=19.5pt. Negative margins here make the bar wider than the
+     tables and it protrudes; do not reintroduce them. */
+  padding: 1pt 3.4pt;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -235,12 +238,12 @@
      padding here forced 22 of 43 bullets onto a second line and pushed the
      page from 842pt to 1282pt - a one-page resume exporting as two. */
   /* Insets match the source template rather than hugging the gridline: the
-     cell's left edge is x=105pt, the bullet glyph sits at 108.4pt and the text
-     at 113.2pt, so 3.4pt of left padding puts the glyph where the PDF puts it.
-     3pt on the right keeps text off the year column's rule (PDF text stops at
-     546pt against a 549pt gridline). Zero padding fitted the page but left
-     every bullet touching its border. */
-  padding-left: 3.4pt !important;
+     cell's left edge is the measured gridline at x=100.60, the bullet glyph
+     sits at 108.4pt and its text at 113.2pt, so 7.8pt of left padding puts the
+     glyph where the PDF puts it. 3pt on the right keeps text off the year
+     column's rule (PDF text stops at ~545pt against the 548.13pt gridline).
+     Zero padding fitted the page but left every bullet touching its border. */
+  padding-left: 7.8pt !important;
   padding-right: 3pt !important;
   /* Browser text renders ~2.9% wider than the same string in the source
      PDF at the same nominal 9.9pt. This closes the gap so bullets sized to
@@ -264,7 +267,9 @@
 
 /* Industry experience specifics */
 .sk-vertical {
-  width: 0.45cm;
+  /* 14.30pt: the rotated margin-label column runs from the content edge
+     (16.1pt) to the measured gridline at x=30.40. */
+  width: 14.3pt;
   background: var(--c-lightbar);
   padding: 0 !important;
   vertical-align: middle;
