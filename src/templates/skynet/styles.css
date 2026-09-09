@@ -96,7 +96,8 @@
 
 .sk-mbaid {
   font-weight: bold;
-  font-size: 11.25pt;
+  /* 12pt, same as the name - measured from the source PDF. */
+  font-size: 12pt;
   line-height: 1.15;
 }
 
@@ -129,7 +130,12 @@
 .sk-section-bar {
   background: var(--c-darkbar);
   color: var(--c-white);
-  padding: 1pt 6pt;
+  /* The source PDF's dark bar starts at x=16.5pt and its text at 19.5pt - a
+     3pt inset, not 6pt. With the page's 19.5pt left padding this needs a 3pt
+     outdent so the bar edge and the text both land where the source puts them. */
+  padding: 1pt 3pt;
+  margin-left: -3pt;
+  margin-right: -3pt;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -147,7 +153,8 @@
 
 .sk-section-bar-right {
   font-weight: bold;
-  font-size: 10.25pt;
+  /* 11.25pt, matching the section-header type in the source PDF. */
+  font-size: 11.25pt;
 }
 
 /* Tables — grey thin borders everywhere except taglines */
@@ -279,7 +286,8 @@
   transform: rotate(180deg);
   white-space: nowrap;
   font-weight: bold;
-  font-size: 9pt;
+  /* 9.75pt, measured from the source PDF's rotated margin label. */
+  font-size: 9.75pt;
   line-height: 1;
   letter-spacing: 0.02em;
 }
@@ -375,3 +383,4 @@
   top: -0.18em;
   vertical-align: baseline;
 }
+
