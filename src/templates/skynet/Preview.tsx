@@ -129,22 +129,19 @@ function SectionBar({ title, rightText }: { title: string; rightText?: string })
 function EducationTable({ data }: { data: SkynetResumeData }) {
   return (
     <table className="sk-table sk-edu">
-      {/* Column widths derive from the measured education column CENTRES
-          (114.6 / 339.6 / 508.2 / 564.6pt), not a round split. Text is
-          centred in each cell, so cell centre = text centre, giving each
-          boundary b_i = 2*c_i - b_(i-1) from the left content edge
-          L=19.5pt: boundaries 19.5 / 209.7 / 469.5 / 546.9 / 582.3, table
-          width 562.8pt. Do not revert these to round numbers.
-          This assumes a content box exactly 562.8pt wide, from x=19.5pt to
-          x=582.3pt on the 595pt A4 page — i.e. a 19.5pt LEFT margin and a
-          12.7pt RIGHT margin (--hdr-x / --hdr-x-right in styles.css), NOT a
-          symmetric 19.5pt/19.5pt margin (that would give 556pt and shift
-          every centre above off its measured position). */}
+      {/* Column widths come from the education table's vertical gridlines,
+          measured across 60 corpus PDFs: boundaries at x=213.20 / 466.10 /
+          550.40 inside a content box of 16.1 to 578.9pt (562.8pt wide,
+          --hdr-x / --hdr-x-right in styles.css). Cross-check: those
+          boundaries put the four column centres at 114.65 / 339.65 / 508.25 /
+          564.65, matching the measured header text centres (114.6 / 339.6 /
+          508.2 / 564.6) to 0.05pt. Do not revert these to round numbers, and
+          do not change them without moving the content box with them. */}
       <colgroup>
-        <col style={{ width: '33.80%' }} />
-        <col style={{ width: '46.16%' }} />
-        <col style={{ width: '13.75%' }} />
-        <col style={{ width: '6.29%' }} />
+        <col style={{ width: '35.02%' }} />
+        <col style={{ width: '44.94%' }} />
+        <col style={{ width: '14.98%' }} />
+        <col style={{ width: '5.06%' }} />
       </colgroup>
       <thead>
         <tr>
@@ -173,13 +170,14 @@ function BulletGroupTable({ groups }: { groups: BulletGroup[] }) {
     <table className="sk-table">
       <colgroup>
         {/* Derived from the corpus gridlines, not round numbers: the category
-            column runs to x=105pt, the bullet column to x=549pt and the year
-            column to the page edge at 582.3pt, over a 562.8pt content width.
-            The year column was 7% - wider than the real 5.9% - which stole the
-            width the bullet text needed and pushed it against the gridline. */}
-        <col style={{ width: '15.2%' }} />
-        <col style={{ width: '78.9%' }} />
-        <col style={{ width: '5.9%' }} />
+            column ends at x=100.60, the bullet column at x=548.13 and the year
+            column at the content edge x=578.9, over a 562.8pt content width.
+            These are the measured gridline centres, not a round split. The
+            year column was once 7% - far wider than the real 5.47% - which
+            stole width from the bullet text and pushed it into the rule. */}
+        <col style={{ width: '15.01%' }} />
+        <col style={{ width: '79.52%' }} />
+        <col style={{ width: '5.47%' }} />
       </colgroup>
       <tbody>
         {groups.flatMap((g, gi) =>
@@ -285,10 +283,13 @@ function IndustryTable({ entries }: { entries: ExperienceEntry[] }) {
 
   return (
     <table className="sk-table">
+      {/* Industry has its own gridlines: the rotated margin-label column ends
+          at x=30.40 and the category column at x=100.70, inside the same
+          16.1-578.9pt content box - so 14.30pt / 70.30pt / 478.20pt. */}
       <colgroup>
-        <col style={{ width: '0.45cm' }} />
-        <col style={{ width: 'calc(15% - 0.45cm)' }} />
-        <col style={{ width: '85%' }} />
+        <col style={{ width: '2.54%' }} />
+        <col style={{ width: '12.49%' }} />
+        <col style={{ width: '84.97%' }} />
       </colgroup>
       <tbody>{rows}</tbody>
     </table>
@@ -300,13 +301,14 @@ function PositionsTable({ data }: { data: SkynetResumeData }) {
     <table className="sk-table">
       <colgroup>
         {/* Derived from the corpus gridlines, not round numbers: the category
-            column runs to x=105pt, the bullet column to x=549pt and the year
-            column to the page edge at 582.3pt, over a 562.8pt content width.
-            The year column was 7% - wider than the real 5.9% - which stole the
-            width the bullet text needed and pushed it against the gridline. */}
-        <col style={{ width: '15.2%' }} />
-        <col style={{ width: '78.9%' }} />
-        <col style={{ width: '5.9%' }} />
+            column ends at x=100.60, the bullet column at x=548.13 and the year
+            column at the content edge x=578.9, over a 562.8pt content width.
+            These are the measured gridline centres, not a round split. The
+            year column was once 7% - far wider than the real 5.47% - which
+            stole width from the bullet text and pushed it into the rule. */}
+        <col style={{ width: '15.01%' }} />
+        <col style={{ width: '79.52%' }} />
+        <col style={{ width: '5.47%' }} />
       </colgroup>
       <tbody>
         {data.positions.flatMap((p, pi) =>
