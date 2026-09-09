@@ -25,8 +25,28 @@ export function hydrateSkynet(input: Partial<SkynetResumeData>): SkynetResumeDat
   for (const k of DEFAULT_SECTION_ORDER) if (!seen.has(k)) cleaned.push(k);
   merged.sectionOrder = cleaned;
 
-  merged.hiddenSections = (Array.isArray(merged.hiddenSections) ? merged.hiddenSections : [])
-    .filter((k) => DEFAULT_SECTION_ORDER.includes(k));
+  if (Array.isArray(input.hiddenSections)) {
+    merged.hiddenSections = input.hiddenSections.filter((k) =>
+      DEFAULT_SECTION_ORDER.includes(k)
+    );
+  } else {
+    // A draft saved before hiddenSections existed. Do NOT inherit the
+    // blank-resume default here - that would hide a section the student has
+    // already written content into. Derive it instead: hide only what is
+    // genuinely empty, so nothing with content ever disappears.
+    const contentOf: Record<SectionKey, unknown[]> = {
+      education: merged.education,
+      distinctions: merged.distinctions,
+      projects: merged.projects,
+      entrepreneurial: merged.entrepreneurial,
+      industry: merged.experience,
+      positions: merged.positions,
+      extras: merged.extras,
+    };
+    merged.hiddenSections = DEFAULT_SECTION_ORDER.filter(
+      (k) => (contentOf[k] ?? []).length === 0
+    );
+  }
 
   return merged;
 }
