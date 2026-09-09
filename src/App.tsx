@@ -16,6 +16,7 @@ import { getTemplate } from '@/templates/registry';
 import { usePageOverflow } from '@/lib/usePageOverflow';
 import { emptyHistory, record, undo as undoHistory, canUndo } from '@/lib/history';
 import type { SaveFailure } from '@/lib/storage';
+import { emptyVisibleSections } from '@/lib/emptySections';
 import type { TemplateKey } from '@/templates/types';
 import { migrateBetweenBatches } from '@/lib/migrateBatch';
 
@@ -83,6 +84,11 @@ export default function App() {
   const [overflowDismissed, setOverflowDismissed] = useState(false);
   const [history, setHistory] = useState(() => emptyHistory<unknown>());
   const [saveFailure, setSaveFailure] = useState<SaveFailure | null>(null);
+  const [emptyDismissed, setEmptyDismissed] = useState(false);
+  const emptySections = emptyVisibleSections(templateId, data);
+  useEffect(() => {
+    if (emptySections.length === 0) setEmptyDismissed(false);
+  }, [emptySections.length]);
   // Re-arm the warning once the resume fits again, so dismissing it once does
   // not hide a later overflow the student introduces by adding more content.
   useEffect(() => {
@@ -227,6 +233,14 @@ export default function App() {
         >
           Inline <strong>bold</strong> formatting wasn't recovered from your upload — use the{' '}
           <strong>B</strong> button on each field to re-apply.
+        </AdvisoryBanner>
+      )}
+      {emptySections.length > 0 && !emptyDismissed && (
+        <AdvisoryBanner tone="info" onDismiss={() => setEmptyDismissed(true)} label="Empty">
+          {emptySections.join(', ')} {emptySections.length === 1 ? 'is' : 'are'} switched on but
+          empty, so {emptySections.length === 1 ? 'it' : 'they'} will print as{' '}
+          {emptySections.length === 1 ? 'an empty bar' : 'empty bars'}. Add content, or switch
+          {emptySections.length === 1 ? ' it' : ' them'} off in the Sections panel.
         </AdvisoryBanner>
       )}
       {saveFailure && (

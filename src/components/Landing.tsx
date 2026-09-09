@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { extractLines } from '@/lib/pdfExtract';
 import { chooseTemplate } from '@/lib/batch';
 import { friendlyPdfError } from '@/lib/pdfErrors';
+import { detectBrowser, printGuidance } from '@/lib/browser';
 import { TEMPLATES } from '@/templates/registry';
 import type { AnyTemplateConfig, TemplateKey } from '@/templates/types';
 import TemplateChooserModal from './TemplateChooserModal';
@@ -99,6 +100,11 @@ export default function Landing({
           </p>
           <p className="mt-1 text-xs text-slate-400">
             Works best with the IIM Calcutta resume template.
+          </p>
+          <p className="mt-1 text-[11px] text-slate-500">
+            {printGuidance(detectBrowser()).isBest
+              ? 'Best exported from Chrome — which is what you are using.'
+              : `Best exported from Chrome — you are on ${printGuidance(detectBrowser()).label}.`}
           </p>
           <p className="mt-2 text-[11px] text-slate-400">
             Made by Abhishek Acharya, Case Collective, IIM C
