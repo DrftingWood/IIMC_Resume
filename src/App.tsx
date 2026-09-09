@@ -15,6 +15,7 @@ import SectionOrderPanel from '@/components/SectionOrderPanel';
 import { getTemplate } from '@/templates/registry';
 import { usePageOverflow } from '@/lib/usePageOverflow';
 import { emptyHistory, record, undo as undoHistory, canUndo } from '@/lib/history';
+import type { SaveFailure } from '@/lib/storage';
 import type { TemplateKey } from '@/templates/types';
 import { migrateBetweenBatches } from '@/lib/migrateBatch';
 
@@ -81,6 +82,7 @@ export default function App() {
   const overflow = usePageOverflow(previewRef, Boolean(templateId && data));
   const [overflowDismissed, setOverflowDismissed] = useState(false);
   const [history, setHistory] = useState(() => emptyHistory<unknown>());
+  const [saveFailure, setSaveFailure] = useState<SaveFailure | null>(null);
   // Re-arm the warning once the resume fits again, so dismissing it once does
   // not hide a later overflow the student introduces by adding more content.
   useEffect(() => {
@@ -111,7 +113,10 @@ export default function App() {
   // Persist draft (debounced).
   useEffect(() => {
     if (!templateId || !data) return;
-    const t = setTimeout(() => saveDraft(templateId, data), 500);
+    const t = setTimeout(() => {
+      const res = saveDraft(templateId, data);
+      setSaveFailure(res.ok ? null : res.reason ?? 'unavailable');
+    }, 500);
     return () => clearTimeout(t);
   }, [templateId, data]);
 
@@ -222,6 +227,13 @@ export default function App() {
         >
           Inline <strong>bold</strong> formatting wasn't recovered from your upload — use the{' '}
           <strong>B</strong> button on each field to re-apply.
+        </AdvisoryBanner>
+      )}
+      {saveFailure && (
+        <AdvisoryBanner tone="warn" onDismiss={() => setSaveFailure(null)} label="Not saved">
+          {saveFailure === 'quota'
+            ? 'Your browser storage is full, so this draft is no longer being saved. Export the PDF now, then clear some site data.'
+            : 'This draft is not being saved — your browser is blocking storage (private browsing can do this). Export the PDF before you close the tab.'}
         </AdvisoryBanner>
       )}
       {!overflow.fits && !overflowDismissed && (
