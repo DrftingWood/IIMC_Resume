@@ -33,6 +33,30 @@ Two IIM Calcutta resume templates are supported:
 
 The batch number is auto-detected from the MBA id on the resume (`MBA/xxxx/<batch>`), so the correct template is picked automatically on upload.
 
+## Sample data
+
+Each template ships a fictional sample resume (`src/templates/*/sample.ts`) used
+for the gallery thumbnail and the "start from sample" flow. Every achievement,
+metric and organisation in them is invented.
+
+Because these ship in a public app, the *identifying* fields are chosen so they
+cannot resolve to a real person, rather than merely looking made-up:
+
+- **Roll numbers use the `9xxx` block**, which IIMC does not issue — the same
+  convention `scripts/make-fixture.mjs` applies to scrubbed fixtures. Never put
+  a real-range id (`MBA/0247/63`) in a sample or a form placeholder: it belongs
+  to somebody.
+- **Emails use the RFC 2606 reserved `example.com`**, never the live
+  `email.iimcal.ac.in` domain. Any plausible local part on the real domain may
+  be, or later become, a student's actual mailbox.
+- **Web and social links avoid invented vanity domains** (`<surname>.dev` and
+  friends are usually already registered to someone); phone numbers stay in the
+  non-assignable `+1 555` range.
+
+A common first name and surname on their own identify nobody — the risk comes
+from pairing one with a routable address or a real-range roll number, so keep
+those two properties independent when editing the samples.
+
 ## Known limitations
 
 - **Bold formatting is not recovered on upload.** PDF text extraction loses inline weight information. Re-apply with the **B** button in each editor field.

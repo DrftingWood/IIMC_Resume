@@ -16,7 +16,7 @@ export function HeaderForm({
           onChange={(e) => onChange({ name: e.target.value.toUpperCase() })}
         />
       </Field>
-      <Field label="MBA ID (e.g. MBA/0166/61)">
+      <Field label="MBA ID (e.g. MBA/9001/61)">
         <TextInput value={data.mbaId} onChange={(e) => onChange({ mbaId: e.target.value })} />
       </Field>
     </Accordion>

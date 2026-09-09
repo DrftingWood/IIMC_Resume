@@ -2,6 +2,12 @@ import type { DevCvData } from './types';
 
 // Fully fictional engineer. Companies, schools, contact details, and GitHub
 // handles are invented for illustration only.
+//
+// Contact details are chosen so they cannot route to a real person: the web
+// and email addresses use the RFC 2606 reserved `example.com` (an invented
+// vanity domain such as `<surname>.dev` is usually already registered to
+// someone), and the phone number sits in the +1 555 range, which is not
+// assignable in the NANP.
 export const SAMPLE: DevCvData = {
   firstName: 'Mira',
   lastName: 'Holloway',
@@ -12,14 +18,14 @@ export const SAMPLE: DevCvData = {
     {
       id: 'c3',
       icon: 'At',
-      text: 'mira@holloway.dev',
-      href: 'mailto:mira@holloway.dev',
+      text: 'mira@example.com',
+      href: 'mailto:mira@example.com',
     },
     {
       id: 'c4',
       icon: 'Globe',
-      text: 'holloway.dev',
-      href: 'https://holloway.dev',
+      text: 'example.com',
+      href: 'https://example.com',
     },
     {
       id: 'c5',
@@ -132,7 +138,7 @@ export const SAMPLE: DevCvData = {
           id: 'col3',
           title: 'Open source',
           body:
-            'Maintainer of **cli-toolkit** (1.2k★). Regular contributor to **react-hook-form**. Occasionally writes about Postgres on **holloway.dev**.',
+            'Maintainer of **cli-toolkit** (1.2k★). Regular contributor to **react-hook-form**. Occasionally writes about Postgres on **example.com**.',
         },
       ],
     },

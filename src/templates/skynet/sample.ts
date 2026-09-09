@@ -3,9 +3,19 @@ import type { SkynetResumeData } from './types';
 // Fully fictional candidate. All metrics, organisations, and outcomes are
 // invented to illustrate the layout and bold-rendering — no resemblance to
 // any real student or selection list is intended.
+//
+// The identifying fields are deliberately non-assignable, so the sample
+// cannot collide with a real student even by accident:
+//   - roll number uses the 9xxx block, which IIMC does not issue (the same
+//     convention scripts/make-fixture.mjs uses for scrubbed fixtures);
+//   - email uses the RFC 2606 reserved `example.com`, never the live
+//     `email.iimcal.ac.in` domain, where any plausible local part may be a
+//     real student's mailbox.
+// A common given name/surname on its own identifies nobody; keep it that way
+// by never pairing it with a real-range roll number or a routable address.
 export const SAMPLE: SkynetResumeData = {
   name: 'ROHAN SENGUPTA',
-  mbaId: 'MBA/0247/63',
+  mbaId: 'MBA/9001/63',
   taglines: [
     'IIM CALCUTTA, TOP 8% (PGP1)',
     'EX-ZS ASSOCIATES, ASIAN PAINTS SIP',
@@ -132,6 +142,6 @@ export const SAMPLE: SkynetResumeData = {
       ],
     },
   ],
-  email: 'rohan.sengupta2026@email.iimcal.ac.in',
+  email: 'rohan.sengupta@example.com',
   institute: 'Indian Institute of Management Calcutta',
 };

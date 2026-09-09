@@ -3,9 +3,14 @@ import type { SupersetResumeData } from './types';
 // Fully fictional candidate. All metrics, organisations, and outcomes are
 // invented to illustrate the layout and bold-rendering — no resemblance to
 // any real student or selection list is intended.
+//
+// Identifiers are non-assignable by construction: the roll number uses the
+// 9xxx block IIMC does not issue (as scripts/make-fixture.mjs does), and the
+// email uses RFC 2606 `example.com` rather than the live `email.iimcal.ac.in`
+// domain, where a plausible local part may be a real student's mailbox.
 export const SAMPLE: SupersetResumeData = {
   name: 'ROHAN SENGUPTA',
-  mbaId: 'MBA/0247/61',
+  mbaId: 'MBA/9001/61',
   taglines: [
     'IIM CALCUTTA, TOP 8% (PGP1)',
     'EX-ZS ASSOCIATES, ASIAN PAINTS SIP',
@@ -136,6 +141,6 @@ export const SAMPLE: SupersetResumeData = {
       ],
     },
   ],
-  email: 'rohan.sengupta2026@email.iimcal.ac.in',
+  email: 'rohan.sengupta@example.com',
   institute: 'Indian Institute of Management Calcutta',
 };
