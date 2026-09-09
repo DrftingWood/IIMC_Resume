@@ -80,4 +80,19 @@ describe('skynet print geometry constants', () => {
       expect(preview).toContain(pct);
     }
   });
+
+  it('keeps the header type sizes measured from the source PDF', () => {
+    // Verified by printing a real 63rd-batch resume to PDF and comparing spans
+    // against the original: the candidate name is 12pt and the tagline cells
+    // 11.25pt. 14.5pt/10.25pt rendered the name oversized and the taglines
+    // undersized, and the taller header pushed every section below it down
+    // ~18pt.
+    expect(css).toMatch(/font-size:\s*12pt/);
+    expect(css).toMatch(/font-size:\s*11\.25pt/);
+  });
+
+  it('keeps the page top padding that puts the name where the source does', () => {
+    // The source PDF places the candidate name at y=6.6pt.
+    expect(css).toMatch(/padding:\s*6pt var\(--hdr-x-right\)/);
+  });
 });

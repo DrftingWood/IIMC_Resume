@@ -42,7 +42,10 @@
 
   width: var(--page-w);
   min-height: var(--page-h);
-  padding: 21.6pt var(--hdr-x-right) 14.4pt var(--hdr-x);
+  /* Top padding measured against the source PDF, where the candidate name
+     sits at y=6.6pt. 21.6pt here pushed the whole document down ~18pt and
+     every section with it. */
+  padding: 6pt var(--hdr-x-right) 14.4pt var(--hdr-x);
   background: var(--c-bg);
   color: var(--c-text);
   font-family: Calibri, Carlito, Arial, sans-serif;
@@ -86,7 +89,8 @@
 
 .sk-name {
   font-weight: bold;
-  font-size: 14.5pt;
+  /* 12pt, matching the source PDF. 14.5pt rendered the name ~21% oversized. */
+  font-size: 12pt;
   line-height: 1.15;
 }
 
@@ -109,7 +113,9 @@
   background: var(--c-darkbar);
   color: var(--c-white);
   font-weight: bold;
-  font-size: 10.25pt;
+  /* 11.25pt, matching the source PDF's tagline cells (measured); 10.25pt
+     rendered them ~9% undersized. */
+  font-size: 11.25pt;
   text-transform: uppercase;
   text-align: center;
   padding: 2.5pt 4pt;
