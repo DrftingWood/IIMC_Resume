@@ -7,7 +7,7 @@ import type {
   PositionEntry,
   YearedBullet,
 } from './types';
-import { DEFAULT_SECTION_ORDER } from './types';
+import { DEFAULT_SECTION_ORDER, SECTION_LABELS } from './types';
 import type { SectionKey } from './types';
 import type { PdfLine, TextItem } from '@/lib/pdfExtract';
 
@@ -1162,6 +1162,25 @@ export function parseResume(lines: PdfLine[]): ParseResult {
     if (!seenKeys.has(k)) {
       sectionOrder.push(k);
       hiddenSections.push(k);
+    }
+  }
+
+  // A section whose header IS in the document but which parsed to nothing is a
+  // silent failure: trySection only records a failure when something throws, so
+  // the student would land in the editor with that section simply gone and no
+  // indication anything was lost. Report it by name so the advisory can say so.
+  const parsedFor: Record<SectionKey, number> = {
+    education: edu.rows.length,
+    distinctions: distinctions.length,
+    projects: projects.length,
+    entrepreneurial: entrepreneurial.length,
+    industry: industry.entries.length,
+    positions: positions.length,
+    extras: extras.length,
+  };
+  for (const key of present) {
+    if (parsedFor[key] === 0 && !failed.includes(SECTION_LABELS[key])) {
+      failed.push(SECTION_LABELS[key]);
     }
   }
 
