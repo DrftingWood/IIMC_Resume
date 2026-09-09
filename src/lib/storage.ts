@@ -31,11 +31,31 @@ function migrateLegacyDraft(): void {
   }
 }
 
-export function saveDraft(templateId: TemplateKey, data: unknown): void {
+/** Why a save failed, so the UI can say something useful rather than nothing. */
+export type SaveFailure = 'quota' | 'unavailable';
+
+export interface SaveResult {
+  ok: boolean;
+  reason?: SaveFailure;
+}
+
+/**
+ * Persist the draft. Failure used to be swallowed into a console warning, so a
+ * student whose storage was full or blocked kept typing into something that was
+ * no longer being saved and had no way to know until they reloaded.
+ */
+export function saveDraft(templateId: TemplateKey, data: unknown): SaveResult {
   try {
     localStorage.setItem(draftKey(templateId), JSON.stringify(data));
+    return { ok: true };
   } catch (e) {
+    const name = (e as { name?: string } | null)?.name ?? '';
+    const quota =
+      name === 'QuotaExceededError' ||
+      name === 'NS_ERROR_DOM_QUOTA_REACHED' ||
+      (e as { code?: number } | null)?.code === 22;
     console.warn('saveDraft failed', e);
+    return { ok: false, reason: quota ? 'quota' : 'unavailable' };
   }
 }
 

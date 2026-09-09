@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { extractLines } from '@/lib/pdfExtract';
 import { chooseTemplate } from '@/lib/batch';
+import { friendlyPdfError } from '@/lib/pdfErrors';
 import { TEMPLATES } from '@/templates/registry';
 import type { AnyTemplateConfig, TemplateKey } from '@/templates/types';
 import TemplateChooserModal from './TemplateChooserModal';
@@ -42,7 +43,7 @@ export default function Landing({
       setChooserOpen(true);
     } catch (e: any) {
       console.error(e);
-      setErr(e?.message ?? 'Failed to parse PDF');
+      setErr(friendlyPdfError(e));
     } finally {
       setBusy(false);
     }
@@ -64,7 +65,7 @@ export default function Landing({
       onReady(t.id, merged, { warnBoldLost: true, failedSections });
     } catch (e: any) {
       console.error(e);
-      setErr(e?.message ?? 'Failed to parse PDF');
+      setErr(friendlyPdfError(e));
     } finally {
       setBusy(false);
       setChooserOpen(false);
