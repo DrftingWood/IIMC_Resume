@@ -190,7 +190,7 @@
 }
 
 /* Year column — width is set per-table by each <col> percentage (not by
-   a shared constant here): only the year TEXT extent was measured
+   a shared constant here): only the year TEXT was measured extent
    (x=552-575pt), and cell width isn't derivable from text extent alone.
    Pending visual confirmation against a real exported PDF. */
 .sk-cell-year {
