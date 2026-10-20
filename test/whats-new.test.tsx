@@ -9,6 +9,15 @@ const HOUR = 60 * 60 * 1000;
 describe("what's new panel", () => {
   beforeEach(() => localStorage.clear());
 
+  it('shows titles first and the details on request', () => {
+    render(<WhatsNew now={start + HOUR} />);
+    const firstDetail = RELEASE.notes[0].detail;
+    expect(screen.queryByText(firstDetail)).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Show details' }));
+    expect(screen.getByText(firstDetail)).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Hide details' }).getAttribute('aria-expanded')).toBe('true');
+  });
+
   it('lists every update as a numbered list', () => {
     render(<WhatsNew now={start + HOUR} />);
     const panel = screen.getByRole('region', { name: "What's new" });

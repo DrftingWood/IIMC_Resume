@@ -29,6 +29,9 @@ export function WhatsNew({
   now?: number;
 }) {
   const [open, setOpen] = useState(() => isReleaseFresh(release, now) && !wasDismissed(release));
+  // Titles only by default: the full notes pushed the upload card below the
+  // fold on a 768px-tall laptop screen.
+  const [details, setDetails] = useState(false);
   if (!open) return null;
 
   function dismiss() {
@@ -62,15 +65,12 @@ export function WhatsNew({
         </svg>
       </button>
       <div className="flex items-center gap-2 pr-8">
-        <span className="rounded-full bg-slate-900 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white">
-          Update
-        </span>
         <h2 id="whats-new-title" className="text-sm font-semibold text-slate-900">
           What's new
         </h2>
         <span className="text-[11px] text-slate-500">· {date}</span>
       </div>
-      <ol className="mt-4 space-y-3 list-none">
+      <ol className={'mt-3 list-none ' + (details ? 'space-y-3' : 'space-y-1.5')}>
         {release.notes.map((n, i) => (
           <li key={n.title} className="flex gap-3">
             <span
@@ -86,11 +86,19 @@ export function WhatsNew({
                   {n.kind}
                 </span>
               </div>
-              <p className="mt-0.5 text-xs leading-relaxed text-slate-500">{n.detail}</p>
+              {details && <p className="mt-0.5 text-xs leading-relaxed text-slate-500">{n.detail}</p>}
             </div>
           </li>
         ))}
       </ol>
+      <button
+        type="button"
+        onClick={() => setDetails((d) => !d)}
+        aria-expanded={details}
+        className="ui-transition mt-3 text-xs font-medium text-slate-600 underline underline-offset-2 hover:text-slate-900"
+      >
+        {details ? 'Hide details' : 'Show details'}
+      </button>
     </section>
   );
 }
