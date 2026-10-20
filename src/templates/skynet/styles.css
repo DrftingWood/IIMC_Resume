@@ -496,3 +496,12 @@
 .sk-edu td {
   line-height: calc(var(--row-line) + 0.6pt);
 }
+
+/* The template prints the address as a hyperlink: pure blue, underlined
+   (#0000FF in every real PDF checked). */
+.sk-footer-email {
+  color: #0000ff;
+  text-decoration: underline;
+  text-decoration-thickness: 0.5pt;
+  text-underline-offset: 1pt;
+}

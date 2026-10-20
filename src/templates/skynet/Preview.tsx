@@ -98,7 +98,9 @@ const ResumePreview = forwardRef<HTMLDivElement, Props>(({ data: draft }, ref) =
       })}
 
       <div className="sk-footer">
-        <span className="sk-footer-line">Email: {data.email}</span>
+        <span className="sk-footer-line">
+          Email: <span className="sk-footer-email">{data.email}</span>
+        </span>
         <span className="sk-footer-line">{data.institute}</span>
       </div>
       {/* Invisible rows for the editor's line-fill meter (src/lib/lineFill.ts):
