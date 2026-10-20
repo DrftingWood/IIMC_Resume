@@ -154,8 +154,13 @@ export interface PositionEntry {
     section they added. */
 export function sectionLabel(data: SkynetResumeData, key: SectionKey): string {
   if (isCustomKey(key)) {
-    const custom = data.customSections?.find((c) => c.key === key);
-    return custom?.label?.trim() || UNTITLED_SECTION;
+    const custom = data.customSections?.find((c) => c?.key === key);
+    return text(custom?.label) || UNTITLED_SECTION;
   }
-  return data.sectionTitles?.[key]?.trim() || SECTION_LABELS[key];
+  return text(data.sectionTitles?.[key]) || SECTION_LABELS[key];
+}
+
+/** Trimmed text, or '' for anything that is not a string (corrupted drafts). */
+function text(v: unknown): string {
+  return typeof v === 'string' ? v.trim() : '';
 }

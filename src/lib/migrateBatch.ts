@@ -15,6 +15,10 @@ export const SHARED_KEYS = [
   'name', 'mbaId', 'taglines', 'education', 'distinctions',
   'experience', 'industryRightText', 'positions', 'extras', 'email', 'institute',
   'sectionOrder', 'hiddenSections', 'resumeType',
+  // The student's own sections, renamed titles and page density are content
+  // too. Left out, a format switch silently deleted them (and the custom
+  // keys still in sectionOrder were then dropped as unknown by hydrate).
+  'customSections', 'sectionTitles', 'density',
 ] as const;
 
 /** Sections that exist only in Skynet, with the labels shown in the confirm. */
@@ -32,6 +36,14 @@ export function migrateBetweenBatches(
   const carried: Record<string, unknown> = {};
   for (const k of SHARED_KEYS) {
     if (src[k] !== undefined) carried[k] = src[k];
+  }
+
+  // A renamed title only carries to a format that has that section; the
+  // target's hydrate already ignores keys it does not know.
+  if (carried.sectionTitles && typeof carried.sectionTitles === 'object') {
+    const titles = { ...(carried.sectionTitles as Record<string, unknown>) };
+    if (to === 'superset') for (const { key } of SKYNET_ONLY) delete titles[key];
+    carried.sectionTitles = titles;
   }
 
   const dropped: string[] = [];

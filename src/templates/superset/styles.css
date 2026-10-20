@@ -110,11 +110,13 @@
 .f1-section-bar > span:first-child {
   grid-column: 2;
   text-align: center;
+  min-width: 0; /* a long renamed title wraps instead of crushing the right text */
 }
 
 .f1-section-bar-right {
   grid-column: 3;
   justify-self: end;
+  white-space: nowrap;
   font-weight: bold;
   font-size: 10.25pt;
 }

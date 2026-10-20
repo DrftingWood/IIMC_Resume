@@ -30,11 +30,13 @@ interface Entry extends Hideable {
 
 const GROUP_KEYS = ['distinctions', 'projects', 'entrepreneurial', 'extras'] as const;
 
-const shown = <T extends Hideable>(x: T) => !x.hidden;
+// Null-safe: a corrupted draft can hold null entries, and this runs at boot.
+const shown = <T extends Hideable>(x: T | null | undefined): x is T => !!x && !x.hidden;
+const list = <T>(x: unknown): T[] => (Array.isArray(x) ? (x as T[]) : []);
 
 function visibleGroups<T extends Group>(groups: T[]): T[] {
   return groups.filter(shown).flatMap((g) => {
-    const bullets = g.bullets.filter(shown);
+    const bullets = list<Hideable>(g.bullets).filter(shown);
     // A group whose every point is hidden would print as a bare category cell.
     if (g.bullets.length > 0 && bullets.length === 0) return [];
     return [{ ...g, bullets }];
@@ -43,9 +45,10 @@ function visibleGroups<T extends Group>(groups: T[]): T[] {
 
 function visibleStringBullets<T extends StringBullets>(items: T[]): T[] {
   return items.filter(shown).flatMap((item) => {
-    const flags = item.hiddenBullets ?? [];
-    const bullets = item.bullets.filter((_, i) => !flags[i]);
-    if (item.bullets.length > 0 && bullets.length === 0) return [];
+    const flags = list<boolean>(item.hiddenBullets);
+    const all = list<string>(item.bullets);
+    const bullets = all.filter((_, i) => !flags[i]);
+    if (all.length > 0 && bullets.length === 0) return [];
     const { hiddenBullets: _flags, ...rest } = item;
     return [{ ...rest, bullets } as T];
   });
@@ -62,16 +65,20 @@ export function withoutHidden<T>(data: T): T {
     if (Array.isArray(d[key])) out[key] = visibleGroups(d[key] as Group[]);
   }
   if (Array.isArray(d.customSections)) {
-    out.customSections = (d.customSections as { groups: Group[] }[]).map((c) => ({
+    out.customSections = (d.customSections as { groups: Group[] }[]).filter(Boolean).map((c) => ({
       ...c,
       groups: Array.isArray(c.groups) ? visibleGroups(c.groups) : c.groups,
     }));
   }
   if (Array.isArray(d.experience)) {
-    out.experience = (d.experience as Entry[]).filter(shown).map((e) => ({
-      ...e,
-      subSections: visibleStringBullets(e.subSections ?? []),
-    }));
+    out.experience = (d.experience as Entry[]).filter(shown).flatMap((e) => {
+      const subs = list<StringBullets>(e.subSections);
+      const subSections = visibleStringBullets(subs);
+      // Every sub-section hidden: the entry goes too, rather than printing a
+      // firm banner with nothing under it.
+      if (subs.length > 0 && subSections.length === 0) return [];
+      return [{ ...e, subSections }];
+    });
   }
   if (Array.isArray(d.positions)) {
     out.positions = visibleStringBullets(d.positions as StringBullets[]);
@@ -80,8 +87,8 @@ export function withoutHidden<T>(data: T): T {
 }
 
 function cleanFlags(item: StringBullets) {
-  if (item.hiddenBullets === undefined) return;
-  if (!Array.isArray(item.hiddenBullets)) {
+  if (!item || item.hiddenBullets === undefined) return;
+  if (!Array.isArray(item.hiddenBullets) || !Array.isArray(item.bullets)) {
     delete item.hiddenBullets;
     return;
   }
@@ -89,6 +96,7 @@ function cleanFlags(item: StringBullets) {
 }
 
 function cleanHidden(item: Hideable) {
+  if (!item || typeof item !== 'object') return;
   // Anything but a real boolean is dropped, which leaves the item visible.
   if (item.hidden !== undefined && typeof item.hidden !== 'boolean') delete item.hidden;
 }
@@ -105,15 +113,15 @@ export function sanitizeHidden<T>(data: T): T {
   const groups = (gs: Group[]) =>
     gs.forEach((g) => {
       cleanHidden(g);
-      if (Array.isArray(g.bullets)) g.bullets.forEach(cleanHidden);
+      if (g && Array.isArray(g.bullets)) g.bullets.forEach(cleanHidden);
     });
 
   each('education', cleanHidden);
   for (const key of GROUP_KEYS) if (Array.isArray(d[key])) groups(d[key] as Group[]);
-  each('customSections', (c: { groups?: Group[] }) => Array.isArray(c.groups) && groups(c.groups));
+  each('customSections', (c: { groups?: Group[] }) => c && Array.isArray(c.groups) && groups(c.groups));
   each('experience', (e: Entry) => {
     cleanHidden(e);
-    (e.subSections ?? []).forEach((s) => {
+    list<StringBullets>(e?.subSections).forEach((s) => {
       cleanHidden(s);
       cleanFlags(s);
     });

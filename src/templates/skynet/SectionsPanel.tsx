@@ -37,6 +37,27 @@ export default function SkynetSectionsPanel({
     });
   }
 
+  /** What the rename box edits: the stored text, not the display fallback,
+      so it can be cleared and retyped instead of snapping back. */
+  function rawLabel(key: SectionKey): string {
+    if (isCustomKey(key)) return custom.find((c) => c.key === key)?.label ?? '';
+    return data.sectionTitles?.[key] ?? SECTION_LABELS[key];
+  }
+
+  /** On leaving the box, a built-in title left empty or set back to the
+      official one is removed, so the section is not reported as renamed. */
+  function finishRename(key: SectionKey) {
+    setEditing(null);
+    if (isCustomKey(key)) return;
+    const value = data.sectionTitles?.[key]?.trim();
+    if (value === undefined) return;
+    if (!value || value === SECTION_LABELS[key]) {
+      const next = { ...(data.sectionTitles ?? {}) };
+      delete next[key];
+      onChange({ sectionTitles: next });
+    }
+  }
+
   function rename(key: SectionKey, label: string) {
     if (isCustomKey(key)) {
       onChange({
@@ -51,7 +72,8 @@ export default function SkynetSectionsPanel({
     const key = newCustomKey([...order, ...custom.map((c) => c.key)]);
     const section: CustomSection = {
       key,
-      label: 'New Section',
+      // Starts empty so the name the student types is the whole name.
+      label: '',
       // One empty category to type into, so the section is not a dead end in
       // the form the moment it is added.
       groups: [{ category: '', bullets: [{ text: '', year: '' }] }],
@@ -105,19 +127,21 @@ export default function SkynetSectionsPanel({
                       : [...hidden, key],
                   })
                 }
-                aria-label={label}
+                aria-label={`Show ${label} on resume`}
                 className="w-3.5 h-3.5 accent-slate-900"
               />
 
               {editing === key ? (
                 <input
                   autoFocus
-                  value={label}
+                  value={rawLabel(key)}
+                  maxLength={60}
+                  placeholder={isCustomKey(key) ? 'Section name, e.g. Certifications' : SECTION_LABELS[key]}
                   aria-label={`Rename ${label}`}
                   onChange={(e) => rename(key, e.target.value)}
-                  onBlur={() => setEditing(null)}
+                  onBlur={() => finishRename(key)}
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === 'Escape') setEditing(null);
+                    if (e.key === 'Enter' || e.key === 'Escape') finishRename(key);
                   }}
                   className="flex-1 min-w-0 px-1 py-0.5 border border-slate-300 rounded text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-slate-400"
                 />
@@ -189,7 +213,9 @@ export default function SkynetSectionsPanel({
       >
         + Add section
       </button>
-      {Object.keys(data.sectionTitles ?? {}).length > 0 ? (
+      {Object.entries(data.sectionTitles ?? {}).some(
+        ([k, v]) => !!v?.trim() && v.trim() !== SECTION_LABELS[k as keyof typeof SECTION_LABELS]
+      ) ? (
         <p className="text-[11px] text-slate-400 leading-relaxed">
           You have renamed a standard section. Placement resumes are usually
           expected to use the official headings — {SECTION_LABELS.positions} and

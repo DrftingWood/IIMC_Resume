@@ -20,14 +20,39 @@ export function hydrateSkynet(input: Partial<SkynetResumeData>): SkynetResumeDat
   // render an untitled section or crash the label lookup.
   merged.customSections = (
     Array.isArray(merged.customSections) ? merged.customSections : []
-  ).filter(
-    (c): c is CustomSection =>
-      !!c && typeof c.key === 'string' && isCustomKey(c.key) && Array.isArray(c.groups)
+  )
+    .filter(
+      (c): c is CustomSection =>
+        !!c && typeof c.key === 'string' && isCustomKey(c.key) && Array.isArray(c.groups)
+    )
+    .map((c) => ({
+      ...c,
+      label: typeof c.label === 'string' ? c.label : '',
+      // Each group needs a category string and a bullets array to render.
+      groups: c.groups
+        .filter((g) => !!g && typeof g === 'object')
+        .map((g) => ({
+          ...g,
+          category: typeof g.category === 'string' ? g.category : '',
+          bullets: Array.isArray(g.bullets)
+            ? g.bullets
+                .filter((b) => !!b && typeof b === 'object')
+                .map((b) => ({
+                  ...b,
+                  text: typeof b.text === 'string' ? b.text : '',
+                  year: typeof b.year === 'string' ? b.year : '',
+                }))
+            : [],
+        })),
+    }));
+  // Only string titles: a number or object here would crash every render.
+  merged.sectionTitles = Object.fromEntries(
+    Object.entries(
+      merged.sectionTitles && typeof merged.sectionTitles === 'object' && !Array.isArray(merged.sectionTitles)
+        ? merged.sectionTitles
+        : {}
+    ).filter(([, v]) => typeof v === 'string')
   );
-  merged.sectionTitles =
-    merged.sectionTitles && typeof merged.sectionTitles === 'object'
-      ? merged.sectionTitles
-      : {};
 
   // A key is known if it is a built-in or names a custom section that still
   // exists. A custom key left in the order after its section was deleted would
