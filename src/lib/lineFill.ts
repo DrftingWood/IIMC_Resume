@@ -23,6 +23,8 @@ export interface FillReport {
   charsLeft: number;
   /** About how many characters to cut to get back to one line. */
   overflowChars: number;
+  /** A single unbroken word (a URL, say) is wider than the whole line. */
+  unbreakable?: boolean;
 }
 
 interface Box {
@@ -67,13 +69,18 @@ export function analyseFill(
     };
   }
   const spill = lines.slice(1).reduce((s, l) => s + (l.right - l.left), 0);
+  const slack = contentRight - lines[0].right;
+  // Line one holding little more than the bullet means one word is wider
+  // than the line; a character count would be meaningless.
+  const unbreakable = lines[0].right - contentLeft < width * 0.15;
   return {
     lines: lines.length,
     fill: 1,
     charsLeft: 0,
-    // The wrapped words, plus the slack left at the end of line one by the
-    // word that did not fit there.
-    overflowChars: Math.ceil((spill + (contentRight - lines[0].right)) / perChar),
+    // To fit one line, total width must drop to the line width: the wrapped
+    // text minus the room still free at the end of line one.
+    overflowChars: Math.min(chars, Math.max(1, Math.ceil((spill - slack) / perChar))),
+    ...(unbreakable && { unbreakable }),
   };
 }
 
@@ -93,9 +100,21 @@ export function pointHtml(text: string): string {
     .join('');
 }
 
-/** Visible characters, without the ** bold markers. */
+type GraphemeSegmenter = new (
+  locale: undefined,
+  options: { granularity: 'grapheme' }
+) => { segment(text: string): Iterable<unknown> };
+
+/** Characters as a reader counts them: no ** bold markers, no edge spaces
+    (the page collapses them), and one per grapheme, so an emoji or a Hindi
+    letter with its vowel signs counts once, not as several code units. */
 export function visibleLength(text: string): number {
-  return text.replace(/\*\*([^*]+)\*\*/g, '$1').length;
+  const plain = text.replace(/\*\*([^*]+)\*\*/g, '$1').trim();
+  // Intl.Segmenter is in every current browser but not in this project's
+  // TypeScript lib target, hence the typed lookup.
+  const Segmenter = (Intl as unknown as { Segmenter?: GraphemeSegmenter }).Segmenter;
+  if (Segmenter) return [...new Segmenter(undefined, { granularity: 'grapheme' }).segment(plain)].length;
+  return [...plain].length;
 }
 
 /** Measure a point in the live page's probe row. Null when there is no

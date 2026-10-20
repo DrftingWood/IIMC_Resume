@@ -35,13 +35,13 @@ export const RELEASE: Release = {
       kind: 'New',
       title: 'Line-fill meter',
       detail:
-        'Under every point: how full its line is and roughly how many characters still fit, or how many to cut.',
+        'Next to every point: how many characters still fit on its line, or how many to cut when it runs onto two.',
     },
     {
       kind: 'New',
-      title: 'Compact mode for 40 or 45 points',
+      title: 'Compact layouts for about 40 or 45 points',
       detail:
-        'Optional, in the Sections panel. Tighter rows fit more points; it is not the official format.',
+        'Optional, under Page density in the Sections panel. Tighter rows fit more points; it is not the official layout.',
     },
     {
       kind: 'Improved',
@@ -54,6 +54,12 @@ export const RELEASE: Release = {
       title: 'Points sit as they do in the official template',
       detail:
         'Points are left-aligned instead of stretched, so you can see their true length; section headings are centred.',
+    },
+    {
+      kind: 'Improved',
+      title: 'Clearer controls',
+      detail:
+        'Start over and Restore defaults replace two look-alike Reset buttons, the full page is visible on laptop screens, and switching format asks first.',
     },
     {
       kind: 'Fixed',

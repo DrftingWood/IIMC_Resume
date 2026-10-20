@@ -81,7 +81,10 @@ export function BulletGroupsForm({
           {g.bullets.map((b, bi) => (
             <HideableRow key={bi} hidden={b.hidden} className="border border-gray-200 rounded p-2 bg-white space-y-2">
               <div className="flex justify-between items-center">
-                <RowLabel hidden={b.hidden}>Bullet {bi + 1}</RowLabel>
+                <div className="flex min-w-0 items-center gap-3">
+                  <RowLabel hidden={b.hidden}>Bullet {bi + 1}</RowLabel>
+                  <LineFill text={b.text} kind="bullet" hidden={b.hidden || g.hidden} />
+                </div>
                 <RowControls
                   onUp={bi > 0 ? () => moveBullet(gi, bi, -1) : undefined}
                   onDown={bi < g.bullets.length - 1 ? () => moveBullet(gi, bi, 1) : undefined}
@@ -94,7 +97,6 @@ export function BulletGroupsForm({
               <Field label="Text (use **bold**)">
                 <BoldableTextarea value={b.text} onChange={(v) => setBullet(gi, bi, { text: v })} />
               </Field>
-              <LineFill text={b.text} kind="bullet" />
               <Field label="Year">
                 <TextInput value={b.year} onChange={(e) => setBullet(gi, bi, { year: e.target.value })} />
               </Field>

@@ -26,11 +26,11 @@ describe('compact mode', () => {
     const { rerender } = render(<SkynetSectionsPanel data={SKYNET} onChange={onChange} />);
     expect(screen.getByRole('radio', { name: 'Official' }).getAttribute('aria-checked')).toBe('true');
     expect(screen.queryByRole('note')).toBeNull();
-    fireEvent.click(screen.getByRole('radio', { name: 'Compact 45' }));
+    fireEvent.click(screen.getByRole('radio', { name: 'Tightest' }));
     expect(onChange).toHaveBeenCalledWith({ density: 'compact45' });
     rerender(<SkynetSectionsPanel data={{ ...SKYNET, density: 'compact45' }} onChange={onChange} />);
-    expect(screen.getByRole('note').textContent).toMatch(/not the official IIMC format/i);
-    expect(screen.getByText(/about 45 points/)).toBeTruthy();
+    expect(screen.getByRole('note').textContent).toMatch(/not the official IIMC layout/i);
+    expect(screen.getByText(/About 45 points fit on one page/)).toBeTruthy();
   });
 
   it('keeps a saved density and drops an unknown one', () => {

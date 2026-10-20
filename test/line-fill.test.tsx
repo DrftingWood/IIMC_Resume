@@ -42,8 +42,25 @@ describe('analyseFill', () => {
     )!;
     expect(r.lines).toBe(2);
     expect(r.charsLeft).toBe(0);
-    // 40px wrapped + 8px slack on line one, at ~4px a character.
-    expect(r.overflowChars).toBe(12);
+    // 40px wrapped, minus the 8px still free on line one, at ~4px a character.
+    expect(r.overflowChars).toBe(8);
+    expect(r.unbreakable).toBeUndefined();
+  });
+
+  it('spots one word wider than the line instead of inventing a count', () => {
+    // Line one holds only the bullet; the long URL went to line two and beyond.
+    const r = analyseFill(
+      [
+        { left: 100, right: 108, top: 10 },
+        { left: 100, right: 500, top: 25 },
+        { left: 100, right: 300, top: 40 },
+      ],
+      L,
+      R,
+      114
+    )!;
+    expect(r.unbreakable).toBe(true);
+    expect(r.overflowChars).toBeLessThanOrEqual(114);
   });
 
   it('gives up on nothing to measure', () => {
@@ -66,26 +83,40 @@ describe('probe markup', () => {
     );
   });
 
-  it('counts characters without the bold markers', () => {
+  it('counts characters as a reader does', () => {
     expect(visibleLength('a **bold** word')).toBe('a bold word'.length);
+    expect(visibleLength('  padded  ')).toBe(6);
+    expect(visibleLength('Won 🏆')).toBe(5);
+    expect(visibleLength('हिंदी')).toBe(2); // हिं + दी
   });
 });
 
 describe('meter text', () => {
-  it('shows fill and characters left', () => {
-    render(<FillText report={{ lines: 1, fill: 0.9, charsLeft: 10, overflowChars: 0 }} />);
-    expect(screen.getByRole('status').textContent).toContain('90% full · about 10 characters left');
+  it('says how many characters are to spare', () => {
+    const { container } = render(<FillText report={{ lines: 1, fill: 0.9, charsLeft: 10, overflowChars: 0 }} />);
+    expect(container.textContent).toBe('10 characters to spare');
   });
 
   it('calls a full line full', () => {
-    render(<FillText report={{ lines: 1, fill: 0.99, charsLeft: 1, overflowChars: 0 }} />);
-    expect(screen.getByRole('status').textContent).toContain('99% full · full');
+    const { container } = render(<FillText report={{ lines: 1, fill: 0.99, charsLeft: 1, overflowChars: 0 }} />);
+    expect(container.textContent).toBe('Fills the line');
   });
 
-  it('warns when a point wraps', () => {
-    render(<FillText report={{ lines: 2, fill: 1, charsLeft: 0, overflowChars: 12 }} />);
-    expect(screen.getByRole('status').textContent).toBe(
-      'Wraps onto 2 lines · cut about 12 characters to fit one line'
+  it('warns in red when a point wraps', () => {
+    const { container } = render(<FillText report={{ lines: 2, fill: 1, charsLeft: 0, overflowChars: 12 }} />);
+    expect(container.textContent).toBe('Runs onto 2 lines · cut about 12 characters');
+    expect(container.querySelector('[data-fill="wraps"]')!.className).toMatch(/text-red-700/);
+  });
+
+  it('names a too-long single word rather than a character count', () => {
+    const { container } = render(
+      <FillText report={{ lines: 3, fill: 1, charsLeft: 0, overflowChars: 114, unbreakable: true }} />
     );
+    expect(container.textContent).toBe('One word is wider than the line');
+  });
+
+  it('is not a live region, so screen readers are not flooded while typing', () => {
+    const { container } = render(<FillText report={{ lines: 1, fill: 0.5, charsLeft: 40, overflowChars: 0 }} />);
+    expect(container.querySelector('[role="status"], [aria-live]')).toBeNull();
   });
 });

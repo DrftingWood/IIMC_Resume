@@ -37,11 +37,10 @@ export function DensityControl({
           );
         })}
       </div>
-      <p className="text-[11px] text-slate-500">Fits {current.points} on one page.</p>
+      <p className="text-[11px] text-slate-600">About {current.points.replace('about ', '')} fit on one page.</p>
       {current.value !== 'official' && (
         <p role="note" className="rounded-md border border-amber-200 bg-amber-50 px-2 py-1.5 text-[11px] text-amber-800">
-          Not the official IIMC format. Rows are tighter than the placement template, so check
-          that a compact resume is accepted before you submit it.
+          Not the official IIMC layout. Check it&apos;s accepted before you submit.
         </p>
       )}
     </div>

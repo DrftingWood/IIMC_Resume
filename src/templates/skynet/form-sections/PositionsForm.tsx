@@ -95,7 +95,10 @@ export function PositionsForm({
             return (
               <HideableRow key={bi} hidden={hidden} className="space-y-1">
                 <div className="flex justify-between items-center">
-                  <RowLabel hidden={hidden}>Bullet {bi + 1}</RowLabel>
+                  <div className="flex min-w-0 items-center gap-3">
+                    <RowLabel hidden={hidden}>Bullet {bi + 1}</RowLabel>
+                    <LineFill text={b} kind="bullet" hidden={hidden || p.hidden} />
+                  </div>
                   <RowControls
                     onUp={bi > 0 ? () => moveBullet(pi, bi, -1) : undefined}
                     onDown={bi < p.bullets.length - 1 ? () => moveBullet(pi, bi, 1) : undefined}
@@ -106,7 +109,6 @@ export function PositionsForm({
                   />
                 </div>
                 <BoldableTextarea value={b} onChange={(v) => setBullet(pi, bi, v)} />
-                <LineFill text={b} kind="bullet" />
               </HideableRow>
             );
           })}

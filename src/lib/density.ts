@@ -10,8 +10,8 @@ export type Density = 'official' | 'compact40' | 'compact45';
 
 export const DENSITIES: { value: Density; label: string; points: string }[] = [
   { value: 'official', label: 'Official', points: 'about 37 points' },
-  { value: 'compact40', label: 'Compact 40', points: 'about 40 points' },
-  { value: 'compact45', label: 'Compact 45', points: 'about 45 points' },
+  { value: 'compact40', label: 'Compact', points: 'about 40 points' },
+  { value: 'compact45', label: 'Tightest', points: 'about 45 points' },
 ];
 
 export function isDensity(v: unknown): v is Density {

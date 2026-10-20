@@ -145,7 +145,10 @@ export function IndustryForm({
                 return (
                   <HideableRow key={bi} hidden={hidden} className="space-y-1">
                     <div className="flex justify-between items-center">
-                      <RowLabel hidden={hidden}>Bullet {bi + 1}</RowLabel>
+                      <div className="flex min-w-0 items-center gap-3">
+                        <RowLabel hidden={hidden}>Bullet {bi + 1}</RowLabel>
+                        <LineFill text={b} kind="industry" hidden={hidden || sub.hidden || entry.hidden} />
+                      </div>
                       <RowControls
                         onUp={bi > 0 ? () => moveBullet(ei, si, bi, -1) : undefined}
                         onDown={bi < sub.bullets.length - 1 ? () => moveBullet(ei, si, bi, 1) : undefined}
@@ -156,7 +159,6 @@ export function IndustryForm({
                       />
                     </div>
                     <BoldableTextarea value={b} onChange={(v) => setBullet(ei, si, bi, v)} />
-                    <LineFill text={b} kind="industry" />
                   </HideableRow>
                 );
               })}

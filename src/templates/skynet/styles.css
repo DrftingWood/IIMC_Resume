@@ -426,16 +426,19 @@
 }
 
 /* Compact density (src/lib/density.ts). Only the row pitch tightens; fonts,
-   widths and margins stay official. 14.6pt official -> 13.6pt adds ~3 points
-   (a typical 37-point resume reaches 40), 12.1pt adds ~8 (about 45). Measured
-   in the browser against the sample and real-resume row counts. Each line-height absorbs the 1.2pt of collapsed
+   widths and margins stay official. Every table row shrinks (education,
+   firm banners, single-point groups), not just point rows, so small pitch
+   changes go a long way: 14.6pt official -> 14.0pt adds ~3 points (a typical
+   37-point resume reaches 40) and 12.9pt ~8 (about 45). Calibrated from
+   browser measurements of one-line points to the 842pt page edge; 12.9pt
+   also keeps accents and Devanagari clear of the gridlines. Each line-height absorbs the 1.2pt of collapsed
    borders the same way --row-line does above. NOT the official format; the
    Sections panel says so whenever one is on. */
 .skynet-page.density-compact40 {
-  --row-pitch: 13.6pt;
-  --row-line: 12.4pt;
+  --row-pitch: 14pt;
+  --row-line: 12.8pt;
 }
 .skynet-page.density-compact45 {
-  --row-pitch: 12.1pt;
-  --row-line: 10.9pt;
+  --row-pitch: 12.9pt;
+  --row-line: 11.7pt;
 }

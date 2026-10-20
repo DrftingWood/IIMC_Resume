@@ -46,7 +46,18 @@ export default function EditorLayout({
         <div className="flex-1 overflow-auto p-4">
           {tab === 'sections' && sections}
           {tab === 'edit' && form}
-          {tab === 'preview' && <div className="w-max mx-auto">{preview}</div>}
+          {/* The page stays mounted off-screen on the other tabs: the editor's
+              line-fill meter measures against it, and Export prints it. */}
+          <div
+            className={
+              tab === 'preview'
+                ? 'w-max mx-auto'
+                : 'fixed -left-[10000px] top-0 pointer-events-none print:static print:left-0'
+            }
+            aria-hidden={tab === 'preview' ? undefined : true}
+          >
+            {preview}
+          </div>
         </div>
       </div>
     );
