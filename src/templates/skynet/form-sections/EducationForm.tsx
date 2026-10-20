@@ -13,9 +13,12 @@ import {
 export function EducationForm({
   data,
   onChange,
+  title = 'Academic Profile',
 }: {
   data: SkynetResumeData;
   onChange: (patch: Partial<SkynetResumeData>) => void;
+  /** The section's display title, renamed or official. */
+  title?: string;
 }) {
   function update(i: number, patch: Partial<EducationRow>) {
     const next = data.education.map((r, idx) => (idx === i ? { ...r, ...patch } : r));
@@ -31,7 +34,7 @@ export function EducationForm({
     onChange({ education: move(data.education, i, dir) });
   }
   return (
-    <Accordion title="Academic Profile">
+    <Accordion title={title}>
       {data.education.map((r, i) => (
         <HideableRow key={i} hidden={r.hidden} className="border border-gray-200 rounded p-3 space-y-2">
           <div className="flex justify-between items-center">

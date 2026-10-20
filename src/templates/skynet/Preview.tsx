@@ -5,7 +5,8 @@ import type {
   ExperienceEntry,
   SectionKey,
 } from './types';
-import { DEFAULT_SECTION_ORDER } from './types';
+import { DEFAULT_SECTION_ORDER, sectionLabel } from './types';
+import { isCustomKey } from '@/lib/customSections';
 import { renderInline } from '@/lib/bold';
 import { withoutHidden } from '@/lib/visibility';
 
@@ -16,6 +17,8 @@ interface Props {
 const ResumePreview = forwardRef<HTMLDivElement, Props>(({ data: draft }, ref) => {
   // Hidden points and entries stay in the editor but never reach the page.
   const data = withoutHidden(draft);
+  // Section bars print in capitals: the student's rename, or the official title.
+  const heading = (key: SectionKey) => sectionLabel(data, key).toUpperCase();
   const hidden = new Set(data.hiddenSections ?? []);
   const order: SectionKey[] = (
     data.sectionOrder && data.sectionOrder.length ? data.sectionOrder : DEFAULT_SECTION_ORDER
@@ -31,54 +34,65 @@ const ResumePreview = forwardRef<HTMLDivElement, Props>(({ data: draft }, ref) =
           case 'education':
             return (
               <React.Fragment key={key}>
-                <SectionBar title="ACADEMIC PROFILE" />
+                <SectionBar title={heading(key)} />
                 <EducationTable data={data} />
               </React.Fragment>
             );
           case 'distinctions':
             return (
               <React.Fragment key={key}>
-                <SectionBar title="ACADEMIC DISTINCTIONS & CO-CURRICULAR ACHIEVEMENTS" />
+                <SectionBar title={heading(key)} />
                 <BulletGroupTable groups={data.distinctions} />
               </React.Fragment>
             );
           case 'projects':
             return (
               <React.Fragment key={key}>
-                <SectionBar title="PROJECTS AND PAPERS" />
+                <SectionBar title={heading(key)} />
                 <BulletGroupTable groups={data.projects} />
               </React.Fragment>
             );
           case 'entrepreneurial':
             return (
               <React.Fragment key={key}>
-                <SectionBar title="ENTREPRENEURIAL/NON-PROFIT VENTURE" />
+                <SectionBar title={heading(key)} />
                 <BulletGroupTable groups={data.entrepreneurial} />
               </React.Fragment>
             );
           case 'industry':
             return (
               <React.Fragment key={key}>
-                <SectionBar title="INDUSTRY EXPERIENCE" rightText={data.industryRightText} />
+                <SectionBar title={heading(key)} rightText={data.industryRightText} />
                 <IndustryTable entries={data.experience} />
               </React.Fragment>
             );
           case 'positions':
             return (
               <React.Fragment key={key}>
-                <SectionBar title="POSITION OF RESPONSIBILITY" />
+                <SectionBar title={heading(key)} />
                 <PositionsTable data={data} />
               </React.Fragment>
             );
           case 'extras':
             return (
               <React.Fragment key={key}>
-                <SectionBar title="EXTRA-CURRICULAR ACHIEVEMENTS" />
+                <SectionBar title={heading(key)} />
                 <BulletGroupTable groups={data.extras} />
               </React.Fragment>
             );
-          default:
-            return null;
+          default: {
+            // A section the student added: a bullet table under its own title.
+            const custom = isCustomKey(key)
+              ? data.customSections?.find((c) => c.key === key)
+              : undefined;
+            if (!custom) return null;
+            return (
+              <React.Fragment key={key}>
+                <SectionBar title={heading(key)} />
+                <BulletGroupTable groups={custom.groups} />
+              </React.Fragment>
+            );
+          }
         }
       })}
 

@@ -15,9 +15,12 @@ import { moveFlag, removeFlag, toggleFlag } from '@/lib/visibility';
 export function IndustryForm({
   data,
   onChange,
+  title = 'Industry Experience',
 }: {
   data: SkynetResumeData;
   onChange: (patch: Partial<SkynetResumeData>) => void;
+  /** The section's display title, renamed or official. */
+  title?: string;
 }) {
   function setEntry(ei: number, patch: Partial<ExperienceEntry>) {
     onChange({
@@ -84,7 +87,7 @@ export function IndustryForm({
   }
 
   return (
-    <Accordion title="Industry Experience">
+    <Accordion title={title}>
       <Field label="Right-side header text">
         <TextInput
           value={data.industryRightText}

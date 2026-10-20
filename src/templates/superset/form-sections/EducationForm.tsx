@@ -13,9 +13,12 @@ import {
 export function EducationForm({
   data,
   onChange,
+  title = 'Academic Qualifications',
 }: {
   data: SupersetResumeData;
   onChange: (patch: Partial<SupersetResumeData>) => void;
+  /** The section's display title, renamed or official. */
+  title?: string;
 }) {
   function update(i: number, patch: Partial<EducationRow>) {
     const next = data.education.map((r, idx) => (idx === i ? { ...r, ...patch } : r));
@@ -42,7 +45,7 @@ export function EducationForm({
     onChange({ education: move(data.education, i, dir) });
   }
   return (
-    <Accordion title="Academic Qualifications">
+    <Accordion title={title}>
       <div className="flex items-center gap-2 text-xs">
         <span className="text-gray-600">Resume type:</span>
         <button

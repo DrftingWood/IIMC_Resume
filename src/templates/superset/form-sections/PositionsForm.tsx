@@ -15,9 +15,12 @@ import { moveFlag, removeFlag, toggleFlag } from '@/lib/visibility';
 export function PositionsForm({
   data,
   onChange,
+  title = 'Positions of Responsibility',
 }: {
   data: SupersetResumeData;
   onChange: (patch: Partial<SupersetResumeData>) => void;
+  /** The section's display title, renamed or official. */
+  title?: string;
 }) {
   function setPos(pi: number, patch: Partial<PositionEntry>) {
     onChange({ positions: data.positions.map((p, i) => (i === pi ? { ...p, ...patch } : p)) });
@@ -59,7 +62,7 @@ export function PositionsForm({
     setPos(pi, { hiddenBullets: toggleFlag(p.hiddenBullets, bi, p.bullets.length) });
   }
   return (
-    <Accordion title="Positions of Responsibility">
+    <Accordion title={title}>
       {data.positions.map((p, pi) => (
         <HideableRow key={pi} hidden={p.hidden} className="border border-gray-200 rounded p-3 bg-gray-50 space-y-2">
           <div className="flex justify-between items-center">
