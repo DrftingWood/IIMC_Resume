@@ -163,20 +163,17 @@
      title's font metrics. */
   height: 16.12pt;
   box-sizing: border-box;
-  /* Title centred, as the student asked; the rest of the page stays
-     left-aligned. A 1fr / auto / 1fr grid keeps the title on the page's
-     centre line even when Industry Experience carries its months text on
-     the right. */
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  /* Title left-aligned as in the official template, with the Industry
+     months text pushed to the right. */
+  display: flex;
+  justify-content: space-between;
   align-items: center;
+  gap: 6pt;
   /* No border — the dark fill IS the visible boundary. */
   border: 0;
 }
 
 .sk-section-title {
-  grid-column: 2;
-  text-align: center;
   min-width: 0; /* a long renamed title wraps instead of crushing the right text */
   margin: 0;
   font-weight: bold;
@@ -186,8 +183,7 @@
 }
 
 .sk-section-bar-right {
-  grid-column: 3;
-  justify-self: end;
+  flex-shrink: 0;
   white-space: nowrap;
   font-weight: bold;
   /* 11.25pt, matching the section-header type in the source PDF. */

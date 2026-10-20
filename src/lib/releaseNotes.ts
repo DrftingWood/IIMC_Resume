@@ -66,7 +66,7 @@ export const RELEASE: Release = {
       kind: 'Improved',
       title: 'Points sit as they do in the official template',
       detail:
-        'Points are left-aligned instead of stretched, so you can see their true length; section headings are centred.',
+        'Points are left-aligned instead of stretched, so you can see their true length.',
     },
     {
       kind: 'Improved',
