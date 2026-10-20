@@ -24,7 +24,7 @@ export const SHOW_DAYS = 3;
 export const RELEASE: Release = {
   // A new id shows the panel again, even to students who closed the last one.
   id: '2026-10-20c',
-  date: '2026-10-20T17:00:00+05:30',
+  date: '2026-10-20T16:30:00+05:30',
   notes: [
     {
       kind: 'New',
