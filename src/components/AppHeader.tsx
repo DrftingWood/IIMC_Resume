@@ -108,8 +108,8 @@ export default function AppHeader({
         >
           Undo
         </button>
-        <button onClick={onReset} className={ghostBtn}>
-          Reset
+        <button onClick={onReset} className={ghostBtn} title="Clear this resume and go back to the start page">
+          Start over
         </button>
         <PrintButton previewRef={previewRef} />
       </div>

@@ -4,12 +4,12 @@ import userEvent from '@testing-library/user-event';
 import Landing from '@/components/Landing';
 
 describe('landing', () => {
-  it('offers the two batch cards with their subtexts', () => {
+  it('offers the two batch cards without internal codenames', () => {
     render(<Landing onReady={vi.fn()} />);
     expect(screen.getByText('61st batch and prior')).toBeTruthy();
-    expect(screen.getByText('Superset')).toBeTruthy();
+    expect(screen.queryByText('Superset')).toBeNull();
     expect(screen.getByText('62nd batch and later')).toBeTruthy();
-    expect(screen.getByText('Skynet')).toBeTruthy();
+    expect(screen.queryByText('Skynet')).toBeNull();
   });
 
   it('no longer advertises other templates', () => {

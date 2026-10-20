@@ -178,12 +178,13 @@ export default function App() {
     if (!templateId) return;
     const next: TemplateKey = templateId === 'skynet' ? 'superset' : 'skynet';
     const { data: migrated, dropped } = migrateBetweenBatches(templateId, next, data);
-    if (dropped.length) {
-      const list = dropped.map((d) => `the "${d}" section`).join(' and ');
-      if (!confirm(`Switching to ${getTemplate(next)!.codename} will permanently delete ${list}. Continue?`)) {
-        return;
-      }
-    }
+    const target = getTemplate(next)!.label;
+    const message = dropped.length
+      ? `Switch to the ${target} format? This permanently deletes ${dropped
+          .map((d) => `the "${d}" section`)
+          .join(' and ')}, which that format does not have. Everything else is carried over.`
+      : `Switch to the ${target} format? Your content is carried over.`;
+    if (!confirm(message)) return;
     setTemplateId(next);
     setData(migrated);
     setLastTemplateId(next);

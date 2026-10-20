@@ -116,7 +116,7 @@ export default function SkynetSectionsPanel({
           onClick={reset}
           className="ui-transition text-[11px] text-slate-500 hover:text-slate-800"
         >
-          Reset
+          Restore defaults
         </button>
       </div>
       <p className="text-[11px] text-slate-500 leading-relaxed">
@@ -161,7 +161,8 @@ export default function SkynetSectionsPanel({
                 <button
                   type="button"
                   onClick={() => setEditing(key)}
-                  title="Rename"
+                  aria-label={`Rename ${label}`}
+                  title="Click to rename"
                   className={
                     'flex-1 min-w-0 text-left truncate ui-transition hover:text-slate-900 ' +
                     (isHidden ? 'text-slate-500 line-through' : 'text-slate-800')
@@ -172,14 +173,6 @@ export default function SkynetSectionsPanel({
               )}
 
               <div className="flex gap-1 shrink-0">
-                <button
-                  type="button"
-                  onClick={() => setEditing(key)}
-                  aria-label={`Rename ${label}`}
-                  className="ui-transition w-6 h-6 flex items-center justify-center rounded text-slate-500 hover:bg-slate-100 hover:text-slate-700"
-                >
-                  ✎
-                </button>
                 <button
                   type="button"
                   onClick={() => move(i, -1)}
@@ -231,7 +224,7 @@ export default function SkynetSectionsPanel({
         <p className="text-[11px] text-slate-500 leading-relaxed">
           You have renamed a standard section. Placement resumes are usually
           expected to use the official headings — {SECTION_LABELS.positions} and
-          the rest. Reset restores them.
+          the rest. Restore defaults brings them back.
         </p>
       ) : null}
       {hiddenCount > 0 && (

@@ -97,15 +97,10 @@ export default function Landing({
             <span className="text-slate-700 font-medium">Resume Editor</span>
           </div>
           <p className="mt-3 text-sm text-slate-500">
-            Edit your placement resume and export a pixel-faithful PDF.
-          </p>
-          <p className="mt-1 text-xs text-slate-500">
-            Works best with the IIM Calcutta resume template.
-          </p>
-          <p className="mt-1 text-[11px] text-slate-500">
+            Edit your IIM Calcutta placement resume and export a print-ready PDF.{' '}
             {printGuidance(detectBrowser()).isBest
-              ? 'Best exported from Chrome — which is what you are using.'
-              : `Best exported from Chrome — you are on ${printGuidance(detectBrowser()).label}.`}
+              ? 'Best in Chrome.'
+              : `Best in Chrome (you are on ${printGuidance(detectBrowser()).label}).`}
           </p>
           <p className="mt-2 text-[11px] text-slate-500">
             Made by Abhishek Acharya, Case Collective, IIM C
@@ -166,7 +161,6 @@ export default function Landing({
                 className="ui-transition px-4 py-3 rounded-lg border border-slate-300 hover:border-slate-900 hover:bg-slate-50 text-center"
               >
                 <div className="text-sm font-semibold text-slate-800">{t.label}</div>
-                <div className="text-[11px] text-slate-500 mt-0.5">{t.codename}</div>
               </button>
             ))}
           </div>
