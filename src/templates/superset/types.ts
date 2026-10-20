@@ -1,13 +1,21 @@
 export type ResumeType = 'ranked' | 'unranked';
 
-export type SectionKey =
+import type { CustomSectionKey } from '@/lib/customSections';
+import { isCustomKey, UNTITLED_SECTION } from '@/lib/customSections';
+
+/** The five sections the 61st-batch-and-prior format defines. Closed, so the
+    parser's switches stay exhaustive. */
+export type BuiltInSectionKey =
   | 'education'
   | 'distinctions'
   | 'industry'
   | 'positions'
   | 'extras';
 
-export const DEFAULT_SECTION_ORDER: SectionKey[] = [
+/** A built-in section, or one the student added. */
+export type SectionKey = BuiltInSectionKey | CustomSectionKey;
+
+export const DEFAULT_SECTION_ORDER: BuiltInSectionKey[] = [
   'education',
   'distinctions',
   'industry',
@@ -15,7 +23,7 @@ export const DEFAULT_SECTION_ORDER: SectionKey[] = [
   'extras',
 ];
 
-export const SECTION_LABELS: Record<SectionKey, string> = {
+export const SECTION_LABELS: Record<BuiltInSectionKey, string> = {
   education: 'Academic Qualifications',
   distinctions: 'Academic Distinctions & Co-Curricular Achievements',
   industry: 'Industry Experience',
@@ -30,6 +38,10 @@ export interface SupersetResumeData {
   resumeType: ResumeType;
   sectionOrder: SectionKey[];
   hiddenSections: SectionKey[];
+  /** Renamed built-in headers. Absent key = the official title in
+      SECTION_LABELS, which is what Reset restores. */
+  sectionTitles: Partial<Record<BuiltInSectionKey, string>>;
+  customSections: CustomSection[];
   education: EducationRow[];
   distinctions: BulletGroup[];
   industryRightText: string;
@@ -38,6 +50,14 @@ export interface SupersetResumeData {
   extras: BulletGroup[];
   email: string;
   institute: string;
+}
+
+/** A section the student added. Its content is a bullet table, the shape
+    Distinctions and Extra-Curricular already use. */
+export interface CustomSection {
+  key: CustomSectionKey;
+  label: string;
+  groups: BulletGroup[];
 }
 
 export interface EducationRow {
@@ -85,6 +105,8 @@ export function emptySupersetResume(): SupersetResumeData {
     resumeType: 'unranked',
     sectionOrder: [...DEFAULT_SECTION_ORDER],
     hiddenSections: [],
+    sectionTitles: {},
+    customSections: [],
     education: [],
     distinctions: [],
     industryRightText: '',
@@ -94,4 +116,15 @@ export function emptySupersetResume(): SupersetResumeData {
     email: '',
     institute: 'Indian Institute of Management Calcutta',
   };
+}
+
+/** The header to print for a section: the student's rename if they made one,
+    the official title otherwise, and the custom section's own label for a
+    section they added. */
+export function sectionLabel(data: SupersetResumeData, key: SectionKey): string {
+  if (isCustomKey(key)) {
+    const custom = data.customSections?.find((c) => c.key === key);
+    return custom?.label?.trim() || UNTITLED_SECTION;
+  }
+  return data.sectionTitles?.[key]?.trim() || SECTION_LABELS[key];
 }

@@ -6,10 +6,10 @@ import type {
   ExperienceSubSection,
   PositionEntry,
   YearedBullet,
-  SectionKey,
+  BuiltInSectionKey,
 } from './types';
 
-const DEFAULT_SECTION_ORDER: SectionKey[] = [
+const DEFAULT_SECTION_ORDER: BuiltInSectionKey[] = [
   'education',
   'distinctions',
   'industry',

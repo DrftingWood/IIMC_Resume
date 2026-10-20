@@ -8,7 +8,7 @@ import type {
   YearedBullet,
 } from './types';
 import { DEFAULT_SECTION_ORDER, SECTION_LABELS } from './types';
-import type { SectionKey } from './types';
+import type { BuiltInSectionKey } from './types';
 import type { PdfLine, TextItem } from '@/lib/pdfExtract';
 
 const ANCHORS = [
@@ -21,7 +21,7 @@ const ANCHORS = [
   'EXTRA-CURRICULAR ACHIEVEMENTS',
 ];
 
-const ANCHOR_TO_KEY: Record<string, SectionKey> = {
+const ANCHOR_TO_KEY: Record<string, BuiltInSectionKey> = {
   'ACADEMIC PROFILE': 'education',
   'ACADEMIC DISTINCTIONS & CO-CURRICULAR ACHIEVEMENTS': 'distinctions',
   'PROJECTS AND PAPERS': 'projects',
@@ -1152,10 +1152,10 @@ export function parseResume(lines: PdfLine[]): ParseResult {
   // Order follows the document; sections the document omits start hidden.
   const present = sections
     .map((s) => ANCHOR_TO_KEY[s.name])
-    .filter((k): k is SectionKey => Boolean(k));
+    .filter((k): k is BuiltInSectionKey => Boolean(k));
   const seenKeys = new Set(present);
-  const sectionOrder: SectionKey[] = [...present];
-  const hiddenSections: SectionKey[] = [];
+  const sectionOrder: BuiltInSectionKey[] = [...present];
+  const hiddenSections: BuiltInSectionKey[] = [];
   for (const k of DEFAULT_SECTION_ORDER) {
     if (!seenKeys.has(k)) {
       sectionOrder.push(k);
@@ -1167,7 +1167,7 @@ export function parseResume(lines: PdfLine[]): ParseResult {
   // silent failure: trySection only records a failure when something throws, so
   // the student would land in the editor with that section simply gone and no
   // indication anything was lost. Report it by name so the advisory can say so.
-  const parsedFor: Record<SectionKey, number> = {
+  const parsedFor: Record<BuiltInSectionKey, number> = {
     education: edu.rows.length,
     distinctions: distinctions.length,
     projects: projects.length,

@@ -13,6 +13,8 @@ export const SAMPLE: SkynetResumeData = {
   ],
   sectionOrder: ['education', 'distinctions', 'projects', 'entrepreneurial', 'industry', 'positions', 'extras'],
   hiddenSections: [],
+  sectionTitles: {},
+  customSections: [],
   education: [
     { degree: 'B.Tech Mechanical Engineering', institute: 'National Institute of Technology Tiruchirappalli', gpa: '8.91/10', year: '2022' },
     { degree: 'CLASS XII (CBSE)', institute: 'Delhi Public School, Ruby Park, Kolkata', gpa: '96.4 %', year: '2018' },

@@ -1,4 +1,9 @@
-export type SectionKey =
+import type { CustomSectionKey } from '@/lib/customSections';
+import { isCustomKey, UNTITLED_SECTION } from '@/lib/customSections';
+
+/** The seven sections the 62nd-batch format defines. Closed, so the parser's
+    switches stay exhaustive and `detect` can only ever produce one of these. */
+export type BuiltInSectionKey =
   | 'education'
   | 'distinctions'
   | 'projects'
@@ -7,7 +12,10 @@ export type SectionKey =
   | 'positions'
   | 'extras';
 
-export const DEFAULT_SECTION_ORDER: SectionKey[] = [
+/** A built-in section, or one the student added. */
+export type SectionKey = BuiltInSectionKey | CustomSectionKey;
+
+export const DEFAULT_SECTION_ORDER: BuiltInSectionKey[] = [
   'education',
   'distinctions',
   'projects',
@@ -17,7 +25,7 @@ export const DEFAULT_SECTION_ORDER: SectionKey[] = [
   'extras',
 ];
 
-export const SECTION_LABELS: Record<SectionKey, string> = {
+export const SECTION_LABELS: Record<BuiltInSectionKey, string> = {
   education: 'Academic Profile',
   distinctions: 'Academic Distinctions & Co-Curricular Achievements',
   projects: 'Projects and Papers',
@@ -27,12 +35,24 @@ export const SECTION_LABELS: Record<SectionKey, string> = {
   extras: 'Extra-Curricular Achievements',
 };
 
+/** A section the student added. Its content is a bullet table, the shape five
+    of the seven built-in sections already use. */
+export interface CustomSection {
+  key: CustomSectionKey;
+  label: string;
+  groups: BulletGroup[];
+}
+
 export interface SkynetResumeData {
   name: string;
   mbaId: string;
   taglines: [string, string, string];
   sectionOrder: SectionKey[];
   hiddenSections: SectionKey[];
+  /** Renamed built-in headers. Absent key = the official title in
+      SECTION_LABELS, which is what Reset restores. */
+  sectionTitles: Partial<Record<BuiltInSectionKey, string>>;
+  customSections: CustomSection[];
   education: EducationRow[];
   distinctions: BulletGroup[];
   projects: BulletGroup[];
@@ -58,6 +78,8 @@ export function emptySkynetResume(): SkynetResumeData {
        their checkboxes, so nothing is hidden from view - it is a default, not
        a restriction. */
     hiddenSections: ['projects', 'entrepreneurial', 'positions'],
+    sectionTitles: {},
+    customSections: [],
     education: [],
     distinctions: [],
     projects: [],
@@ -105,4 +127,15 @@ export interface PositionEntry {
   title: string;
   bullets: string[];
   year: string;
+}
+
+/** The header to print for a section: the student's rename if they made one,
+    the official title otherwise, and the custom section's own label for a
+    section they added. */
+export function sectionLabel(data: SkynetResumeData, key: SectionKey): string {
+  if (isCustomKey(key)) {
+    const custom = data.customSections?.find((c) => c.key === key);
+    return custom?.label?.trim() || UNTITLED_SECTION;
+  }
+  return data.sectionTitles?.[key]?.trim() || SECTION_LABELS[key];
 }
