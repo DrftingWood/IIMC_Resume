@@ -68,3 +68,43 @@ describe('year column on import', () => {
     ]);
   });
 });
+
+describe('year column precedence and unusual styles (red-team B)', () => {
+  it('keeps a number at the end of the point when the year column has the year', () => {
+    const bullets = distinctions([
+      row(685, [['Top 1% in SNAP', 113.2], ["'24", 300]], '24-25'),
+      row(670, [['Topped CBSE Class', 113.2], ['10', 280]], '2014'),
+      row(655, [['Grew revenue in FY', 113.2], ['2019-20', 290]], '2021'),
+    ]);
+    expect(bullets.map((b) => b.text)).toEqual([
+      "Top 1% in SNAP '24",
+      'Topped CBSE Class 10',
+      'Grew revenue in FY 2019-20',
+    ]);
+    expect(bullets.map((b) => b.year)).toEqual(['24-25', '2014', '2021']);
+  });
+
+  it('still reads the year from the end of the point when the column is empty', () => {
+    const bullets = distinctions([row(685, [['Won the state quiz 2019', 113.2]])]);
+    expect(bullets[0]).toEqual({ text: 'Won the state quiz', year: '2019' });
+  });
+
+  it('treats any year-shaped column text as the year, never as point text', () => {
+    const styles = ["'17;'19", '22;24', '18|26', "21'-25'", "'22'23", '15/16', "‘17-’19"];
+    const bullets = distinctions(
+      styles.map((y, i) => row(685 - i * 11, [[`Point number ${i + 1}`, 113.2]], y))
+    );
+    expect(bullets.map((b) => b.text)).toEqual(styles.map((_, i) => `Point number ${i + 1}`));
+    expect(bullets.map((b) => b.year)).toEqual(styles);
+  });
+
+  it('joins a year range that wraps onto the next row', () => {
+    const bullets = distinctions([
+      row(685, [['Led the fine arts society for two terms', 113.2]], '2020-'),
+      [item('21', 553, 670)],
+      row(655, [['Ran the school magazine', 113.2]], '2018'),
+    ]);
+    expect(bullets.map((b) => b.year)).toEqual(['2020-21', '2018']);
+    expect(bullets[0].text).toBe('Led the fine arts society for two terms');
+  });
+});

@@ -366,7 +366,7 @@ function findYearX(lines: PdfLine[]): number {
   for (const l of lines) {
     const content = l.items.filter((it) => it.str.trim().length > 0);
     const last = content.reduce<TextItem | null>((a, it) => (!a || it.x > a.x ? it : a), null);
-    if (last && last.x >= rightThreshold && YEAR_TOKEN_RE.test(last.str.trim())) {
+    if (last && last.x >= rightThreshold && isYearCell(last.str)) {
       yearXs.push(last.x);
     }
   }
@@ -410,6 +410,28 @@ interface RowParts {
 
 const ORPHAN_SUPERSCRIPT_RE = /^(?:nd|rd|th|st)(?:\s+(?:nd|rd|th|st))*$/i;
 
+/** A year-column cell in a style YEAR_TOKEN_RE does not spell out: digits
+ *  with only quotes and separators around them ('17;'19, 22;24, 18|26,
+ *  21'-25', '22'23, 2020-). Real resumes use all of these; anything shaped
+ *  like this in the year column is a year, never part of the point. */
+const YEARISH_RE = /^[\d\s'’‘`\-–,;|/]+$/;
+
+function isYearCell(s: string): boolean {
+  const t = s.trim();
+  return YEAR_TOKEN_RE.test(t) || (YEARISH_RE.test(t) && (t.match(/\d/g)?.length ?? 0) >= 2);
+}
+
+/** "2021 - Present" -> "2021-Present": tidy spacing round range dashes. */
+function tidyYear(s: string): string {
+  return s.trim().replace(/\s*([-–])\s*/g, '$1');
+}
+
+/** Join a year continued on the next row ("2020-" then "21"). */
+function joinYear(current: string, next: string): string {
+  if (!current) return next;
+  return /[-–,;]$/.test(current) ? tidyYear(current + next) : current;
+}
+
 /** Text right of the year boundary should be a year. When it is not, the
  *  boundary landed inside the point, so return that text to the point rather
  *  than drop it; a year at its end still goes to the year column. */
@@ -419,7 +441,7 @@ function splitRightColumn(
   boldFont: string | null
 ): { midText: string; rightText: string } {
   const right = joinItems(rightItems).trim();
-  if (!right || YEAR_TOKEN_RE.test(right)) return { midText, rightText: right };
+  if (!right || isYearCell(right)) return { midText, rightText: right };
   const { text, year } = splitYearTail(joinItemsAsMarkdown(rightItems, boldFont));
   return { midText: [midText, text].filter(Boolean).join(' '), rightText: year };
 }
@@ -643,9 +665,13 @@ function parseBulletTable(lines: PdfLine[]): BulletGroup[] {
     const group = groups[idx];
 
     const yearFromRight =
-      r.rightText && YEAR_TOKEN_RE.test(r.rightText.trim())
-        ? r.rightText.trim()
-        : '';
+      r.rightText && isYearCell(r.rightText) ? tidyYear(r.rightText) : '';
+    // The year column wins. A number at the end of the point ("...in SNAP
+    // '24", "...CBSE Class 10") is part of its text when the column already
+    // holds the year; only a point with an empty column has its tail read as
+    // the year.
+    const tail = (s: string) =>
+      yearFromRight ? { text: s.trim(), year: '' } : splitYearTail(s);
 
     if (r.midText) {
       // When the • glyph is not in the PDF text stream (LaTeX template),
@@ -655,7 +681,7 @@ function parseBulletTable(lines: PdfLine[]): BulletGroup[] {
       const isNewBullet = r.hasBulletGlyph || !glyphMode;
       if (isNewBullet) {
         const stripped = stripBulletGlyph(r.midText);
-        let { text, year } = splitYearTail(stripped);
+        let { text, year } = tail(stripped);
         if (!year && yearFromRight) year = yearFromRight;
         const b: YearedBullet = { text, year };
         group.bullets.push(b);
@@ -664,12 +690,12 @@ function parseBulletTable(lines: PdfLine[]): BulletGroup[] {
         const stripped = stripBulletGlyph(r.midText);
         const lb = lastBullet[idx];
         if (lb) {
-          const { text: t, year: y } = splitYearTail(stripped);
+          const { text: t, year: y } = tail(stripped);
           lb.text = (lb.text + ' ' + t).trim();
           if (y && !lb.year) lb.year = y;
-          if (yearFromRight && !lb.year) lb.year = yearFromRight;
+          if (yearFromRight) lb.year = joinYear(lb.year, yearFromRight);
         } else if (stripped) {
-          const { text, year } = splitYearTail(stripped);
+          const { text, year } = tail(stripped);
           const b: YearedBullet = { text, year: year || yearFromRight };
           group.bullets.push(b);
           lastBullet[idx] = b;
@@ -678,7 +704,7 @@ function parseBulletTable(lines: PdfLine[]): BulletGroup[] {
     } else if (yearFromRight) {
       // Year-only row: attach to the most recent bullet in this cell.
       const lb = lastBullet[idx];
-      if (lb && !lb.year) lb.year = yearFromRight;
+      if (lb) lb.year = joinYear(lb.year, yearFromRight);
     }
   }
 
@@ -715,8 +741,8 @@ function parsePositions(lines: PdfLine[]): PositionEntry[] {
     const idx = findIdx(r.y);
     const entry = out[idx];
 
-    if (r.rightText && YEAR_TOKEN_RE.test(r.rightText.trim()) && !entry.year) {
-      entry.year = r.rightText.trim();
+    if (r.rightText && isYearCell(r.rightText)) {
+      entry.year = joinYear(entry.year, tidyYear(r.rightText));
     }
 
     if (r.midText) {
