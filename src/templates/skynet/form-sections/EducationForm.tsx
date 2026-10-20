@@ -9,6 +9,7 @@ import {
   RowLabel,
   move,
 } from '@/components/form-shared';
+import { withHiddenCount } from '@/lib/visibility';
 
 export function EducationForm({
   data,
@@ -34,7 +35,7 @@ export function EducationForm({
     onChange({ education: move(data.education, i, dir) });
   }
   return (
-    <Accordion title={title}>
+    <Accordion title={withHiddenCount(title, data.education)}>
       {data.education.map((r, i) => (
         <HideableRow key={i} hidden={r.hidden} className="border border-gray-200 rounded p-3 space-y-2">
           <div className="flex justify-between items-center">

@@ -3,15 +3,18 @@ import React, { useState } from 'react';
 export function Accordion({
   title,
   defaultOpen = false,
+  id,
   children,
 }: {
   title: string;
   defaultOpen?: boolean;
+  /** Lets other panels scroll to and open this one. */
+  id?: string;
   children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <div className="border border-slate-200/70 rounded-lg bg-white mb-2.5 overflow-hidden">
+    <div id={id} className="border border-slate-200/70 rounded-lg bg-white mb-2.5 overflow-hidden">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -162,7 +165,7 @@ export function RowControls({
           title={hidden ? 'Hidden from the resume. Click to show it again' : 'Hide from the resume without deleting it'}
           className={`${base} ${
             hidden
-              ? 'border-amber-300 bg-amber-50 text-amber-700 hover:bg-amber-100'
+              ? 'border-slate-400 bg-slate-100 text-slate-700 hover:bg-slate-200'
               : 'border-slate-300 text-slate-600 hover:bg-slate-100 hover:border-slate-500'
           }`}
         >
@@ -219,8 +222,8 @@ function EyeIcon({ off }: { off: boolean }) {
   );
 }
 
-/** Wraps an editor row so a hidden one reads as switched off: dimmed, with a
-    "Hidden" tag, but still fully editable. */
+/** Wraps an editor row so a hidden one reads as switched off: faded, with a
+    "Hidden" tag on its caption, but still fully editable. */
 export function HideableRow({
   hidden,
   className,
@@ -233,7 +236,9 @@ export function HideableRow({
   return (
     <div
       data-hidden={hidden ? 'true' : undefined}
-      className={className + (hidden ? ' opacity-60 border-dashed' : '')}
+      // One signal for "switched off": the row fades (kept above 4.5:1
+      // contrast) and its caption gets a Hidden tag. The eye stays neutral.
+      className={className + (hidden ? ' opacity-75' : '')}
     >
       {children}
     </div>
@@ -254,8 +259,8 @@ export function RowLabel({
     <span className={className}>
       {children}
       {hidden && (
-        <span className="ml-1.5 rounded bg-amber-100 px-1 py-px text-[10px] font-medium uppercase tracking-wide text-amber-800">
-          Hidden
+        <span className="ml-1.5 rounded bg-slate-200 px-1.5 py-px text-[10px] font-medium text-slate-700">
+          Hidden · won't print
         </span>
       )}
     </span>

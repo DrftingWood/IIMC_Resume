@@ -162,3 +162,41 @@ export function moveFlag(
 export function removeFlag(flags: boolean[] | undefined, i: number, length: number): boolean[] {
   return padded(flags, length).filter((_, k) => k !== i);
 }
+
+/** How many items in one section's content are switched off. A hidden entry
+    counts once, whatever it holds; inside a shown entry each hidden point
+    counts. Works for every section shape (rows, groups, entries, positions). */
+export function countHidden(items: unknown): number {
+  let n = 0;
+  for (const it of list<Record<string, unknown>>(items)) {
+    if (!it || typeof it !== 'object') continue;
+    if (it.hidden === true) {
+      n += 1;
+      continue;
+    }
+    n += list<boolean>(it.hiddenBullets).filter((f) => f === true).length;
+    if (Array.isArray(it.bullets)) {
+      n += (it.bullets as unknown[]).filter(
+        (b) => !!b && typeof b === 'object' && (b as Hideable).hidden === true
+      ).length;
+    }
+    n += countHidden(it.subSections);
+  }
+  return n;
+}
+
+/** Hidden items across the whole resume, custom sections included. */
+export function countHiddenInResume(data: unknown): number {
+  const d = (data ?? {}) as Record<string, unknown>;
+  const keys = ['education', 'experience', 'positions', ...GROUP_KEYS];
+  return (
+    keys.reduce((n, k) => n + countHidden(d[k]), 0) +
+    list<{ groups?: unknown }>(d.customSections).reduce((n, c) => n + countHidden(c?.groups), 0)
+  );
+}
+
+/** "Industry Experience · 2 hidden" for an editor panel title. */
+export function withHiddenCount(title: string, items: unknown): string {
+  const n = countHidden(items);
+  return n ? `${title} · ${n} hidden` : title;
+}

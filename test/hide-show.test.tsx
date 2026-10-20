@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent, within } from '@testing-library/react';
-import { withoutHidden, sanitizeHidden, moveFlag, removeFlag, toggleFlag } from '@/lib/visibility';
+import { withoutHidden, sanitizeHidden, moveFlag, removeFlag, toggleFlag, countHidden, countHiddenInResume } from '@/lib/visibility';
+import SkynetSectionsPanel from '@/templates/skynet/SectionsPanel';
 import { emptyVisibleSections } from '@/lib/emptySections';
 import SupersetPreview from '@/templates/superset/Preview';
 import SkynetPreview from '@/templates/skynet/Preview';
@@ -245,5 +246,26 @@ describe('empty-section warning', () => {
     data.positions.forEach((p) => (p.hidden = true));
     expect(emptyVisibleSections('skynet', data)).toContain('Position of Responsibility');
     expect(emptyVisibleSections('skynet', resume())).not.toContain('Position of Responsibility');
+  });
+});
+
+describe('hidden counts', () => {
+  it('counts a hidden entry once and hidden points inside shown entries', () => {
+    const data = resume();
+    data.positions[0].hiddenBullets = [true, false];
+    data.positions[1].hidden = true;
+    data.distinctions[0].bullets[1].hidden = true;
+    data.experience[0].subSections[1].hidden = true;
+    expect(countHidden(data.positions)).toBe(2);
+    expect(countHiddenInResume(data)).toBe(4);
+  });
+
+  it('shows the count on the panel title and in the Sections panel', () => {
+    const data = resume();
+    data.positions[0].hiddenBullets = [true, true];
+    render(<PositionsForm data={data} onChange={vi.fn()} />);
+    expect(screen.getByRole('button', { name: 'Position of Responsibility · 2 hidden' })).toBeTruthy();
+    render(<SkynetSectionsPanel data={data} onChange={vi.fn()} />);
+    expect(screen.getByText(/2 hidden items won.t print/)).toBeTruthy();
   });
 });

@@ -3,6 +3,7 @@ import type { SupersetResumeData, SectionKey, CustomSection } from './types';
 import { DEFAULT_SECTION_ORDER, SECTION_LABELS, sectionLabel } from './types';
 import { isCustomKey, newCustomKey } from '@/lib/customSections';
 import { DensityControl } from '@/components/DensityControl';
+import { countHiddenInResume } from '@/lib/visibility';
 
 export default function SupersetSectionsPanel({
   data,
@@ -18,6 +19,7 @@ export default function SupersetSectionsPanel({
   const hidden = data.hiddenSections ?? [];
   const custom = data.customSections ?? [];
   const [editing, setEditing] = useState<SectionKey | null>(null);
+  const hiddenCount = countHiddenInResume(data);
 
   function move(i: number, dir: -1 | 1) {
     const j = i + dir;
@@ -48,7 +50,17 @@ export default function SupersetSectionsPanel({
       official one is removed, so the section is not reported as renamed. */
   function finishRename(key: SectionKey) {
     setEditing(null);
-    if (isCustomKey(key)) return;
+    if (isCustomKey(key)) {
+      // Take the student straight to the section's points: its editor panel
+      // otherwise opens collapsed at the bottom of the form.
+      requestAnimationFrame(() => {
+        const panel = document.getElementById(`form-${key}`);
+        if (!panel) return;
+        panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        panel.querySelector<HTMLButtonElement>('button[aria-expanded="false"]')?.click();
+      });
+      return;
+    }
     const value = data.sectionTitles?.[key]?.trim();
     if (value === undefined) return;
     if (!value || value === SECTION_LABELS[key]) {
@@ -75,8 +87,8 @@ export default function SupersetSectionsPanel({
       // Starts empty so the name the student types is the whole name.
       label: '',
       // One empty category to type into, so the section is not a dead end in
-      // the form the moment it is added.
-      groups: [{ category: '', bullets: [{ text: '', year: '' }] }],
+      // the form; no blank point, which would print as an empty bullet row.
+      groups: [{ category: '', bullets: [] }],
     };
     onChange({
       customSections: [...custom, section],
@@ -222,6 +234,12 @@ export default function SupersetSectionsPanel({
           the rest. Reset restores them.
         </p>
       ) : null}
+      {hiddenCount > 0 && (
+        <p className="text-[11px] text-slate-600">
+          {hiddenCount} hidden {hiddenCount === 1 ? 'item' : 'items'} won&apos;t print. Look for
+          the Hidden tag in the editor.
+        </p>
+      )}
       <DensityControl value={data.density} onChange={(density) => onChange({ density })} />
     </div>
   );

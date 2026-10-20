@@ -73,7 +73,7 @@ describe('custom sections in the editor', () => {
   it('skynet gives each custom section its own panel and saves edits to it', () => {
     const onChange = vi.fn();
     render(<SkynetForm data={skynetWithCustom()} onChange={onChange} />);
-    fireEvent.click(screen.getByRole('button', { name: 'Volunteering' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Volunteering · 1 hidden' }));
     fireEvent.change(screen.getByDisplayValue('Teaching'), { target: { value: 'Mentoring' } });
     const saved = onChange.mock.calls.at(-1)![0].customSections;
     expect(saved[0].key).toBe('custom:1');
@@ -88,7 +88,7 @@ describe('custom sections in the editor', () => {
       sectionOrder: [...SUPERSET_SAMPLE.sectionOrder, 'custom:1'],
     } as typeof SUPERSET_SAMPLE;
     render(<SupersetForm data={data} onChange={vi.fn()} />);
-    expect(screen.getByRole('button', { name: 'Volunteering' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Volunteering · 1 hidden' })).toBeTruthy();
   });
 
   it('labels a built-in panel with its renamed title', () => {

@@ -11,7 +11,7 @@ import {
   move,
 } from '@/components/form-shared';
 import { LineFill } from '@/components/LineFill';
-import { moveFlag, removeFlag, toggleFlag } from '@/lib/visibility';
+import { moveFlag, removeFlag, toggleFlag, withHiddenCount } from '@/lib/visibility';
 
 export function IndustryForm({
   data,
@@ -88,7 +88,7 @@ export function IndustryForm({
   }
 
   return (
-    <Accordion title={title}>
+    <Accordion title={withHiddenCount(title, data.experience)}>
       <Field label="Right-side header text">
         <TextInput
           value={data.industryRightText}
@@ -139,7 +139,7 @@ export function IndustryForm({
                   onToggleHidden={() => setSub(ei, si, { hidden: !sub.hidden })}
                 />
               </div>
-              {sub.hidden && <RowLabel hidden>Whole sub-section</RowLabel>}
+              {sub.hidden && <RowLabel hidden>This sub-section</RowLabel>}
               {sub.bullets.map((b, bi) => {
                 const hidden = !!sub.hiddenBullets?.[bi];
                 return (

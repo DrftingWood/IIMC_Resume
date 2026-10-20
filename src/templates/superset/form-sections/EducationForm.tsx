@@ -9,6 +9,7 @@ import {
   RowLabel,
   move,
 } from '@/components/form-shared';
+import { withHiddenCount } from '@/lib/visibility';
 
 export function EducationForm({
   data,
@@ -45,7 +46,7 @@ export function EducationForm({
     onChange({ education: move(data.education, i, dir) });
   }
   return (
-    <Accordion title={title}>
+    <Accordion title={withHiddenCount(title, data.education)}>
       <div className="flex items-center gap-2 text-xs">
         <span className="text-gray-600">Resume type:</span>
         <button

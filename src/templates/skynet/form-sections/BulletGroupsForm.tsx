@@ -11,15 +11,18 @@ import {
   move,
 } from '@/components/form-shared';
 import { LineFill } from '@/components/LineFill';
+import { withHiddenCount } from '@/lib/visibility';
 
 export function BulletGroupsForm({
   title,
   defaultOpen = false,
+  id,
   groups,
   onChange,
 }: {
   title: string;
   defaultOpen?: boolean;
+  id?: string;
   groups: BulletGroup[];
   onChange: (groups: BulletGroup[]) => void;
 }) {
@@ -56,7 +59,7 @@ export function BulletGroupsForm({
   }
 
   return (
-    <Accordion title={title} defaultOpen={defaultOpen}>
+    <Accordion id={id} title={withHiddenCount(title, groups)} defaultOpen={defaultOpen}>
       {groups.map((g, gi) => (
         <HideableRow key={gi} hidden={g.hidden} className="border border-gray-200 rounded p-3 space-y-2 bg-gray-50">
           <div className="flex justify-between items-center">
@@ -74,7 +77,7 @@ export function BulletGroupsForm({
               onToggleHidden={() => setGroup(gi, { hidden: !g.hidden })}
             />
           </div>
-          {g.hidden && <RowLabel hidden>Whole category</RowLabel>}
+          {g.hidden && <RowLabel hidden>This category</RowLabel>}
           {g.bullets.map((b, bi) => (
             <HideableRow key={bi} hidden={b.hidden} className="border border-gray-200 rounded p-2 bg-white space-y-2">
               <div className="flex justify-between items-center">

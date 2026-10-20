@@ -11,7 +11,7 @@ import {
   move,
 } from '@/components/form-shared';
 import { LineFill } from '@/components/LineFill';
-import { moveFlag, removeFlag, toggleFlag } from '@/lib/visibility';
+import { moveFlag, removeFlag, toggleFlag, withHiddenCount } from '@/lib/visibility';
 
 export function PositionsForm({
   data,
@@ -63,7 +63,7 @@ export function PositionsForm({
     setPos(pi, { hiddenBullets: toggleFlag(p.hiddenBullets, bi, p.bullets.length) });
   }
   return (
-    <Accordion title={title}>
+    <Accordion title={withHiddenCount(title, data.positions)}>
       {data.positions.map((p, pi) => (
         <HideableRow key={pi} hidden={p.hidden} className="border border-gray-200 rounded p-3 bg-gray-50 space-y-2">
           <div className="flex justify-between items-center">

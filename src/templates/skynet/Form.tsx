@@ -56,6 +56,7 @@ export default function SkynetForm({
       {custom.map((c) => (
         <BulletGroupsForm
           key={c.key}
+          id={`form-${c.key}`}
           title={title(c.key)}
           groups={c.groups}
           onChange={(groups) => setCustom(c.key, groups)}
