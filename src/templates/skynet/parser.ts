@@ -9,7 +9,8 @@ import type {
 } from './types';
 import { DEFAULT_SECTION_ORDER, SECTION_LABELS } from './types';
 import type { BuiltInSectionKey } from './types';
-import type { PdfLine, TextItem } from '@/lib/pdfExtract';
+import type { PdfLine, TextItem, WithRules } from '@/lib/pdfExtract';
+import { fullTimeLabel } from '@/lib/months';
 
 const ANCHORS = [
   'ACADEMIC PROFILE',
@@ -41,7 +42,15 @@ const YEAR = String.raw`['’\`]?(?:(?:19|20)\d{2}|\d{2})`;
 const YEAR_SPAN = String.raw`${YEAR}(?:\s*[-–,]\s*(?:${YEAR}|Present))?`;
 const YEAR_TOKEN_RE = new RegExp(`^${YEAR_SPAN}$`, 'i');
 const YEAR_TAIL_RE = new RegExp(String.raw`\s+(${YEAR_SPAN})\s*$`, 'i');
-const DATE_RANGE_RE = /[A-Za-z]+\s*[`'’]\s*\d{2}\s*[-–]\s*[A-Za-z]+\s*[`'’]\s*\d{2}/;
+// A firm banner's dates: "Jul'23-May'26", "Jun 2022 - Apr 2024", "June '22 to
+// Present", "2021 - Present". Month names are spelled out so a point such as
+// "Top 10 - Rank 12" never reads as a banner.
+const DATE_MONTH = String.raw`(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)[a-z]*\.?\s*[\`'’]?\s*(?:\d{4}|\d{2})`;
+const DATE_END = String.raw`(?:${DATE_MONTH}|(?:19|20)\d{2}|Present|Current|Now|Ongoing|Till date)`;
+const DATE_RANGE_RE = new RegExp(
+  String.raw`(?:${DATE_MONTH}|(?:19|20)\d{2})\s*(?:[-–—]|\bto\b)\s*${DATE_END}`,
+  'i'
+);
 const MBA_ID_RE = /MBA\/\d+\/\d+/;
 const EMAIL_RE = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/;
 const INSTITUTE_FOOTER_RE = /^Indian Institute of Management Calcutta\s*$/i;
@@ -632,6 +641,17 @@ interface LabelCell {
   yCenter: number;
 }
 
+/** Ruled lines on the page being parsed (PDF y), set for the duration of
+    parseResume. Two labels stacked in adjacent rows are exactly one row
+    apart, like two lines of one label; only the rule between them tells
+    them apart. */
+let pageRules: number[] = [];
+let pageRailRules: number[] = [];
+
+function ruleBetween(upperY: number, lowerY: number): boolean {
+  return pageRules.some((r) => r < upperY - 0.5 && r > lowerY + 0.5);
+}
+
 function buildLabelCells(rows: RowParts[], sameLabelGap: number): LabelCell[] {
   const cells: LabelCell[] = [];
   let cur: LabelCell | null = null;
@@ -639,7 +659,13 @@ function buildLabelCells(rows: RowParts[], sameLabelGap: number): LabelCell[] {
 
   for (const r of rows) {
     if (!r.leftText) continue;
-    const sameCell = cur != null && prevY != null && prevY - r.y <= sameLabelGap;
+    // With the page's rules known, a rule is what separates two cells; the
+    // gap test only guards against far-apart lines. A row's y is its highest
+    // item - often the raised bullet glyph, ~2.6pt above the label - so the
+    // gap alone reads 17pt for two lines of one label and splits them.
+    const limit = pageRules.length ? sameLabelGap * 1.5 : sameLabelGap;
+    const sameCell =
+      cur != null && prevY != null && prevY - r.y <= limit && !ruleBetween(prevY, r.y);
     if (sameCell && cur) {
       cur.texts.push(r.leftText);
       cur.ys.push(r.y);
@@ -660,12 +686,20 @@ function buildLabelCells(rows: RowParts[], sameLabelGap: number): LabelCell[] {
  *  cells are in y-descending order: cells[0] is topmost (highest y).
  *  Boundary between cell i and cell i+1 = midpoint of their yCenters. */
 function makeCellIdxFinder(cells: LabelCell[]): (y: number) => number {
+  // Between two cells, the page's own rule is the boundary when there is one.
+  // The midpoint of the labels misplaces rows when a short label sits beside
+  // many points: a 2-line label over 5 points is centred, so its first point
+  // lies above the midpoint and went to the cell above.
+  const bounds = cells.slice(0, -1).map((c, i) => {
+    const lower = cells[i + 1];
+    const rule = pageRules
+      .filter((r) => r < Math.min(...c.ys) - 0.5 && r > Math.max(...lower.ys) + 0.5)
+      .sort((a, b) => b - a)[0];
+    return rule ?? (c.yCenter + lower.yCenter) / 2;
+  });
   return (y: number) => {
     if (!cells.length) return 0;
-    for (let i = 0; i < cells.length - 1; i++) {
-      const boundary = (cells[i].yCenter + cells[i + 1].yCenter) / 2;
-      if (y >= boundary) return i;
-    }
+    for (let i = 0; i < bounds.length; i++) if (y >= bounds[i]) return i;
     return cells.length - 1;
   };
 }
@@ -984,8 +1018,24 @@ function parseIndustry(lines: PdfLine[], headerRest: string): {
     yield* rec(1, []);
   }
 
+  // Exact when the page's rules are known: the template closes each type
+  // group with a short rule across the rail, so a firm belongs to the label
+  // with no rail rule between them. Rotated text runs up from its anchor, so
+  // the label sits at anchor + half its length.
+  const byRail =
+    pageRailRules.length && labelsTopDown.length > 1
+      ? blocks.map((b) => {
+          const between = (a: number, c: number) =>
+            pageRailRules.some((r) => r > Math.min(a, c) + 0.5 && r < Math.max(a, c) - 0.5);
+          const hits = labelsTopDown.filter((m) => !between(m.y + m.width / 2, b.banner.y));
+          return hits.length === 1 ? hits[0].text : '';
+        })
+      : null;
+
   let types: string[];
-  if (labelsTopDown.length === 0) {
+  if (byRail && byRail.every(Boolean)) {
+    types = byRail;
+  } else if (labelsTopDown.length === 0) {
     types = blocks.map(() => '');
   } else if (labelsTopDown.length === 1) {
     types = blocks.map(() => labelsTopDown[0].text);
@@ -1116,6 +1166,21 @@ function parseIndustry(lines: PdfLine[], headerRest: string): {
     };
   });
 
+  // The bar names the full-time months ("34 Months (FULL-TIME)"). Some
+  // resumes print only "(FULL TIME)"; count the months from the banners:
+  // the Full Time firms, or every firm when the bar says the whole section
+  // is full-time and no Full Time / Intern rail splits it.
+  if (!/\d+\s*Months/i.test(rightText)) {
+    const typed = entries.some((e) => e.type.trim());
+    const fullTime = typed
+      ? entries.filter((e) => /full/i.test(e.type))
+      : /full/i.test(rightText)
+        ? entries
+        : [];
+    const label = fullTime.length ? fullTimeLabel(fullTime.map((e) => e.dates)) : null;
+    if (label) rightText = label;
+  }
+
   return { entries, rightText };
 }
 
@@ -1179,7 +1244,18 @@ function trySection<T>(name: string, fn: () => T, fallback: T, failed: string[])
   }
 }
 
-export function parseResume(lines: PdfLine[]): ParseResult {
+export function parseResume(lines: PdfLine[] & WithRules): ParseResult {
+  pageRules = lines.hRules ?? [];
+  pageRailRules = lines.railRules ?? [];
+  try {
+    return parseResumeLines(lines);
+  } finally {
+    pageRules = [];
+    pageRailRules = [];
+  }
+}
+
+function parseResumeLines(lines: PdfLine[]): ParseResult {
   const failed: string[] = [];
   let split: ReturnType<typeof splitSections>;
   try {

@@ -1,5 +1,6 @@
 import type { SkynetResumeData } from '../types';
 import { Accordion, Field, TextInput } from '@/components/form-shared';
+import { NameAlignControl } from '@/components/NameAlignControl';
 
 export function HeaderForm({
   data,
@@ -19,6 +20,7 @@ export function HeaderForm({
       <Field label="MBA ID (e.g. MBA/0166/61)">
         <TextInput value={data.mbaId} onChange={(e) => onChange({ mbaId: e.target.value })} />
       </Field>
+      <NameAlignControl value={data.nameAlign} onChange={(nameAlign) => onChange({ nameAlign })} />
     </Accordion>
   );
 }

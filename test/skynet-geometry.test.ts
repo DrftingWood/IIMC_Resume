@@ -34,15 +34,18 @@ describe('skynet print geometry constants', () => {
     expect(css).toMatch(/padding:\s*0 2pt !important/);
   });
 
-  it('keeps the bullet cell insets that place the glyph where the PDF does', () => {
-    // The cell's left gridline is the measured x=100.60 and the source PDF
-    // puts the bullet glyph at 108.4pt, so 7.8pt of left padding reproduces
-    // that. On the right, students fill lines to the year-column gridline
-    // (PDF text ends as late as ~547.9pt against the 548.13pt rule), so 0.3pt
-    // is all the inset there is room for; 3pt wrapped full lines once widths
-    // matched the PDF. The original 10pt wrapped 22 of 43 bullets.
-    expect(css).toMatch(/padding-left:\s*7\.8pt !important/);
+  it('keeps the bullet cell insets that place the text where the PDF does', () => {
+    // Text starts at x=113.18pt in the official PDF (measured in the browser:
+    // 11.98pt of padding lands it there). The bullet square sits in that
+    // padding with zero advance; as an inline glyph with a margin it pushed
+    // the text to 117.4pt and lines wrapped that fit in the PDF. On the right,
+    // students fill lines to the year-column gridline, so 0.3pt is all the
+    // inset there is room for.
+    expect(css).toMatch(/padding-left:\s*11\.98pt !important/);
     expect(css).toMatch(/padding-right:\s*0\.3pt !important/);
+    const before = css.match(/\.sk-bullet::before\s*\{[^}]*\}/s)![0];
+    expect(before).toMatch(/width:\s*2\.58pt/);
+    expect(before).toMatch(/vertical-align:\s*2\.13pt/);
   });
 
   it('keeps the bullet-table columns on the measured gridlines', () => {
@@ -70,12 +73,13 @@ describe('skynet print geometry constants', () => {
     expect(parser).not.toMatch(/rightText = monthsMatch\[1\]\.toUpperCase\(\)/);
   });
 
-  it('keeps the letter-spacing that closes the measured text-width gap', () => {
-    // Measured line-by-line on real resumes: -0.01em left points ~1.8% narrower
-    // than the PDF (white space at line ends). -0.09pt sits ~1% under the PDF's
-    // width - the margin that keeps lines filled to the edge from wrapping
-    // (-0.07pt still wrapped points on 6 of 55 real imports).
-    expect(css).toMatch(/letter-spacing:\s*-0\.09pt/);
+  it('typesets points exactly as the PDF writer does', () => {
+    // No kerning, no ligatures (as Word), no letter-spacing on points, and the
+    // template's 0.15pt on Industry text: preview line widths then match the
+    // exported PDF to ~0.05%, so both wrap in the same places.
+    expect(css).toMatch(/font-kerning:\s*none/);
+    expect(css).toMatch(/font-variant-ligatures:\s*none/);
+    expect(css).toMatch(/\.sk-industry \.sk-bullet-cell\s*\{[^}]*letter-spacing:\s*0\.15pt/s);
   });
 
   it('keeps the education colgroup derived from measured column centres', () => {

@@ -18,7 +18,7 @@ export const SHARED_KEYS = [
   // The student's own sections, renamed titles and page density are content
   // too. Left out, a format switch silently deleted them (and the custom
   // keys still in sectionOrder were then dropped as unknown by hydrate).
-  'customSections', 'sectionTitles', 'density',
+  'customSections', 'sectionTitles', 'density', 'nameAlign',
 ] as const;
 
 /** Sections that exist only in Skynet, with the labels shown in the confirm. */

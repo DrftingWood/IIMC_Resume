@@ -9,6 +9,7 @@ import { DEFAULT_SECTION_ORDER, sectionLabel } from './types';
 import { isCustomKey } from '@/lib/customSections';
 import { renderInline } from '@/lib/bold';
 import { withoutHidden } from '@/lib/visibility';
+import { showLogo } from '@/lib/logoSetting';
 import { densityClass } from '@/lib/density';
 
 interface Props {
@@ -132,12 +133,24 @@ ResumePreview.displayName = 'ResumePreview';
 export default ResumePreview;
 
 function HeaderBand({ data }: { data: SupersetResumeData }) {
+  const logo = showLogo();
+  const left = data.nameAlign === 'left';
   return (
-    <div className="f1-header">
-      <div>
-        <div className="f1-inst-eng">Indian Institute of Management Calcutta</div>
-        <div className="f1-inst-hindi">भारतीय प्रबंध संस्थान कलकत्ता</div>
-      </div>
+    <div
+      className={
+        'f1-header' + (left ? ' f1-header--name-left' : '') + (left && logo ? ' f1-header--logo-right' : '')
+      }
+    >
+      {/* The institute logo: hidden unless the owner's switch is on (see
+          logoSetting.ts). Hidden, not removed, so nothing else moves - except
+          with the name on the left, where its empty space would push the
+          name off the edge, and a shown logo moves to the right. */}
+      {(logo || !left) && (
+        <div style={logo ? undefined : { visibility: 'hidden' }} aria-hidden={!logo}>
+          <div className="f1-inst-eng">Indian Institute of Management Calcutta</div>
+          <div className="f1-inst-hindi">भारतीय प्रबंध संस्थान कलकत्ता</div>
+        </div>
+      )}
       <div className="f1-header-right">
         <div className="f1-name">{data.name || ' '}</div>
         <div className="f1-mbaid">{data.mbaId || ' '}</div>

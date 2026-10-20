@@ -5,6 +5,10 @@
    loaded alongside Superset's frozen `f1-*` styles without collision. */
 
 .skynet-page {
+  /* Word sets the template with neither kerning nor ligatures, and so does
+     the PDF writer; the browser defaults to both, which narrows lines. */
+  font-kerning: none;
+  font-variant-ligatures: none;
   --page-w: 595pt;
   --page-h: 842pt;
   /* Content box = 16.1pt to 578.9pt, 562.8pt wide, measured from the vertical
@@ -95,6 +99,20 @@
 
 .sk-header-right {
   text-align: right;
+}
+
+/* Name and MBA ID on the left (an option; the official layout is right). */
+.sk-header--name-left {
+  justify-content: flex-start;
+  gap: 8pt;
+}
+.sk-header--name-left .sk-header-right {
+  text-align: left;
+}
+/* Name on the left with the logo shown: the logo takes the right. */
+.sk-header--logo-right {
+  flex-direction: row-reverse;
+  justify-content: space-between;
 }
 
 .sk-name {
@@ -281,20 +299,19 @@
      glyph where the PDF puts it. 3pt on the right keeps text off the year
      column's rule (PDF text stops at ~545pt against the 548.13pt gridline).
      Zero padding fitted the page but left every bullet touching its border. */
-  padding-left: 7.8pt !important;
+  /* Text starts at x=113.18pt, as in the official PDF: the cell's left
+     gridline is at 100.58pt and the collapsed rule adds 0.62pt, so 11.98pt. The
+     bullet square sits in this padding with zero advance (see .sk-bullet). */
+  padding-left: 11.98pt !important;
   /* Real students fill lines right up to the year-column gridline (548.13pt);
      PDF text ends as late as ~547.9pt. 3pt here stopped text at ~545pt, so
      once widths matched the PDF, full lines wrapped. 0.3pt keeps the last
      glyph just off the rule. */
   padding-right: 0.3pt !important;
-  /* Matched to real resumes: with Calibri (Windows) and its metric twin
-     Carlito, -0.01em left every point ~1.8% narrower than the same line in
-     the source PDF (7 real 63rd-batch resumes, line-by-line), so imported
-     resumes showed extra white space at line ends. -0.09pt leaves lines ~1%
-     under the PDF's width: the margin that stops a line the student filled
-     to the edge from wrapping here (-0.07pt still wrapped points on 6 of 55
-     real imports). */
-  letter-spacing: -0.09pt;
+  /* No adjustment: the PDF writer sets points at Carlito's own widths with
+     no kerning or ligatures (as Word does), and the preview must wrap
+     exactly where the export does. */
+  letter-spacing: 0;
 }
 
 /* Continuation row: bullet that shares a sub-category with the row
@@ -315,13 +332,10 @@
 /* The official template adds 0.15pt of character spacing to Industry
    Experience text only (a Tc operator in the PDF content stream). Without it
    Industry lines here ran ~3-5% narrower than the real thing, so a point that
-   fitted here could wrap in the official system. Stacks on the -0.01em
-   browser-width correction above. */
+   fitted here could wrap in the official system. */
 .sk-industry .sk-bullet-cell {
-  /* 0.1pt: Industry lines within ~1% of the PDF on 20 real resumes. The
-     template's own 0.15pt wraps full lines in Chrome and spilled 14 of 20
-     onto a second page. */
-  letter-spacing: 0.1pt;
+  /* The template's own 0.15pt, as the PDF writer sets it. */
+  letter-spacing: 0.15pt;
 }
 
 .sk-vertical {
@@ -424,12 +438,19 @@
    two measured x positions (113.2 - 108.4 = 4.8pt) becomes the margin
    between the glyph and the first word. */
 .sk-bullet::before {
-  content: '\25A0';
-  font-size: 0.6em;
-  vertical-align: 0.15em;
-  margin-left: 0;
-  margin-right: calc(var(--bullet-text-x) - var(--bullet-x));
+  /* The official bullet: a 2.58pt black square, its left edge 4.45pt before
+     the text and its bottom 2.13pt above the baseline (measured from the
+     template's PDFs). Zero net advance, so the text keeps its own start. */
+  content: '';
   display: inline-block;
+  width: 2.58pt;
+  height: 2.58pt;
+  background: currentColor;
+  vertical-align: 2.13pt;
+  margin-left: -4.45pt;
+  margin-right: 1.87pt;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
 }
 
 /* Footer */

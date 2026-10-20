@@ -19,6 +19,9 @@ import type { SaveFailure } from '@/lib/storage';
 import { emptyVisibleSections } from '@/lib/emptySections';
 import type { TemplateKey } from '@/templates/types';
 import { migrateBetweenBatches } from '@/lib/migrateBatch';
+import { exportSkynetPdf } from '@/pdf/exportPdf';
+import { useSkynetFit } from '@/pdf/useSkynetFit';
+import type { SkynetResumeData } from '@/templates/skynet/types';
 
 const PANEL_PREFS_KEY = 'iimc-resume-builder:panels:v1';
 
@@ -80,7 +83,17 @@ export default function App() {
   const [failedSections, setFailedSections] = useState<string[]>([]);
   const [panels, setPanels] = useState(loadPanelPrefs);
   const previewRef = useRef<HTMLDivElement>(null);
-  const overflow = usePageOverflow(previewRef, Boolean(templateId && data));
+  const previewFit = usePageOverflow(previewRef, Boolean(templateId && data));
+  // Skynet exports through the PDF writer, so judge one page by its layout;
+  // the preview measure covers Superset and the moment before fonts load.
+  const writerFit = useSkynetFit(templateId === 'skynet' ? (data as SkynetResumeData | null) : null);
+  const overflow = writerFit
+    ? {
+        fits: writerFit.fits,
+        overflowPt: writerFit.overflowPt,
+        pages: Math.round(((842 + writerFit.overflowPt) / 842) * 100) / 100,
+      }
+    : previewFit;
   const [overflowDismissed, setOverflowDismissed] = useState(false);
   const [history, setHistory] = useState(() => emptyHistory<unknown>());
   const [saveFailure, setSaveFailure] = useState<SaveFailure | null>(null);
@@ -214,6 +227,7 @@ export default function App() {
     <div className="flex flex-col h-screen overflow-hidden">
       <AppHeader
         previewRef={previewRef}
+        onExportPdf={templateId === 'skynet' ? () => exportSkynetPdf(data as SkynetResumeData) : undefined}
         onUndo={onUndo}
         canUndo={canUndo(history)}
         onReset={onReset}

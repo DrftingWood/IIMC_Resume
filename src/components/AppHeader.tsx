@@ -3,6 +3,7 @@ import PrintButton from './PrintButton';
 
 export default function AppHeader({
   previewRef,
+  onExportPdf,
   onUndo,
   canUndo,
   onReset,
@@ -14,6 +15,8 @@ export default function AppHeader({
   onToggleForm,
 }: {
   previewRef: React.RefObject<HTMLDivElement>;
+  /** Writes the PDF directly; absent = print the preview. */
+  onExportPdf?: () => Promise<{ replaced: string[] }>;
   onUndo: () => void;
   canUndo: boolean;
   onReset: () => void;
@@ -112,7 +115,7 @@ export default function AppHeader({
         <button onClick={onReset} className={ghostBtn} title="Clear this resume and go back to the start page">
           Start over
         </button>
-        <PrintButton previewRef={previewRef} />
+        <PrintButton previewRef={previewRef} onExportPdf={onExportPdf} />
       </div>
     </header>
   );

@@ -23,14 +23,37 @@ export const SHOW_DAYS = 3;
 
 export const RELEASE: Release = {
   // A new id shows the panel again, even to students who closed the last one.
-  id: '2026-10-20b',
-  date: '2026-10-20T12:00:00+05:30',
+  id: '2026-10-20c',
+  date: '2026-10-20T17:00:00+05:30',
   notes: [
     {
-      kind: 'Improved',
-      title: 'Matches the official PDF',
+      kind: 'New',
+      title: 'Export PDF now matches the official file',
       detail:
-        'Row heights, line widths, colours, rules, taglines and footer were measured against real IIMC resumes, so the preview and export now line up with the original.',
+        'The PDF is written directly in the official template’s exact layout instead of printing the page, so it comes out the same on every browser and phone.',
+    },
+    {
+      kind: 'Improved',
+      title: 'The preview wraps exactly like the PDF',
+      detail:
+        'A point that fits on one line on screen fits on one line in the download, and the one-page warning uses the same layout.',
+    },
+    {
+      kind: 'New',
+      title: 'Name and MBA ID on the left or right',
+      detail: 'Choose under Header in the editor. Right is the official layout.',
+    },
+    {
+      kind: 'Improved',
+      title: 'Full-time months filled in',
+      detail:
+        'If your uploaded PDF shows only “(FULL TIME)”, the months are counted from your firm dates, as the official resumes count them.',
+    },
+    {
+      kind: 'Fixed',
+      title: 'Uploads keep every label and ordinal',
+      detail:
+        'Neighbouring labels no longer merge, two-line labels stay whole, Full Time and Intern firms land in the right group, and raised 1st/2nd stay with their point.',
     },
     {
       kind: 'Fixed',

@@ -58,8 +58,11 @@ export function hydrateSuperset(input: Partial<SupersetResumeData>): SupersetRes
   // exists. A custom key left in the order after its section was deleted would
   // render nothing but still occupy a row in the Sections panel.
   const customKeys = new Set(merged.customSections.map((c) => c.key));
+  // Not a string (a hand-edited or corrupted draft) is never a section key;
+  // isCustomKey would throw on it and blank the app on every load.
   const known = (k: SectionKey) =>
-    isCustomKey(k) ? customKeys.has(k) : DEFAULT_SECTION_ORDER.includes(k);
+    typeof k === 'string' &&
+    (isCustomKey(k) ? customKeys.has(k) : DEFAULT_SECTION_ORDER.includes(k));
 
   // Repair sectionOrder: drop unknown keys, append missing defaults, then any
   // custom section the order did not mention (a draft saved mid-edit).
@@ -81,6 +84,7 @@ export function hydrateSuperset(input: Partial<SupersetResumeData>): SupersetRes
 
   // Unknown values (a hand-edited or future draft) fall back to official.
   if (!isDensity(merged.density)) delete merged.density;
+  if (merged.nameAlign !== 'left') delete merged.nameAlign;
 
   return sanitizeHidden(merged);
 }

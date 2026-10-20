@@ -1,4 +1,4 @@
-import React, { forwardRef } from 'react';
+import React, { forwardRef, useRef } from 'react';
 import type {
   SkynetResumeData,
   BulletGroup,
@@ -9,7 +9,9 @@ import { DEFAULT_SECTION_ORDER, sectionLabel } from './types';
 import { isCustomKey } from '@/lib/customSections';
 import { renderInline } from '@/lib/bold';
 import { withoutHidden } from '@/lib/visibility';
+import { showLogo } from '@/lib/logoSetting';
 import { densityClass } from '@/lib/density';
+import { useSqueezeToFit } from '@/lib/squeezeToFit';
 
 interface Props {
   data: SkynetResumeData;
@@ -25,8 +27,17 @@ const ResumePreview = forwardRef<HTMLDivElement, Props>(({ data: draft }, ref) =
     data.sectionOrder && data.sectionOrder.length ? data.sectionOrder : DEFAULT_SECTION_ORDER
   ).filter((k) => !hidden.has(k));
 
+  // Keep the forwarded ref (print, overflow) and a local one for the squeeze pass.
+  const local = useRef<HTMLDivElement | null>(null);
+  const setRef = (el: HTMLDivElement | null) => {
+    local.current = el;
+    if (typeof ref === 'function') ref(el);
+    else if (ref) ref.current = el;
+  };
+  useSqueezeToFit(local, '.sk-bullet:not([data-fill-probe])', [draft]);
+
   return (
-    <div ref={ref} className={'skynet-page' + densityClass(data.density)}>
+    <div ref={setRef} className={'skynet-page' + densityClass(data.density)}>
       <HeaderBand data={data} />
       <TaglineRow taglines={data.taglines} />
 
@@ -148,14 +159,26 @@ ResumePreview.displayName = 'ResumePreview';
 export default ResumePreview;
 
 function HeaderBand({ data }: { data: SkynetResumeData }) {
+  const logo = showLogo();
+  const left = data.nameAlign === 'left';
   return (
-    <div className="sk-header">
-      <div>
-        {/* Hindi sits above English in the real template - verified against a
-            rendered 63rd-batch PDF, where the order was reversed here. */}
-        <div className="sk-inst-hindi">भारतीय प्रबंध संस्थान कलकत्ता</div>
-        <div className="sk-inst-eng">Indian Institute of Management Calcutta</div>
-      </div>
+    <div
+      className={
+        'sk-header' + (left ? ' sk-header--name-left' : '') + (left && logo ? ' sk-header--logo-right' : '')
+      }
+    >
+      {/* The institute logo: hidden unless the owner's switch is on (see
+          logoSetting.ts). Hidden, not removed, so nothing else moves - except
+          with the name on the left, where its empty space would push the
+          name off the edge, and a shown logo moves to the right. */}
+      {(logo || !left) && (
+        <div style={logo ? undefined : { visibility: 'hidden' }} aria-hidden={!logo}>
+          {/* Hindi sits above English in the real template - verified against a
+              rendered 63rd-batch PDF, where the order was reversed here. */}
+          <div className="sk-inst-hindi">भारतीय प्रबंध संस्थान कलकत्ता</div>
+          <div className="sk-inst-eng">Indian Institute of Management Calcutta</div>
+        </div>
+      )}
       <div className="sk-header-right">
         <div className="sk-name">{data.name || ' '}</div>
         <div className="sk-mbaid">{data.mbaId || ' '}</div>
@@ -250,7 +273,7 @@ function BulletGroupTable({ groups }: { groups: BulletGroup[] }) {
                 </td>
               )}
               <td className="sk-bullet-cell">
-                <span className="sk-bullet">{renderInline(b.text)}</span>
+                {b.text.trim() ? <span className="sk-bullet">{renderInline(b.text)}</span> : null}
               </td>
               <td className="sk-cell-year">{b.year}</td>
             </tr>
@@ -392,7 +415,7 @@ function PositionsTable({ data }: { data: SkynetResumeData }) {
                 </td>
               )}
               <td className="sk-bullet-cell">
-                <span className="sk-bullet">{renderInline(b)}</span>
+                {b.trim() ? <span className="sk-bullet">{renderInline(b)}</span> : null}
               </td>
               {bi === 0 && (
                 <td className="sk-cell-year" rowSpan={p.bullets.length}>

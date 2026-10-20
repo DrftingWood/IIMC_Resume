@@ -36,6 +36,9 @@ export interface SupersetResumeData {
   /** Row pitch. Absent or 'official' = the IIMC template; compact modes are
       opt-in and labelled as not the official format. */
   density?: Density;
+  /** Name and MBA ID at the right (the official layout; absent = right)
+      or the left of the header. */
+  nameAlign?: 'left' | 'right';
   name: string;
   mbaId: string;
   taglines: [string, string, string];

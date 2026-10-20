@@ -109,7 +109,11 @@ type GraphemeSegmenter = new (
     (the page collapses them), and one per grapheme, so an emoji or a Hindi
     letter with its vowel signs counts once, not as several code units. */
 export function visibleLength(text: string): number {
-  const plain = text.replace(/\*\*(.+?\**)\*\*/g, '$1').trim();
+  const plain = text
+    .replace(/\*\*(.+?\**)\*\*/g, '$1')
+    .split(String.fromCharCode(0x200b))
+    .join('')
+    .trim();
   // Intl.Segmenter is in every current browser but not in this project's
   // TypeScript lib target, hence the typed lookup.
   const Segmenter = (Intl as unknown as { Segmenter?: GraphemeSegmenter }).Segmenter;

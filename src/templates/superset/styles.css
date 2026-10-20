@@ -53,6 +53,20 @@
   text-align: right;
 }
 
+/* Name and MBA ID on the left (an option; the official layout is right). */
+.f1-header--name-left {
+  justify-content: flex-start;
+  gap: 8pt;
+}
+.f1-header--name-left .f1-header-right {
+  text-align: left;
+}
+/* Name on the left with the logo shown: the logo takes the right. */
+.f1-header--logo-right {
+  flex-direction: row-reverse;
+  justify-content: space-between;
+}
+
 .f1-name {
   font-weight: bold;
   font-size: 14.5pt;
