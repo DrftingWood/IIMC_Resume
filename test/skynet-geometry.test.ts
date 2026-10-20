@@ -72,9 +72,10 @@ describe('skynet print geometry constants', () => {
 
   it('keeps the letter-spacing that closes the measured text-width gap', () => {
     // Measured line-by-line on real resumes: -0.01em left points ~1.8% narrower
-    // than the PDF (white space at line ends). -0.07pt sits ~1% under the PDF's
-    // width - the margin that keeps lines filled to the edge from wrapping.
-    expect(css).toMatch(/letter-spacing:\s*-0\.07pt/);
+    // than the PDF (white space at line ends). -0.09pt sits ~1% under the PDF's
+    // width - the margin that keeps lines filled to the edge from wrapping
+    // (-0.07pt still wrapped points on 6 of 55 real imports).
+    expect(css).toMatch(/letter-spacing:\s*-0\.09pt/);
   });
 
   it('keeps the education colgroup derived from measured column centres', () => {
@@ -122,8 +123,9 @@ describe('skynet print geometry constants', () => {
     const bar = css.match(/\.sk-section-bar\s*\{[^}]*\}/s);
     expect(bar).not.toBeNull();
     expect(bar![0]).not.toMatch(/margin-left|margin-right|margin:/);
-    // A fixed 16.12pt bar, measured rule to rule in the reference PDF.
-    expect(bar![0]).toMatch(/height:\s*16\.12pt/);
+    // 16.12pt, measured rule to rule in the reference PDF; a minimum so a long
+    // renamed title grows the bar instead of spilling onto the rows around it.
+    expect(bar![0]).toMatch(/min-height:\s*16\.12pt/);
   });
 
   it('keeps the industry margin-label column on its measured gridline', () => {

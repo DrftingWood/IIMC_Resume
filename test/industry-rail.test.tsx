@@ -31,4 +31,23 @@ describe('Industry Experience rail', () => {
     expect(table.querySelectorAll('tr.sk-sub-first').length).toBeGreaterThan(0);
     expect(table.querySelectorAll('tr.sk-sub-last').length).toBeGreaterThan(0);
   });
+
+  it('keeps one rail label for types that differ only by spaces', () => {
+    const exp = SAMPLE.experience.map((e) => ({ ...e, type: 'Intern' }));
+    exp[1] = { ...exp[1], type: 'Intern ' };
+    const { container } = render(<Preview data={{ ...SAMPLE, experience: exp }} />);
+    expect(industryTable(container).querySelectorAll('td.sk-vertical')).toHaveLength(1);
+  });
+
+  it('prints no bullet for an empty point in a sub-section', () => {
+    const exp = SAMPLE.experience.map((e) => ({ ...e }));
+    exp[0] = {
+      ...exp[0],
+      subSections: [{ ...exp[0].subSections[0], bullets: [''] }, ...exp[0].subSections.slice(1)],
+    };
+    const { container } = render(<Preview data={{ ...SAMPLE, experience: exp }} />);
+    const first = industryTable(container).querySelector('td.sk-bullet-cell') as HTMLElement;
+    expect(first.querySelector('.sk-bullet')).toBeNull();
+  });
 });
+

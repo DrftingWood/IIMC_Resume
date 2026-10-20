@@ -141,6 +141,10 @@
      neither does this: a wrap added 17pt and pushed the page to two. */
   padding: 0;
   white-space: nowrap;
+  /* A tagline longer than its cell is clipped at the cell edge rather than
+     widening the cell (a 47-character tagline pushed text off the page). */
+  min-width: 0;
+  overflow: hidden;
   letter-spacing: -0.07pt;
 }
 
@@ -159,9 +163,10 @@
      tables and it protrudes; do not reintroduce them. */
   padding: 0 3.4pt;
   /* The reference PDF's bar is 16.12pt from top rule to bottom rule. A
-     fixed height (not padding around the text) matches it whatever the
-     title's font metrics. */
-  height: 16.12pt;
+     minimum (not padding around the text) matches it whatever the title's
+     font metrics, and a long renamed title grows the bar instead of
+     spilling white text onto the rows above and below. */
+  min-height: 16.12pt;
   box-sizing: border-box;
   /* Title left-aligned as in the official template, with the Industry
      months text pushed to the right. */
@@ -175,6 +180,7 @@
 
 .sk-section-title {
   min-width: 0; /* a long renamed title wraps instead of crushing the right text */
+  overflow-wrap: anywhere;
   margin: 0;
   font-weight: bold;
   font-size: var(--hdr-size);
@@ -284,9 +290,11 @@
   /* Matched to real resumes: with Calibri (Windows) and its metric twin
      Carlito, -0.01em left every point ~1.8% narrower than the same line in
      the source PDF (7 real 63rd-batch resumes, line-by-line), so imported
-     resumes showed extra white space at line ends. -0.02pt brings the
-     width ratio to ~1.00. */
-  letter-spacing: -0.07pt;
+     resumes showed extra white space at line ends. -0.09pt leaves lines ~1%
+     under the PDF's width: the margin that stops a line the student filled
+     to the edge from wrapping here (-0.07pt still wrapped points on 6 of 55
+     real imports). */
+  letter-spacing: -0.09pt;
 }
 
 /* Continuation row: bullet that shares a sub-category with the row
@@ -310,7 +318,10 @@
    fitted here could wrap in the official system. Stacks on the -0.01em
    browser-width correction above. */
 .sk-industry .sk-bullet-cell {
-  letter-spacing: 0.06pt; /* measured: ~1.5% narrow at calc(-0.01em + 0.15pt) */
+  /* 0.1pt: Industry lines within ~1% of the PDF on 20 real resumes. The
+     template's own 0.15pt wraps full lines in Chrome and spilled 14 of 20
+     onto a second page. */
+  letter-spacing: 0.1pt;
 }
 
 .sk-vertical {
@@ -353,7 +364,12 @@
 
 .sk-firm-banner {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  /* Firm and dates take what they need and never wrap; the role fills the
+     middle. Equal thirds wrapped long firm names onto a second line, making
+     the banner taller than the source's single row. */
+  grid-template-columns: auto 1fr auto;
+  column-gap: 6pt;
+  white-space: nowrap;
   width: 100%;
   align-items: center;
   /* One row pitch tall, like the reference PDF's banner (14.63pt); 1.5pt of
@@ -393,7 +409,9 @@
   justify-content: center;
   height: 100%;
   min-height: 1.2em;
-  padding: 0.5pt 3pt;
+  /* The source sets label lines up to ~81pt wide in the 84.4pt column, so
+     3pt each side wrapped them onto an extra line and stretched the rows. */
+  padding: 0.5pt 1pt;
   text-align: center;
   font-weight: 600;
   font-size: var(--body-size);

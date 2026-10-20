@@ -25,7 +25,8 @@ function applyOrdinals(text: string, baseKey: string): React.ReactNode[] {
 export function renderInline(text: string): React.ReactNode {
   if (!text) return null;
   const parts: React.ReactNode[] = [];
-  const re = /\*\*([^*]+)\*\*/g;
+  // Lazy, so a bold run can hold a single * ("A* grade", "5* hotel").
+  const re = /\*\*(.+?\**)\*\*/g;
   let lastIndex = 0;
   let match: RegExpExecArray | null;
   let i = 0;

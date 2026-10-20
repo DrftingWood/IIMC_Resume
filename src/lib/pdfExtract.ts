@@ -11,7 +11,14 @@ export interface TextItem {
   fontName: string;
   /** True when the glyph run is not laid out left-to-right (rotated margin labels). */
   rotated: boolean;
+  /** From the embedded font's real name ("Calibri-Bold"); absent when the
+      name could not be read, in which case parsers fall back to guessing. */
+  bold?: boolean;
 }
+
+/** Font names that mark a bold face. Word/Chrome PDFs name subsets like
+    "BCDEEE+Calibri-Bold"; semibold counts, as it prints visibly bold. */
+const BOLD_NAME_RE = /bold|black|heavy|semibold|demibold/i;
 
 export interface PdfLine {
   y: number;
@@ -29,6 +36,22 @@ export async function extractTextItems(file: File): Promise<TextItem[]> {
   for (let p = 1; p <= pdf.numPages; p++) {
     const page = await pdf.getPage(p);
     const content = await page.getTextContent();
+    // The text layer only carries internal font ids (g_d0_f3). Loading the
+    // operator list resolves each id to its embedded font, whose real name
+    // says whether it is bold - exact, unlike guessing from glyph widths
+    // (bold Calibri is only ~5% wider, and digits skew that).
+    const boldById = new Map<string, boolean>();
+    try {
+      await page.getOperatorList();
+      for (const it of content.items as any[]) {
+        const id = it.fontName;
+        if (!id || boldById.has(id)) continue;
+        const font = page.commonObjs.has(id) ? (page.commonObjs.get(id) as { name?: string }) : null;
+        if (font?.name) boldById.set(id, BOLD_NAME_RE.test(font.name));
+      }
+    } catch {
+      /* Names unavailable: parsers fall back to their width heuristic. */
+    }
     for (const it of content.items as any[]) {
       if (typeof it.str !== 'string') continue;
       const x = it.transform?.[4] ?? 0;
@@ -44,6 +67,7 @@ export async function extractTextItems(file: File): Promise<TextItem[]> {
         height,
         fontName: it.fontName ?? '',
         rotated: Math.abs(t[1]) > 0.01 || Math.abs(t[2]) > 0.01,
+        ...(boldById.has(it.fontName) && { bold: boldById.get(it.fontName) }),
       });
     }
   }

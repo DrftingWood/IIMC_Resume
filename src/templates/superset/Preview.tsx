@@ -243,7 +243,7 @@ function IndustryTable({ entries }: { entries: ExperienceEntry[] }) {
   const groups: { type: string; entries: ExperienceEntry[] }[] = [];
   for (const e of entries) {
     const last = groups[groups.length - 1];
-    if (last && last.type === e.type) last.entries.push(e);
+    if (last && last.type.trim() === e.type.trim()) last.entries.push(e);
     else groups.push({ type: e.type, entries: [e] });
   }
 
@@ -301,7 +301,7 @@ function IndustryTable({ entries }: { entries: ExperienceEntry[] }) {
                 </td>
               )}
               <td className="f1-bullet-cell">
-                <span className="f1-bullet">{renderInline(b)}</span>
+                {b.trim() ? <span className="f1-bullet">{renderInline(b)}</span> : null}
               </td>
             </tr>
           );

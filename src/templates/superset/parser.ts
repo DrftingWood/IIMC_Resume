@@ -70,7 +70,9 @@ function joinItems(items: TextItem[]): string {
  *  joinItems when no boldFont is known. */
 function joinItemsAsMarkdown(items: TextItem[], boldFont: string | null): string {
   if (!items.length) return '';
-  if (!boldFont) return joinItems(items);
+  // Real font names (from extraction) decide; the width guess is a fallback.
+  const named = items.some((it) => it.bold !== undefined);
+  if (!boldFont && !named) return joinItems(items);
 
   const sorted = [...items].sort((a, b) => a.x - b.x);
   type Tok = { text: string; bold: boolean };
@@ -78,7 +80,7 @@ function joinItemsAsMarkdown(items: TextItem[], boldFont: string | null): string
   let prevEnd = -Infinity;
 
   for (const it of sorted) {
-    const isBold = it.fontName === boldFont;
+    const isBold = named ? !!it.bold : it.fontName === boldFont;
     if (toks.length) {
       const gap = it.x - prevEnd;
       const last = toks[toks.length - 1];
@@ -130,6 +132,9 @@ function detectBoldFont(lines: PdfLine[]): string | null {
     for (const it of l.items) {
       const n = it.str.trim().length;
       if (n === 0 || !it.fontName || !(it.width > 0)) continue;
+      // Bullet glyphs (a symbol font) and digit-only runs such as the
+      // regular-weight year column distort the per-character width.
+      if (BULLET_GLYPH_RE.test(it.str.trim()) || /^[\d\s'’,.\-–/|;]+$/.test(it.str)) continue;
       const s = stats.get(it.fontName) ?? { chars: 0, width: 0 };
       s.chars += it.str.length;
       s.width += it.width / Math.max(it.height, 1);
@@ -393,7 +398,12 @@ const YEARISH_RE = /^[\d\s'’‘`\-–,;|/]+$/;
 
 function isYearCell(s: string): boolean {
   const t = s.trim();
-  return YEAR_TOKEN_RE.test(t) || (YEARISH_RE.test(t) && (t.match(/\d/g)?.length ?? 0) >= 2);
+  if (YEAR_TOKEN_RE.test(t)) return true;
+  if (!YEARISH_RE.test(t)) return false;
+  // Every number must read as a year: two digits, or four starting 19/20.
+  // "120" or "5" in that column is a figure from the point, not a year.
+  const runs = t.match(/\d+/g) ?? [];
+  return runs.length > 0 && runs.every((r) => r.length === 2 || (r.length === 4 && /^(?:19|20)/.test(r)));
 }
 
 /** "2021 - Present" -> "2021-Present": tidy spacing round range dashes. */
@@ -632,6 +642,10 @@ function parseBulletTable(lines: PdfLine[]): BulletGroup[] {
 
   const findIdx = makeCellIdxFinder(cells);
   const lastBullet: Array<YearedBullet | null> = groups.map(() => null);
+  // Bullets whose year was read off the end of their text, not the column.
+  // If the point wraps, that number was mid-sentence: it goes back into the
+  // text and the year is read again from the line that really ends the point.
+  const yearFromText = new Set<YearedBullet>();
 
   // Pass 2: assign every bullet (or continuation) to the owning cell.
   for (const r of rows) {
@@ -656,22 +670,30 @@ function parseBulletTable(lines: PdfLine[]): BulletGroup[] {
       const isNewBullet = r.hasBulletGlyph || !glyphMode;
       if (isNewBullet) {
         const stripped = stripBulletGlyph(r.midText);
-        let { text, year } = tail(stripped);
-        if (!year && yearFromRight) year = yearFromRight;
-        const b: YearedBullet = { text, year };
+        const { text, year } = tail(stripped);
+        const b: YearedBullet = { text, year: year || yearFromRight };
+        if (year) yearFromText.add(b);
         group.bullets.push(b);
         lastBullet[idx] = b;
       } else {
         const stripped = stripBulletGlyph(r.midText);
         const lb = lastBullet[idx];
         if (lb) {
+          if (yearFromText.delete(lb)) {
+            lb.text = `${lb.text} ${lb.year}`;
+            lb.year = '';
+          }
           const { text: t, year: y } = tail(stripped);
           lb.text = (lb.text + ' ' + t).trim();
-          if (y && !lb.year) lb.year = y;
+          if (y && !lb.year) {
+            lb.year = y;
+            yearFromText.add(lb);
+          }
           if (yearFromRight) lb.year = joinYear(lb.year, yearFromRight);
         } else if (stripped) {
           const { text, year } = tail(stripped);
           const b: YearedBullet = { text, year: year || yearFromRight };
+          if (year) yearFromText.add(b);
           group.bullets.push(b);
           lastBullet[idx] = b;
         }
@@ -747,6 +769,9 @@ function parseIndustry(lines: PdfLine[], headerRest: string): {
   let rightText = '';
   const monthsMatch = headerRest.match(/(\d+\s*MONTHS\s*\([^)]+\))/i);
   if (monthsMatch) rightText = monthsMatch[1].toUpperCase();
+  // An employment type straight after the title ("(FULL TIME)") instead of a
+  // months count: keep it rather than drop it.
+  else if (headerRest.trim()) rightText = headerRest.trim().toUpperCase();
 
   // Filter rotated "Intern" / "Full Time" labels (their items show up as
   // tiny short lines once pdfjs unrolls the rotated glyph stream).

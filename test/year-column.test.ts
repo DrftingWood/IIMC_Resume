@@ -107,4 +107,37 @@ describe('year column precedence and unusual styles (red-team B)', () => {
     expect(bullets.map((b) => b.year)).toEqual(['2020-21', '2018']);
     expect(bullets[0].text).toBe('Led the fine arts society for two terms');
   });
+
+  it('puts a number that ends the first line of a wrapped point back in its text', () => {
+    // Line one ends in "20", which reads like a year at the end of a point.
+    // The point carries on, so it was mid-sentence; the year is the column's.
+    const cont = (y: number, text: string, year?: string) => {
+      const out = [item(text, 113.2, y)];
+      if (year) out.push(item(year, 553, y));
+      return out;
+    };
+    const bullets = distinctions([
+      row(685, [['Finished in the top', 113.2], ['20', 300]]),
+      cont(673, 'of 400 teams at the national case final', '2022'),
+      row(658, [['Ranked in the top', 113.2], ['10', 300]]),
+      cont(646, 'of the cohort in the first year'),
+      row(631, [['Won the inter-school quiz', 113.2]], '2018'),
+    ]);
+    expect(bullets.map((b) => b.text)).toEqual([
+      'Finished in the top 20 of 400 teams at the national case final',
+      'Ranked in the top 10 of the cohort in the first year',
+      'Won the inter-school quiz',
+    ]);
+    expect(bullets.map((b) => b.year)).toEqual(['2022', '', '2018']);
+  });
+
+  it('does not take a figure like "120" in the year column as a year', () => {
+    const bullets = distinctions([
+      row(685, [['Led a volunteer team of', 113.2]], '120'),
+      row(670, [['Ranked first in the state olympiad', 113.2]], '2019'),
+    ]);
+    expect(bullets[0].year).toBe('');
+    expect(bullets[0].text).toBe('Led a volunteer team of 120');
+    expect(bullets[1].year).toBe('2019');
+  });
 });

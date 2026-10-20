@@ -1,7 +1,7 @@
 import { useEffect, useState, type RefObject } from 'react';
 
-/** A4 height in CSS pixels at the 96dpi the preview is laid out against. */
-export const A4_HEIGHT_PX = (842 * 96) / 72;
+/** A4 height in CSS pixels at 96dpi: 297mm (841.89pt), the page print uses. */
+export const A4_HEIGHT_PX = (297 * 96) / 25.4;
 
 export interface PageOverflow {
   /** How far the rendered resume exceeds one A4 page, in points. 0 when it fits. */

@@ -93,9 +93,9 @@ function escapeHtml(s: string): string {
 export function pointHtml(text: string): string {
   const ord = (s: string) => s.replace(/(\d+)(st|nd|rd|th)\b/g, '$1<sup>$2</sup>');
   return escapeHtml(text)
-    .split(/(\*\*[^*]+\*\*)/g)
+    .split(/(\*\*.+?\**\*\*)/g)
     .map((part) =>
-      /^\*\*[^*]+\*\*$/.test(part) ? `<strong>${ord(part.slice(2, -2))}</strong>` : ord(part)
+      /^\*\*.+?\**\*\*$/.test(part) ? `<strong>${ord(part.slice(2, -2))}</strong>` : ord(part)
     )
     .join('');
 }
@@ -109,7 +109,7 @@ type GraphemeSegmenter = new (
     (the page collapses them), and one per grapheme, so an emoji or a Hindi
     letter with its vowel signs counts once, not as several code units. */
 export function visibleLength(text: string): number {
-  const plain = text.replace(/\*\*([^*]+)\*\*/g, '$1').trim();
+  const plain = text.replace(/\*\*(.+?\**)\*\*/g, '$1').trim();
   // Intl.Segmenter is in every current browser but not in this project's
   // TypeScript lib target, hence the typed lookup.
   const Segmenter = (Intl as unknown as { Segmenter?: GraphemeSegmenter }).Segmenter;
