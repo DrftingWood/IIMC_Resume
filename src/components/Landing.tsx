@@ -185,9 +185,8 @@ export default function Landing({
         </div>
 
         <p className="text-xs text-slate-500 mt-6 text-center px-4 leading-relaxed">
-          Inline <strong className="text-slate-700">bold</strong> formatting is not recovered
-          from upload — re-apply it using the <strong className="text-slate-700">B</strong>{' '}
-          button in the editor.
+          <strong className="text-slate-700">Bold</strong> carries over from your PDF. Use the{' '}
+          <strong className="text-slate-700">B</strong> button in the editor to adjust it.
         </p>
       </div>
 

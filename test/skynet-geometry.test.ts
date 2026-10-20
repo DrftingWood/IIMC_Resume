@@ -20,9 +20,11 @@ describe('skynet print geometry constants', () => {
   });
 
   it('keeps the derived line-height that makes a row measure that pitch', () => {
-    // A row is line-height + padding + collapsed borders. 13.4pt measures back
-    // to a 14.61pt row; raising it to the pitch itself overflows the page.
-    expect(css).toMatch(/--row-line:\s*13\.4pt/);
+    // Recalibrated against a 62nd-batch reference PDF and checked on 20 real
+    // resumes (exported PDF vs original, word by word): 14.3pt with 0.75pt
+    // black rules puts text within ~1-3pt of the original down the page.
+    // 13.4pt left every section short and a ~16-38pt blank band at the bottom.
+    expect(css).toMatch(/--row-line:\s*14\.3pt/);
   });
 
   it('keeps vertical cell padding at zero', () => {
@@ -35,11 +37,12 @@ describe('skynet print geometry constants', () => {
   it('keeps the bullet cell insets that place the glyph where the PDF does', () => {
     // The cell's left gridline is the measured x=100.60 and the source PDF
     // puts the bullet glyph at 108.4pt, so 7.8pt of left padding reproduces
-    // that. 3pt on the right keeps text off the year column rule. The original
-    // 10pt of padding wrapped 22 of 43 bullets; dropping it to zero fitted the
-    // page but left every bullet touching its border - these do both.
+    // that. On the right, students fill lines to the year-column gridline
+    // (PDF text ends as late as ~547.9pt against the 548.13pt rule), so 0.3pt
+    // is all the inset there is room for; 3pt wrapped full lines once widths
+    // matched the PDF. The original 10pt wrapped 22 of 43 bullets.
     expect(css).toMatch(/padding-left:\s*7\.8pt !important/);
-    expect(css).toMatch(/padding-right:\s*3pt !important/);
+    expect(css).toMatch(/padding-right:\s*0\.3pt !important/);
   });
 
   it('keeps the bullet-table columns on the measured gridlines', () => {
@@ -68,8 +71,10 @@ describe('skynet print geometry constants', () => {
   });
 
   it('keeps the letter-spacing that closes the measured text-width gap', () => {
-    // Browser text renders ~2.9% wider than the same string in the source PDF.
-    expect(css).toMatch(/letter-spacing:\s*-0\.01em/);
+    // Measured line-by-line on real resumes: -0.01em left points ~1.8% narrower
+    // than the PDF (white space at line ends). -0.07pt sits ~1% under the PDF's
+    // width - the margin that keeps lines filled to the edge from wrapping.
+    expect(css).toMatch(/letter-spacing:\s*-0\.07pt/);
   });
 
   it('keeps the education colgroup derived from measured column centres', () => {
@@ -117,7 +122,8 @@ describe('skynet print geometry constants', () => {
     const bar = css.match(/\.sk-section-bar\s*\{[^}]*\}/s);
     expect(bar).not.toBeNull();
     expect(bar![0]).not.toMatch(/margin-left|margin-right|margin:/);
-    expect(bar![0]).toMatch(/padding:\s*1pt 3\.4pt/);
+    // A fixed 16.12pt bar, measured rule to rule in the reference PDF.
+    expect(bar![0]).toMatch(/height:\s*16\.12pt/);
   });
 
   it('keeps the industry margin-label column on its measured gridline', () => {

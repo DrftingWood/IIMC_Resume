@@ -18,17 +18,17 @@
      right and is what made the section bars protrude past the tables. */
   --hdr-x: 16.1pt;
   --hdr-x-right: 16.1pt;
-  --hdr-size: 11.2pt;
+  --hdr-size: 11.25pt;
   --body-size: 9.9pt;
   --row-pitch: 14.6pt;
   /* The 14.6pt measured pitch is the WHOLE row in the source PDF - gridlines
      included. In CSS a row is line-height + padding + collapsed borders, so
      line-height has to absorb the borders rather than sit on top of them.
      13.4pt measures back to a 14.61pt row against the 14.6pt target. */
-  --row-line: 13.4pt;
+  --row-line: 14.3pt;
   --bullet-x: 108.4pt;
   --bullet-text-x: 113.2pt;
-  --footer-size: 8.2pt;
+  --footer-size: 8.25pt;
   /* No --year-x / --year-w here: the measurements only give the year TEXT
      extent (552-575pt), and a table cell's width is not derivable from
      the text extent inside it. The year column's actual width is
@@ -37,9 +37,12 @@
 
   --c-text: #000000;
   --c-bg: #ffffff;
-  --c-darkbar: #383838;
-  --c-lightbar: #CDCDCD;
-  --c-border: #4A4A4A;
+  /* Colours sampled from a reference 62nd-batch PDF: bars #2C2C2C, grey
+     cells and firm banners #DDDDDD, gridlines pure black 0.75pt strokes. */
+  --c-darkbar: #2C2C2C;
+  --c-lightbar: #DDDDDD;
+  --c-border: #000000;
+  --rule: 0.75pt;
   --c-white: #FFFFFF;
 
   width: var(--page-w);
@@ -47,7 +50,11 @@
   /* Top padding measured against the source PDF, where the candidate name
      sits at y=6.6pt. 21.6pt here pushed the whole document down ~18pt and
      every section with it. */
-  padding: 6pt var(--hdr-x-right) 14.4pt var(--hdr-x);
+  /* No bottom padding: the footer's 11.25pt line height already leaves the
+     reference PDF's ~8pt margin under its text. 14.4pt here pushed the footer
+     onto a second page once rows matched the PDF's pitch, and even 2pt
+     spilled a dense real resume by 1.8pt. */
+  padding: 6pt var(--hdr-x-right) 0 var(--hdr-x);
   background: var(--c-bg);
   color: var(--c-text);
   font-family: Calibri, Carlito, Arial, sans-serif;
@@ -70,7 +77,8 @@
   justify-content: space-between;
   padding: 0 0 6pt 0;
   border-bottom: 0.6pt solid #000;
-  margin-bottom: 6pt;
+  /* Taglines start at y=44.9pt in the reference; 6pt here put them 1.6pt low. */
+  margin-bottom: 4.4pt;
 }
 
 .sk-inst-hindi {
@@ -106,8 +114,10 @@
 /* Tagline row — dark cells with white caps, white gaps between cells. */
 .sk-tagline-row {
   display: flex;
-  gap: 3pt;
-  margin-bottom: 3pt;
+  /* Reference PDF: three 186.8pt cells 1.5pt apart, 16.5pt tall, with the
+     first section bar 3.3pt below. */
+  gap: 1.5pt;
+  margin-bottom: 3.3pt;
   width: 100%;
 }
 
@@ -121,8 +131,17 @@
   font-size: 11.25pt;
   text-transform: uppercase;
   text-align: center;
-  padding: 2.5pt 4pt;
-  letter-spacing: 0.005em;
+  /* Fixed to the reference's 16.5pt with near-zero side padding: 2.5pt/4pt
+     padding and +0.005em spacing made long taglines wrap to two lines,
+     pushing the whole page down 14pt. */
+  min-height: 16.5pt;
+  line-height: 16.5pt;
+  /* Students fill these to the cell edge (taglines up to 185.6pt wide in a
+     186.8pt cell in real PDFs). The template never wraps a tagline, so
+     neither does this: a wrap added 17pt and pushed the page to two. */
+  padding: 0;
+  white-space: nowrap;
+  letter-spacing: -0.07pt;
 }
 
 /* Section header bar — dark with white text. Left inset matches the
@@ -138,7 +157,12 @@
      exactly — no outdent. Its 3.4pt left padding sits the CAPS text at the
      measured x=19.5pt. Negative margins here make the bar wider than the
      tables and it protrudes; do not reintroduce them. */
-  padding: 1pt 3.4pt;
+  padding: 0 3.4pt;
+  /* The reference PDF's bar is 16.12pt from top rule to bottom rule. A
+     fixed height (not padding around the text) matches it whatever the
+     title's font metrics. */
+  height: 16.12pt;
+  box-sizing: border-box;
   /* Title centred, as the student asked; the rest of the page stays
      left-aligned. A 1fr / auto / 1fr grid keeps the title on the page's
      centre line even when Industry Experience carries its months text on
@@ -179,7 +203,7 @@
 
 .sk-table th,
 .sk-table td {
-  border: 0.5pt solid var(--c-border);
+  border: var(--rule) solid var(--c-border);
   /* Vertical padding is deliberately near-zero: the measured row pitch is
      14.6pt and line-height already consumes it, so any vertical padding
      pushes every row past the measured pitch and compounds down the page
@@ -256,11 +280,17 @@
      column's rule (PDF text stops at ~545pt against the 548.13pt gridline).
      Zero padding fitted the page but left every bullet touching its border. */
   padding-left: 7.8pt !important;
-  padding-right: 3pt !important;
-  /* Browser text renders ~2.9% wider than the same string in the source
-     PDF at the same nominal 9.9pt. This closes the gap so bullets sized to
-     fit the real template still fit here. Measured, not guessed. */
-  letter-spacing: -0.01em;
+  /* Real students fill lines right up to the year-column gridline (548.13pt);
+     PDF text ends as late as ~547.9pt. 3pt here stopped text at ~545pt, so
+     once widths matched the PDF, full lines wrapped. 0.3pt keeps the last
+     glyph just off the rule. */
+  padding-right: 0.3pt !important;
+  /* Matched to real resumes: with Calibri (Windows) and its metric twin
+     Carlito, -0.01em left every point ~1.8% narrower than the same line in
+     the source PDF (7 real 63rd-batch resumes, line-by-line), so imported
+     resumes showed extra white space at line ends. -0.02pt brings the
+     width ratio to ~1.00. */
+  letter-spacing: -0.07pt;
 }
 
 /* Continuation row: bullet that shares a sub-category with the row
@@ -284,7 +314,7 @@
    fitted here could wrap in the official system. Stacks on the -0.01em
    browser-width correction above. */
 .sk-industry .sk-bullet-cell {
-  letter-spacing: calc(-0.01em + 0.15pt);
+  letter-spacing: 0.06pt; /* measured: ~1.5% narrow at calc(-0.01em + 0.15pt) */
 }
 
 .sk-vertical {
@@ -330,7 +360,10 @@
   grid-template-columns: 1fr 1fr 1fr;
   width: 100%;
   align-items: center;
-  padding: 1.5pt 6pt;
+  /* One row pitch tall, like the reference PDF's banner (14.63pt); 1.5pt of
+     vertical padding made every firm 3.4pt taller than the original. */
+  padding: 0 6pt;
+  line-height: var(--row-line);
   font-weight: bold;
   font-size: var(--body-size);
   /* No text-transform: the source template prints the firm and role as the
@@ -368,7 +401,9 @@
   text-align: center;
   font-weight: 600;
   font-size: var(--body-size);
-  line-height: 1.1;
+  /* 10.3pt between label lines, measured in real PDFs; 1.1 (10.9pt) made
+     two- and three-line labels stretch their rows taller than the source. */
+  line-height: 10.3pt;
 }
 
 /* Bullets — glyph at bullet-x, text at bullet-text-x. The gap between the
@@ -387,8 +422,10 @@
 .sk-footer {
   text-align: center;
   font-size: var(--footer-size);
-  line-height: 1.2;
-  padding-top: 4pt;
+  /* Measured from the reference PDF: footer baselines 11.25pt apart, the
+     first 6.5pt below the last table row's text. */
+  line-height: 11.25pt;
+  padding-top: 2.6pt;
 }
 
 .sk-footer-line {
@@ -436,9 +473,26 @@
    Sections panel says so whenever one is on. */
 .skynet-page.density-compact40 {
   --row-pitch: 14pt;
-  --row-line: 12.8pt;
+  --row-line: 13.7pt;
 }
 .skynet-page.density-compact45 {
   --row-pitch: 12.9pt;
-  --row-line: 11.7pt;
+  --row-line: 12.6pt;
+}
+
+/* Industry sub-sections breathe: in the reference PDF consecutive points sit
+   14.63pt apart, but 18.4pt apart across a sub-section boundary - 1.9pt of
+   extra space at the top and bottom of every sub-section. */
+.sk-industry tr.sk-sub-first > td.sk-bullet-cell {
+  padding-top: 1.1pt;
+}
+.sk-industry tr.sk-sub-last > td.sk-bullet-cell {
+  padding-bottom: 1.1pt;
+}
+
+/* Education rows sit ~0.6pt taller than point rows in the reference PDF
+   (section 3pt shorter across five rows otherwise). */
+.sk-edu th,
+.sk-edu td {
+  line-height: calc(var(--row-line) + 0.6pt);
 }

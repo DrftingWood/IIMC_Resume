@@ -232,8 +232,8 @@ export default function App() {
           onDismiss={() => setShowWarning(false)}
           label="Tip"
         >
-          Inline <strong>bold</strong> formatting wasn't recovered from your upload — use the{' '}
-          <strong>B</strong> button on each field to re-apply.
+          <strong>Bold</strong> was carried over from your PDF. Give it a quick check, and use
+          the <strong>B</strong> button on any field to fix what looks off.
         </AdvisoryBanner>
       )}
       {emptySections.length > 0 && !emptyDismissed && (

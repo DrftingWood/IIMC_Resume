@@ -118,7 +118,7 @@ export const SAMPLE: SkynetResumeData = {
     {
       title: 'Cluster Lead,\nIndustry Interaction Cell, IIM Calcutta',
       bullets: [
-        'Led a team of **9 PGP students** to manage final placement engagement for **15 firms** across BFSI and consulting',
+        'Led a team of **9 PGP students** to manage placements with **15 firms** across BFSI and consulting',
         'Negotiated **42+ slots** with firms during summer placements; helped achieve **100% placement** for the batch',
         'Built a CRM in Notion tracking **800+ touchpoints**; reduced response TAT to recruiters by **~60%**',
       ],

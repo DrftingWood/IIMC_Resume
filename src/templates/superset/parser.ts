@@ -120,17 +120,26 @@ function joinItemsAsMarkdown(items: TextItem[], boldFont: string | null): string
  *  font with the most characters is "regular"; the next-most is "bold".
  *  Falls back to null when only one font is present. */
 function detectBoldFont(lines: PdfLine[]): string | null {
-  const counts = new Map<string, number>();
+  // Usage and average glyph width per font. Bold is not the minority font:
+  // students who bold most of a point made "second most used" pick the
+  // regular face and import every point with its bold inverted. At the same
+  // size a bold face is reliably wider per character, so of the two main
+  // body fonts the wider one is bold.
+  const stats = new Map<string, { chars: number; width: number }>();
   for (const l of lines) {
     for (const it of l.items) {
-      if (it.str.trim().length === 0) continue;
-      if (!it.fontName) continue;
-      counts.set(it.fontName, (counts.get(it.fontName) ?? 0) + it.str.length);
+      const n = it.str.trim().length;
+      if (n === 0 || !it.fontName || !(it.width > 0)) continue;
+      const s = stats.get(it.fontName) ?? { chars: 0, width: 0 };
+      s.chars += it.str.length;
+      s.width += it.width / Math.max(it.height, 1);
+      stats.set(it.fontName, s);
     }
   }
-  if (counts.size < 2) return null;
-  const sorted = [...counts.entries()].sort((a, b) => b[1] - a[1]);
-  return sorted[1][0];
+  if (stats.size < 2) return null;
+  const [a, b] = [...stats.entries()].sort((x, y) => y[1].chars - x[1].chars);
+  const perChar = (s: { chars: number; width: number }) => s.width / s.chars;
+  return perChar(a[1]) > perChar(b[1]) ? a[0] : b[0];
 }
 
 function stripBulletGlyph(text: string): string {

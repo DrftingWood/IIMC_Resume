@@ -274,6 +274,11 @@ function IndustryTable({ entries }: { entries: ExperienceEntry[] }) {
   }
 
   const rows: React.ReactNode[] = [];
+  // Some resumes print no Full Time / Intern rail (the type sits in the
+  // section title instead). With no types at all, drop the rail column and
+  // let the labels start at the content edge, as those PDFs do; the point
+  // column keeps its exact width either way.
+  const rail = entries.some((e) => e.type.trim());
 
   groups.forEach((grp, gi) => {
     // Rows in this type-group = (firm banner row + sub-section bullet rows) per entry
@@ -291,7 +296,7 @@ function IndustryTable({ entries }: { entries: ExperienceEntry[] }) {
       // Firm banner row: spans the sub-label + bullet columns only
       rows.push(
         <tr key={`g${gi}-e${ei}-head`}>
-          {isFirstRowOfType && (
+          {rail && isFirstRowOfType && (
             <td className="sk-vertical" rowSpan={typeRowCount}>
               <div className="sk-vertical-inner">
                 <span>{grp.type}</span>
@@ -315,7 +320,13 @@ function IndustryTable({ entries }: { entries: ExperienceEntry[] }) {
           rows.push(
             <tr
               key={`g${gi}-e${ei}-s${si}-b${bi}`}
-              className={bi > 0 ? 'sk-continuation' : ''}
+              className={[
+                bi > 0 ? 'sk-continuation' : '',
+                bi === 0 ? 'sk-sub-first' : '',
+                bi === bullets.length - 1 ? 'sk-sub-last' : '',
+              ]
+                .filter(Boolean)
+                .join(' ')}
             >
               {bi === 0 && (
                 <td className="sk-exp-sublabel" rowSpan={bullets.length}>
@@ -342,8 +353,8 @@ function IndustryTable({ entries }: { entries: ExperienceEntry[] }) {
           at x=30.40 and the category column at x=100.70, inside the same
           16.1-578.9pt content box - so 14.30pt / 70.30pt / 478.20pt. */}
       <colgroup>
-        <col style={{ width: '2.54%' }} />
-        <col style={{ width: '12.49%' }} />
+        {rail && <col style={{ width: '2.54%' }} />}
+        <col style={{ width: rail ? '12.49%' : '15.03%' }} />
         <col style={{ width: '84.97%' }} />
       </colgroup>
       <tbody>{rows}</tbody>

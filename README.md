@@ -35,7 +35,7 @@ The batch number is auto-detected from the MBA id on the resume (`MBA/xxxx/<batc
 
 ## Known limitations
 
-- **Bold formatting is not recovered on upload.** PDF text extraction loses inline weight information. Re-apply with the **B** button in each editor field.
+- **Bold is recovered from the PDF's fonts on upload** (the wider of the two body faces is taken as bold, which holds even when most of a point is bold). A PDF with a single font has no bold to recover; use the **B** button in each editor field.
 - **Calibri is not bundled.** On Windows the system Calibri is used automatically; on macOS / Linux / Vercel servers, the metric-compatible **Carlito** font is loaded as a fallback. Minor pixel differences are possible.
 
 

@@ -22,9 +22,22 @@ export interface Release {
 export const SHOW_DAYS = 3;
 
 export const RELEASE: Release = {
-  id: '2026-10-20',
-  date: '2026-10-20T00:00:00+05:30',
+  // A new id shows the panel again, even to students who closed the last one.
+  id: '2026-10-20b',
+  date: '2026-10-20T12:00:00+05:30',
   notes: [
+    {
+      kind: 'Improved',
+      title: 'Matches the official PDF',
+      detail:
+        'Row heights, line widths, colours, rules, taglines and footer were measured against real IIMC resumes, so the preview and export now line up with the original.',
+    },
+    {
+      kind: 'Fixed',
+      title: 'Bold comes through on upload',
+      detail:
+        'Bold is read from your PDF, including resumes where most of a point is bold, which used to come in reversed.',
+    },
     {
       kind: 'New',
       title: 'Hide points without deleting them',
