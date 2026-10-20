@@ -100,6 +100,43 @@ const ResumePreview = forwardRef<HTMLDivElement, Props>(({ data: draft }, ref) =
         <span className="sk-footer-line">Email: {data.email}</span>
         <span className="sk-footer-line">{data.institute}</span>
       </div>
+      {/* Invisible rows for the editor's line-fill meter (src/lib/lineFill.ts):
+          same classes and column widths as a real row, zero height, never
+          printed. */}
+      <div className="sk-fill-probes" aria-hidden="true">
+        <table className="sk-table">
+          <colgroup>
+            <col style={{ width: '15.01%' }} />
+            <col style={{ width: '79.52%' }} />
+            <col style={{ width: '5.47%' }} />
+          </colgroup>
+          <tbody>
+            <tr>
+              <td className="sk-category" />
+              <td className="sk-bullet-cell">
+                <span className="sk-bullet" data-fill-probe="bullet" />
+              </td>
+              <td className="sk-cell-year" />
+            </tr>
+          </tbody>
+        </table>
+        <table className="sk-table sk-industry">
+          <colgroup>
+            <col style={{ width: '2.54%' }} />
+            <col style={{ width: '12.49%' }} />
+            <col style={{ width: '84.97%' }} />
+          </colgroup>
+          <tbody>
+            <tr>
+              <td className="sk-vertical" />
+              <td className="sk-exp-sublabel" />
+              <td className="sk-bullet-cell">
+                <span className="sk-bullet" data-fill-probe="industry" />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 });

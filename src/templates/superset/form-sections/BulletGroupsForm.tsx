@@ -10,6 +10,7 @@ import {
   RowLabel,
   move,
 } from '@/components/form-shared';
+import { LineFill } from '@/components/LineFill';
 
 export function BulletGroupsForm({
   title,
@@ -86,6 +87,7 @@ export function BulletGroupsForm({
               <Field label="Text (use **bold**)">
                 <BoldableTextarea value={b.text} onChange={(v) => setBullet(gi, bi, { text: v })} />
               </Field>
+              <LineFill text={b.text} kind="bullet" />
               <Field label="Year">
                 <TextInput value={b.year} onChange={(e) => setBullet(gi, bi, { year: e.target.value })} />
               </Field>

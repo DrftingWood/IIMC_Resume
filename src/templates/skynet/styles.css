@@ -408,3 +408,17 @@
   vertical-align: baseline;
 }
 
+
+/* Line-fill probes (see Preview.tsx): laid out at full page width so the
+   editor can measure a point exactly as it prints, but zero height so they
+   never add to the page or trip the one-page check, and never printed. */
+.sk-fill-probes {
+  height: 0;
+  overflow: hidden;
+  visibility: hidden;
+}
+@media print {
+  .sk-fill-probes {
+    display: none;
+  }
+}

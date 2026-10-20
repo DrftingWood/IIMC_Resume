@@ -86,6 +86,43 @@ const ResumePreview = forwardRef<HTMLDivElement, Props>(({ data: draft }, ref) =
         <span className="f1-footer-line">Email: {data.email}</span>
         <span className="f1-footer-line">{data.institute}</span>
       </div>
+      {/* Invisible rows for the editor's line-fill meter (src/lib/lineFill.ts):
+          same classes and column widths as a real row, zero height, never
+          printed. */}
+      <div className="f1-fill-probes" aria-hidden="true">
+        <table className="f1-table">
+          <colgroup>
+            <col style={{ width: '15%' }} />
+            <col style={{ width: '78%' }} />
+            <col style={{ width: '7%' }} />
+          </colgroup>
+          <tbody>
+            <tr>
+              <td className="f1-category" />
+              <td className="f1-bullet-cell">
+                <span className="f1-bullet" data-fill-probe="bullet" />
+              </td>
+              <td className="f1-cell-year" />
+            </tr>
+          </tbody>
+        </table>
+        <table className="f1-table">
+          <colgroup>
+            <col style={{ width: '0.45cm' }} />
+            <col style={{ width: 'calc(15% - 0.45cm)' }} />
+            <col style={{ width: '85%' }} />
+          </colgroup>
+          <tbody>
+            <tr>
+              <td className="f1-vertical" />
+              <td className="f1-exp-sublabel" />
+              <td className="f1-bullet-cell">
+                <span className="f1-bullet" data-fill-probe="industry" />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 });

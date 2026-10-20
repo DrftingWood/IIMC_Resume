@@ -10,6 +10,7 @@ import {
   RowLabel,
   move,
 } from '@/components/form-shared';
+import { LineFill } from '@/components/LineFill';
 import { moveFlag, removeFlag, toggleFlag } from '@/lib/visibility';
 
 export function PositionsForm({
@@ -103,6 +104,7 @@ export function PositionsForm({
                   />
                 </div>
                 <BoldableTextarea value={b} onChange={(v) => setBullet(pi, bi, v)} />
+                <LineFill text={b} kind="bullet" />
               </HideableRow>
             );
           })}

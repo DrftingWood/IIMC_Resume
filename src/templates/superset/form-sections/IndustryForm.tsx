@@ -10,6 +10,7 @@ import {
   RowLabel,
   move,
 } from '@/components/form-shared';
+import { LineFill } from '@/components/LineFill';
 import { moveFlag, removeFlag, toggleFlag } from '@/lib/visibility';
 
 export function IndustryForm({
@@ -152,6 +153,7 @@ export function IndustryForm({
                       />
                     </div>
                     <BoldableTextarea value={b} onChange={(v) => setBullet(ei, si, bi, v)} />
+                    <LineFill text={b} kind="industry" />
                   </HideableRow>
                 );
               })}
