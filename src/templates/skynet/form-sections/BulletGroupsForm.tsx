@@ -1,5 +1,15 @@
 import type { BulletGroup, YearedBullet } from '../types';
-import { Accordion, Field, TextInput, BoldableTextarea, RowControls, AddButton, move } from '@/components/form-shared';
+import {
+  Accordion,
+  Field,
+  TextInput,
+  BoldableTextarea,
+  RowControls,
+  AddButton,
+  HideableRow,
+  RowLabel,
+  move,
+} from '@/components/form-shared';
 
 export function BulletGroupsForm({
   title,
@@ -47,7 +57,7 @@ export function BulletGroupsForm({
   return (
     <Accordion title={title} defaultOpen={defaultOpen}>
       {groups.map((g, gi) => (
-        <div key={gi} className="border border-gray-200 rounded p-3 space-y-2 bg-gray-50">
+        <HideableRow key={gi} hidden={g.hidden} className="border border-gray-200 rounded p-3 space-y-2 bg-gray-50">
           <div className="flex justify-between items-center">
             <Field label="Category">
               <TextInput value={g.category} onChange={(e) => setGroup(gi, { category: e.target.value })} />
@@ -56,16 +66,21 @@ export function BulletGroupsForm({
               onUp={gi > 0 ? () => moveGroup(gi, -1) : undefined}
               onDown={gi < groups.length - 1 ? () => moveGroup(gi, 1) : undefined}
               onDelete={() => removeGroup(gi)}
+              hidden={g.hidden}
+              onToggleHidden={() => setGroup(gi, { hidden: !g.hidden })}
             />
           </div>
+          {g.hidden && <RowLabel hidden>Whole category</RowLabel>}
           {g.bullets.map((b, bi) => (
-            <div key={bi} className="border border-gray-200 rounded p-2 bg-white space-y-2">
+            <HideableRow key={bi} hidden={b.hidden} className="border border-gray-200 rounded p-2 bg-white space-y-2">
               <div className="flex justify-between items-center">
-                <span className="text-xs text-gray-500">Bullet {bi + 1}</span>
+                <RowLabel hidden={b.hidden}>Bullet {bi + 1}</RowLabel>
                 <RowControls
                   onUp={bi > 0 ? () => moveBullet(gi, bi, -1) : undefined}
                   onDown={bi < g.bullets.length - 1 ? () => moveBullet(gi, bi, 1) : undefined}
                   onDelete={() => removeBullet(gi, bi)}
+                  hidden={b.hidden}
+                  onToggleHidden={() => setBullet(gi, bi, { hidden: !b.hidden })}
                 />
               </div>
               <Field label="Text (use **bold**)">
@@ -74,10 +89,10 @@ export function BulletGroupsForm({
               <Field label="Year">
                 <TextInput value={b.year} onChange={(e) => setBullet(gi, bi, { year: e.target.value })} />
               </Field>
-            </div>
+            </HideableRow>
           ))}
           <AddButton onClick={() => addBullet(gi)} label="Add bullet" />
-        </div>
+        </HideableRow>
       ))}
       <AddButton onClick={addGroup} label="Add category" />
     </Accordion>

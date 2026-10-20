@@ -1,6 +1,7 @@
 import type { SupersetResumeData, SectionKey, CustomSection } from './types';
 import { emptySupersetResume, DEFAULT_SECTION_ORDER } from './types';
 import { isCustomKey } from '@/lib/customSections';
+import { sanitizeHidden } from '@/lib/visibility';
 
 export function hydrateSuperset(input: Partial<SupersetResumeData>): SupersetResumeData {
   const base = emptySupersetResume();
@@ -52,5 +53,5 @@ export function hydrateSuperset(input: Partial<SupersetResumeData>): SupersetRes
     Array.isArray(merged.hiddenSections) ? merged.hiddenSections : []
   ).filter(known);
 
-  return merged;
+  return sanitizeHidden(merged);
 }

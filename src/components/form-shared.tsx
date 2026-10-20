@@ -133,15 +133,37 @@ export function RowControls({
   onUp,
   onDown,
   onDelete,
+  hidden,
+  onToggleHidden,
 }: {
   onUp?: () => void;
   onDown?: () => void;
   onDelete: () => void;
+  /** Whether this row is left out of the resume. */
+  hidden?: boolean;
+  /** Shows the eye button when given. */
+  onToggleHidden?: () => void;
 }) {
   const base =
     'ui-transition inline-flex items-center justify-center w-6 h-6 border rounded';
   return (
     <div className="flex gap-1">
+      {onToggleHidden && (
+        <button
+          type="button"
+          onClick={onToggleHidden}
+          aria-pressed={!!hidden}
+          aria-label={hidden ? 'Show on resume' : 'Hide from resume'}
+          title={hidden ? 'Hidden from the resume. Click to show it again' : 'Hide from the resume without deleting it'}
+          className={`${base} ${
+            hidden
+              ? 'border-amber-300 bg-amber-50 text-amber-700 hover:bg-amber-100'
+              : 'border-slate-300 text-slate-600 hover:bg-slate-100 hover:border-slate-500'
+          }`}
+        >
+          <EyeIcon off={!!hidden} />
+        </button>
+      )}
       <button
         type="button"
         onClick={onUp}
@@ -169,6 +191,69 @@ export function RowControls({
         ✕
       </button>
     </div>
+  );
+}
+
+function EyeIcon({ off }: { off: boolean }) {
+  return (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.4"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M1.5 8S4 3.5 8 3.5 14.5 8 14.5 8 12 12.5 8 12.5 1.5 8 1.5 8Z" />
+      <circle cx="8" cy="8" r="2" />
+      {off && <path d="M2.5 13.5 13.5 2.5" />}
+    </svg>
+  );
+}
+
+/** Wraps an editor row so a hidden one reads as switched off: dimmed, with a
+    "Hidden" tag, but still fully editable. */
+export function HideableRow({
+  hidden,
+  className,
+  children,
+}: {
+  hidden?: boolean;
+  className: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div
+      data-hidden={hidden ? 'true' : undefined}
+      className={className + (hidden ? ' opacity-60 border-dashed' : '')}
+    >
+      {children}
+    </div>
+  );
+}
+
+/** Row caption, with a "Hidden" tag beside it when the row is switched off. */
+export function RowLabel({
+  hidden,
+  className = 'text-xs text-gray-500',
+  children,
+}: {
+  hidden?: boolean;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <span className={className}>
+      {children}
+      {hidden && (
+        <span className="ml-1.5 rounded bg-amber-100 px-1 py-px text-[10px] font-medium uppercase tracking-wide text-amber-800">
+          Hidden
+        </span>
+      )}
+    </span>
   );
 }
 

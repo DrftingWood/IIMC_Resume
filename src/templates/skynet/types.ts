@@ -98,21 +98,31 @@ export interface EducationRow {
   institute: string;
   gpa: string;
   year: string;
+  /** Left out of the preview and PDF but kept in the editor. */
+  hidden?: boolean;
 }
 
 export interface YearedBullet {
   text: string;
   year: string;
+  /** Left out of the preview and PDF but kept in the editor. */
+  hidden?: boolean;
 }
 
 export interface BulletGroup {
   category: string;
   bullets: YearedBullet[];
+  /** Left out of the preview and PDF but kept in the editor. */
+  hidden?: boolean;
 }
 
 export interface ExperienceSubSection {
   label: string;
   bullets: string[];
+  /** Left out of the preview and PDF but kept in the editor. */
+  hidden?: boolean;
+  /** Per-bullet hidden flags, parallel to `bullets`. */
+  hiddenBullets?: boolean[];
 }
 
 export interface ExperienceEntry {
@@ -121,12 +131,18 @@ export interface ExperienceEntry {
   role: string;
   dates: string;
   subSections: ExperienceSubSection[];
+  /** Left out of the preview and PDF but kept in the editor. */
+  hidden?: boolean;
 }
 
 export interface PositionEntry {
   title: string;
   bullets: string[];
   year: string;
+  /** Left out of the preview and PDF but kept in the editor. */
+  hidden?: boolean;
+  /** Per-bullet hidden flags, parallel to `bullets`. */
+  hiddenBullets?: boolean[];
 }
 
 /** The header to print for a section: the student's rename if they made one,

@@ -1,5 +1,16 @@
 import type { SkynetResumeData, ExperienceEntry, ExperienceSubSection } from '../types';
-import { Accordion, Field, TextInput, BoldableTextarea, RowControls, AddButton, move } from '@/components/form-shared';
+import {
+  Accordion,
+  Field,
+  TextInput,
+  BoldableTextarea,
+  RowControls,
+  AddButton,
+  HideableRow,
+  RowLabel,
+  move,
+} from '@/components/form-shared';
+import { moveFlag, removeFlag, toggleFlag } from '@/lib/visibility';
 
 export function IndustryForm({
   data,
@@ -52,13 +63,24 @@ export function IndustryForm({
     arr[bi] = v;
     setSub(ei, si, { bullets: arr });
   }
+  // Bullet flags travel with their bullets; see hiddenBullets in types.ts.
   function removeBullet(ei: number, si: number, bi: number) {
+    const sub = data.experience[ei].subSections[si];
     setSub(ei, si, {
-      bullets: data.experience[ei].subSections[si].bullets.filter((_, k) => k !== bi),
+      bullets: sub.bullets.filter((_, k) => k !== bi),
+      ...(sub.hiddenBullets && { hiddenBullets: removeFlag(sub.hiddenBullets, bi, sub.bullets.length) }),
     });
   }
   function moveBullet(ei: number, si: number, bi: number, dir: -1 | 1) {
-    setSub(ei, si, { bullets: move(data.experience[ei].subSections[si].bullets, bi, dir) });
+    const sub = data.experience[ei].subSections[si];
+    setSub(ei, si, {
+      bullets: move(sub.bullets, bi, dir),
+      ...(sub.hiddenBullets && { hiddenBullets: moveFlag(sub.hiddenBullets, bi, dir, sub.bullets.length) }),
+    });
+  }
+  function toggleBullet(ei: number, si: number, bi: number) {
+    const sub = data.experience[ei].subSections[si];
+    setSub(ei, si, { hiddenBullets: toggleFlag(sub.hiddenBullets, bi, sub.bullets.length) });
   }
 
   return (
@@ -71,13 +93,17 @@ export function IndustryForm({
       </Field>
 
       {data.experience.map((entry, ei) => (
-        <div key={ei} className="border border-gray-200 rounded p-3 bg-gray-50 space-y-2">
+        <HideableRow key={ei} hidden={entry.hidden} className="border border-gray-200 rounded p-3 bg-gray-50 space-y-2">
           <div className="flex justify-between items-center">
-            <span className="text-xs font-semibold">Entry {ei + 1}</span>
+            <RowLabel hidden={entry.hidden} className="text-xs font-semibold">
+              Entry {ei + 1}
+            </RowLabel>
             <RowControls
               onUp={ei > 0 ? () => moveEntry(ei, -1) : undefined}
               onDown={ei < data.experience.length - 1 ? () => moveEntry(ei, 1) : undefined}
               onDelete={() => removeEntry(ei)}
+              hidden={entry.hidden}
+              onToggleHidden={() => setEntry(ei, { hidden: !entry.hidden })}
             />
           </div>
           <div className="grid grid-cols-2 gap-2">
@@ -96,31 +122,41 @@ export function IndustryForm({
           </div>
 
           {entry.subSections.map((sub, si) => (
-            <div key={si} className="border border-gray-200 rounded p-2 bg-white space-y-2">
+            <HideableRow key={si} hidden={sub.hidden} className="border border-gray-200 rounded p-2 bg-white space-y-2">
               <div className="flex justify-between items-center">
                 <Field label="Sub-section label">
                   <TextInput value={sub.label} onChange={(e) => setSub(ei, si, { label: e.target.value })} />
                 </Field>
-                <RowControls onDelete={() => removeSub(ei, si)} />
+                <RowControls
+                  onDelete={() => removeSub(ei, si)}
+                  hidden={sub.hidden}
+                  onToggleHidden={() => setSub(ei, si, { hidden: !sub.hidden })}
+                />
               </div>
-              {sub.bullets.map((b, bi) => (
-                <div key={bi} className="space-y-1">
-                  <div className="flex justify-between items-center">
-                    <span className="text-xs text-gray-500">Bullet {bi + 1}</span>
-                    <RowControls
-                      onUp={bi > 0 ? () => moveBullet(ei, si, bi, -1) : undefined}
-                      onDown={bi < sub.bullets.length - 1 ? () => moveBullet(ei, si, bi, 1) : undefined}
-                      onDelete={() => removeBullet(ei, si, bi)}
-                    />
-                  </div>
-                  <BoldableTextarea value={b} onChange={(v) => setBullet(ei, si, bi, v)} />
-                </div>
-              ))}
+              {sub.hidden && <RowLabel hidden>Whole sub-section</RowLabel>}
+              {sub.bullets.map((b, bi) => {
+                const hidden = !!sub.hiddenBullets?.[bi];
+                return (
+                  <HideableRow key={bi} hidden={hidden} className="space-y-1">
+                    <div className="flex justify-between items-center">
+                      <RowLabel hidden={hidden}>Bullet {bi + 1}</RowLabel>
+                      <RowControls
+                        onUp={bi > 0 ? () => moveBullet(ei, si, bi, -1) : undefined}
+                        onDown={bi < sub.bullets.length - 1 ? () => moveBullet(ei, si, bi, 1) : undefined}
+                        onDelete={() => removeBullet(ei, si, bi)}
+                        hidden={hidden}
+                        onToggleHidden={() => toggleBullet(ei, si, bi)}
+                      />
+                    </div>
+                    <BoldableTextarea value={b} onChange={(v) => setBullet(ei, si, bi, v)} />
+                  </HideableRow>
+                );
+              })}
               <AddButton onClick={() => addBullet(ei, si)} label="Add bullet" />
-            </div>
+            </HideableRow>
           ))}
           <AddButton onClick={() => addSub(ei)} label="Add sub-section" />
-        </div>
+        </HideableRow>
       ))}
       <AddButton onClick={addEntry} label="Add experience entry" />
     </Accordion>

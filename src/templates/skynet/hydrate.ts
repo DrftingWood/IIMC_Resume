@@ -1,6 +1,7 @@
 import type { SkynetResumeData, SectionKey, CustomSection } from './types';
 import { emptySkynetResume, DEFAULT_SECTION_ORDER } from './types';
 import { isCustomKey } from '@/lib/customSections';
+import { sanitizeHidden } from '@/lib/visibility';
 
 export function hydrateSkynet(input: Partial<SkynetResumeData>): SkynetResumeData {
   const base = emptySkynetResume();
@@ -70,5 +71,5 @@ export function hydrateSkynet(input: Partial<SkynetResumeData>): SkynetResumeDat
     );
   }
 
-  return merged;
+  return sanitizeHidden(merged);
 }

@@ -7,12 +7,15 @@ import type {
 } from './types';
 import { DEFAULT_SECTION_ORDER } from './types';
 import { renderInline } from '@/lib/bold';
+import { withoutHidden } from '@/lib/visibility';
 
 interface Props {
   data: SupersetResumeData;
 }
 
-const ResumePreview = forwardRef<HTMLDivElement, Props>(({ data }, ref) => {
+const ResumePreview = forwardRef<HTMLDivElement, Props>(({ data: draft }, ref) => {
+  // Hidden points and entries stay in the editor but never reach the page.
+  const data = withoutHidden(draft);
   const hidden = new Set(data.hiddenSections ?? []);
   const order: SectionKey[] = (
     data.sectionOrder && data.sectionOrder.length ? data.sectionOrder : DEFAULT_SECTION_ORDER

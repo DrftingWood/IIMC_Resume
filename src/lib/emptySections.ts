@@ -1,4 +1,5 @@
 import type { TemplateKey } from '@/templates/types';
+import { withoutHidden } from '@/lib/visibility';
 
 /** Data key that holds a section's content, per section key. */
 const CONTENT_KEY: Record<string, string> = {
@@ -31,7 +32,8 @@ export function emptyVisibleSections(
   data: unknown
 ): string[] {
   if (!templateId || !data) return [];
-  const d = data as Record<string, unknown>;
+  // Judge what prints: a section whose every entry is hidden prints empty too.
+  const d = withoutHidden(data) as Record<string, unknown>;
 
   // Say nothing about a resume that has not been started. On a blank one every
   // section is empty by definition, and opening with "everything is empty" is

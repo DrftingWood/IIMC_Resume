@@ -1,5 +1,14 @@
 import type { SkynetResumeData, EducationRow } from '../types';
-import { Accordion, Field, TextInput, RowControls, AddButton, move } from '@/components/form-shared';
+import {
+  Accordion,
+  Field,
+  TextInput,
+  RowControls,
+  AddButton,
+  HideableRow,
+  RowLabel,
+  move,
+} from '@/components/form-shared';
 
 export function EducationForm({
   data,
@@ -24,13 +33,15 @@ export function EducationForm({
   return (
     <Accordion title="Academic Profile">
       {data.education.map((r, i) => (
-        <div key={i} className="border border-gray-200 rounded p-3 space-y-2">
+        <HideableRow key={i} hidden={r.hidden} className="border border-gray-200 rounded p-3 space-y-2">
           <div className="flex justify-between items-center">
-            <span className="text-xs text-gray-500">Row {i + 1}</span>
+            <RowLabel hidden={r.hidden}>Row {i + 1}</RowLabel>
             <RowControls
               onUp={i > 0 ? () => moveRow(i, -1) : undefined}
               onDown={i < data.education.length - 1 ? () => moveRow(i, 1) : undefined}
               onDelete={() => remove(i)}
+              hidden={r.hidden}
+              onToggleHidden={() => update(i, { hidden: !r.hidden })}
             />
           </div>
           <Field label="Degree/Exam">
@@ -47,7 +58,7 @@ export function EducationForm({
               <TextInput value={r.year} onChange={(e) => update(i, { year: e.target.value })} />
             </Field>
           </div>
-        </div>
+        </HideableRow>
       ))}
       <AddButton onClick={add} label="Add education row" />
     </Accordion>
