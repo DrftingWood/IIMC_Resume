@@ -93,7 +93,7 @@ export default function AppHeader({
             <div className="absolute right-0 mt-2 w-72 z-20 bg-white border border-slate-200 rounded-lg shadow-[var(--shadow-card)] p-3 text-xs text-slate-700 leading-relaxed">
               <div className="font-semibold text-slate-900 mb-1">Page length rule of thumb</div>
               <p>
-                Roughly <strong>35 bullet points</strong> across all sections fit on a single A4
+                About <strong>37 bullet points</strong> across all sections fit on a single A4
                 page. Beyond that the export will spill onto a second page — trim text, merge
                 sub-sections, or accept the overflow.
               </p>

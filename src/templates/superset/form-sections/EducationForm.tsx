@@ -81,6 +81,7 @@ export function EducationForm({
               onUp={i > 0 ? () => moveRow(i, -1) : undefined}
               onDown={i < data.education.length - 1 ? () => moveRow(i, 1) : undefined}
               onDelete={() => remove(i)}
+              label={`education row ${i + 1}`}
               hidden={r.hidden}
               onToggleHidden={() => update(i, { hidden: !r.hidden })}
             />

@@ -46,7 +46,7 @@ export default function EditorLayout({
         <div className="flex-1 overflow-auto p-4">
           {tab === 'sections' && sections}
           {tab === 'edit' && form}
-          {tab === 'preview' && <div className="flex justify-center">{preview}</div>}
+          {tab === 'preview' && <div className="w-max mx-auto">{preview}</div>}
         </div>
       </div>
     );
@@ -72,7 +72,11 @@ export default function EditorLayout({
         <div className="no-print overflow-auto pr-1">{form}</div>
       )}
       <div className="print-preview-col overflow-auto">
-        <div className="print-preview-inner flex justify-center">{preview}</div>
+        {/* w-max + mx-auto, not flex centring: when the column is narrower than
+            the A4 page (all panels open on a 13" laptop), flex centring pushed
+            the page's left edge outside the scrollable area, hiding the
+            category labels. Auto margins centre it only when it fits. */}
+        <div className="print-preview-inner w-max mx-auto">{preview}</div>
       </div>
     </div>
   );

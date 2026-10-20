@@ -68,7 +68,7 @@ export function WhatsNew({
         <h2 id="whats-new-title" className="text-sm font-semibold text-slate-900">
           What's new
         </h2>
-        <span className="text-[11px] text-slate-400">· {date}</span>
+        <span className="text-[11px] text-slate-500">· {date}</span>
       </div>
       <ol className="mt-4 space-y-3 list-none">
         {release.notes.map((n, i) => (

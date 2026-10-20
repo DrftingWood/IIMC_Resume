@@ -32,7 +32,7 @@ export const SAMPLE: SkynetResumeData = {
     {
       category: 'Case Competitions\n& Competitions',
       bullets: [
-        { text: 'National Finalist (**1 in 6 of 1.8k+ teams**) at Meridian National Case Challenge by Tata Consumer', year: '2025' },
+        { text: 'National Finalist (**1 in 6 of 1.8k+ teams**) at Tata Consumer\'s Meridian National Case Challenge', year: '2025' },
         { text: 'Campus runner-up (**2/64 teams**) at Hindustan Unilever LIME Top 50 internal IIMC round', year: '2025' },
         { text: 'Top 1% (**Rank 412/35k+**) at All-India CAT 2023 with VARC 99.71 percentile', year: '2023' },
       ],
@@ -43,8 +43,8 @@ export const SAMPLE: SkynetResumeData = {
       category: 'Capstone &\nConsulting Projects',
       bullets: [
         { text: 'Led a **6-member capstone team** advising a mid-size FMCG client on **channel margin optimisation**', year: '2025' },
-        { text: 'Built a **discrete-event simulation model** for a QSR client\'s kitchen layout, cutting projected', year: '2025' },
-        { text: 'Co-authored a working paper on **rural fintech adoption** (30-village primary survey, n=740); accepted', year: '2024' },
+        { text: 'Built a **discrete-event simulation model** for a QSR client\'s kitchen, cutting wait time by 18%', year: '2025' },
+        { text: 'Co-authored a working paper on **rural fintech adoption** (30-village survey, n=740); accepted at ISB', year: '2024' },
       ],
     },
   ],
@@ -52,9 +52,9 @@ export const SAMPLE: SkynetResumeData = {
     {
       category: 'Venture\nBuilding',
       bullets: [
-        { text: 'Co-founded **Craftloom**, a D2C marketplace for artisan textiles; onboarded **60+ weaver clusters** and', year: '22-23' },
-        { text: 'Raised **₹12L pre-seed** from a campus angel network and 2 family-office investors; grew the founding', year: '2023' },
-        { text: 'Piloted a **subscription box model** that lifted repeat-purchase rate from **9% to 27%** within two', year: '2023' },
+        { text: 'Co-founded **Craftloom**, a D2C marketplace for artisan textiles; onboarded **60+ weaver clusters**', year: '22-23' },
+        { text: 'Raised **₹12L pre-seed** from a campus angel network and 2 family-office investors', year: '2023' },
+        { text: 'Piloted a **subscription box model** that lifted repeat-purchase rate from **9% to 27%** in two quarters', year: '2023' },
       ],
     },
   ],
@@ -69,14 +69,14 @@ export const SAMPLE: SkynetResumeData = {
         {
           label: 'Revenue\nImpact',
           bullets: [
-            'Drove **₹6.4 Cr+** incremental revenue for a US pharma client by segmenting **8k+ HCPs** and rebuilding',
+            'Drove **₹6.4 Cr+** incremental revenue for a US pharma client by re-segmenting **8k+ HCPs**',
             'Delivered **18% YoY uplift** in promotional ROI across 4 brands by introducing a new attribution model',
           ],
         },
         {
           label: 'Leadership &\nMentorship',
           bullets: [
-            'Mentored **3 new joiners** through a 90-day onboarding; **2/3 received outstanding ratings** in their',
+            'Mentored **3 new joiners** through a 90-day onboarding; **2/3 received outstanding ratings**',
             'Selected (**1 of 12 from cohort of 220+**) to facilitate firm-wide Python for Analytics training',
           ],
         },
@@ -91,9 +91,9 @@ export const SAMPLE: SkynetResumeData = {
         {
           label: 'Brand\nStrategy',
           bullets: [
-            'Defined a **GTM strategy for a new premium wood-finishes range** by interviewing',
+            'Defined a **GTM strategy for a new premium wood-finishes range** from 40+ dealer interviews',
             'Modelled a **3-yr revenue plan of ₹120 Cr+** for the launch SKU; recommendations accepted by VP',
-            'Identified **2 white-space segments (₹35 Cr+ TAM each)** by triangulating Nielsen panel, primary survey',
+            'Identified **2 white-space segments (₹35 Cr+ TAM each)** by triangulating Nielsen and survey data',
           ],
         },
       ],
@@ -107,8 +107,8 @@ export const SAMPLE: SkynetResumeData = {
         {
           label: 'Applied\nResearch',
           bullets: [
-            'Assisted a faculty-led study on **queueing models for hospital emergency wards**; co-built a simulation',
-            'Co-authored a peer-reviewed conference paper accepted at a national',
+            'Assisted a faculty-led study on **queueing models for hospital emergency wards**; co-built the simulation model',
+            'Co-authored a peer-reviewed paper accepted at a national OR conference',
           ],
         },
       ],
@@ -118,9 +118,9 @@ export const SAMPLE: SkynetResumeData = {
     {
       title: 'Cluster Lead,\nIndustry Interaction Cell, IIM Calcutta',
       bullets: [
-        'Led a team of **9 PGP students** to manage final placement engagement for **15 firms** across BFSI and',
-        'Negotiated **42+ slots** with firms during summer placements; helped achieve **100% placement** for the',
-        'Built a CRM in Notion tracking **800+ touchpoints**; reduced response TAT to recruiters by **~60%** vs',
+        'Led a team of **9 PGP students** to manage final placement engagement for **15 firms** across BFSI and consulting',
+        'Negotiated **42+ slots** with firms during summer placements; helped achieve **100% placement** for the batch',
+        'Built a CRM in Notion tracking **800+ touchpoints**; reduced response TAT to recruiters by **~60%**',
       ],
       year: '2024',
     },
@@ -129,7 +129,7 @@ export const SAMPLE: SkynetResumeData = {
     {
       category: 'Sports &\nFitness',
       bullets: [
-        { text: 'State-level table tennis player (**Rank 7/180+**) at West Bengal sub-junior nationals; won 4', year: '13-16' },
+        { text: 'State-level table tennis player (**Rank 7/180+**) at West Bengal sub-junior nationals; won 4 medals', year: '13-16' },
         { text: 'Completed **2 half-marathons (Tata Mumbai 2023, Kolkata 25K)** with personal best of **1:48**', year: '23-24' },
       ],
     },

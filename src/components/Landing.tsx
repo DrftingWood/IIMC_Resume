@@ -99,7 +99,7 @@ export default function Landing({
           <p className="mt-3 text-sm text-slate-500">
             Edit your placement resume and export a pixel-faithful PDF.
           </p>
-          <p className="mt-1 text-xs text-slate-400">
+          <p className="mt-1 text-xs text-slate-500">
             Works best with the IIM Calcutta resume template.
           </p>
           <p className="mt-1 text-[11px] text-slate-500">
@@ -107,7 +107,7 @@ export default function Landing({
               ? 'Best exported from Chrome — which is what you are using.'
               : `Best exported from Chrome — you are on ${printGuidance(detectBrowser()).label}.`}
           </p>
-          <p className="mt-2 text-[11px] text-slate-400">
+          <p className="mt-2 text-[11px] text-slate-500">
             Made by Abhishek Acharya, Case Collective, IIM C
           </p>
         </div>
@@ -152,7 +152,7 @@ export default function Landing({
 
           <div className="flex items-center gap-3 my-5">
             <div className="flex-1 h-px bg-slate-200" />
-            <span className="text-[11px] uppercase tracking-wider text-slate-400">
+            <span className="text-[11px] uppercase tracking-wider text-slate-500">
               or start blank
             </span>
             <div className="flex-1 h-px bg-slate-200" />
@@ -176,7 +176,7 @@ export default function Landing({
               <button
                 key={t.id}
                 onClick={() => onReady(t.id, t.sampleData)}
-                className="ui-transition text-[11px] text-slate-400 hover:text-slate-800 underline underline-offset-2"
+                className="ui-transition text-[11px] text-slate-500 hover:text-slate-800 underline underline-offset-2"
               >
                 See a sample — {t.label}
               </button>

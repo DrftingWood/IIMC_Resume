@@ -106,6 +106,7 @@ export function IndustryForm({
               onUp={ei > 0 ? () => moveEntry(ei, -1) : undefined}
               onDown={ei < data.experience.length - 1 ? () => moveEntry(ei, 1) : undefined}
               onDelete={() => removeEntry(ei)}
+              label={`entry ${entry.firm.trim() || ei + 1}`}
               hidden={entry.hidden}
               onToggleHidden={() => setEntry(ei, { hidden: !entry.hidden })}
             />
@@ -133,6 +134,7 @@ export function IndustryForm({
                 </Field>
                 <RowControls
                   onDelete={() => removeSub(ei, si)}
+                  label={`sub-section ${sub.label.trim() || si + 1}`}
                   hidden={sub.hidden}
                   onToggleHidden={() => setSub(ei, si, { hidden: !sub.hidden })}
                 />
@@ -148,6 +150,7 @@ export function IndustryForm({
                         onUp={bi > 0 ? () => moveBullet(ei, si, bi, -1) : undefined}
                         onDown={bi < sub.bullets.length - 1 ? () => moveBullet(ei, si, bi, 1) : undefined}
                         onDelete={() => removeBullet(ei, si, bi)}
+                        label={`bullet ${bi + 1} in ${sub.label.trim() || `sub-section ${si + 1}`}`}
                         hidden={hidden}
                         onToggleHidden={() => toggleBullet(ei, si, bi)}
                       />

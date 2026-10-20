@@ -60,13 +60,16 @@ export function BulletGroupsForm({
       {groups.map((g, gi) => (
         <HideableRow key={gi} hidden={g.hidden} className="border border-gray-200 rounded p-3 space-y-2 bg-gray-50">
           <div className="flex justify-between items-center">
-            <Field label="Category">
-              <TextInput value={g.category} onChange={(e) => setGroup(gi, { category: e.target.value })} />
-            </Field>
+            <div className="flex-1 mr-3">
+              <Field label="Category">
+                <TextInput value={g.category} onChange={(e) => setGroup(gi, { category: e.target.value })} />
+              </Field>
+            </div>
             <RowControls
               onUp={gi > 0 ? () => moveGroup(gi, -1) : undefined}
               onDown={gi < groups.length - 1 ? () => moveGroup(gi, 1) : undefined}
               onDelete={() => removeGroup(gi)}
+              label={`category ${g.category.trim() || gi + 1}`}
               hidden={g.hidden}
               onToggleHidden={() => setGroup(gi, { hidden: !g.hidden })}
             />
@@ -80,6 +83,7 @@ export function BulletGroupsForm({
                   onUp={bi > 0 ? () => moveBullet(gi, bi, -1) : undefined}
                   onDown={bi < g.bullets.length - 1 ? () => moveBullet(gi, bi, 1) : undefined}
                   onDelete={() => removeBullet(gi, bi)}
+                  label={`bullet ${bi + 1} in ${g.category.trim() || `category ${gi + 1}`}`}
                   hidden={b.hidden}
                   onToggleHidden={() => setBullet(gi, bi, { hidden: !b.hidden })}
                 />

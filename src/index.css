@@ -56,3 +56,14 @@ body {
     box-shadow: var(--shadow-lift);
   }
 }
+
+/* Keyboard focus: a clear ring on every control, only for keyboard users
+   (:focus-visible), so mouse clicks stay clean. */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid rgb(15 23 42 / 0.55);
+  outline-offset: 2px;
+}

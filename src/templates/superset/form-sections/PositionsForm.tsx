@@ -74,6 +74,7 @@ export function PositionsForm({
               onUp={pi > 0 ? () => movePos(pi, -1) : undefined}
               onDown={pi < data.positions.length - 1 ? () => movePos(pi, 1) : undefined}
               onDelete={() => removePos(pi)}
+              label={`position ${pi + 1}`}
               hidden={p.hidden}
               onToggleHidden={() => setPos(pi, { hidden: !p.hidden })}
             />
@@ -99,6 +100,7 @@ export function PositionsForm({
                     onUp={bi > 0 ? () => moveBullet(pi, bi, -1) : undefined}
                     onDown={bi < p.bullets.length - 1 ? () => moveBullet(pi, bi, 1) : undefined}
                     onDelete={() => removeBullet(pi, bi)}
+                    label={`bullet ${bi + 1} in position ${pi + 1}`}
                     hidden={hidden}
                     onToggleHidden={() => toggleBullet(pi, bi)}
                   />

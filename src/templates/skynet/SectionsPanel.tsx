@@ -102,12 +102,12 @@ export default function SkynetSectionsPanel({
         <button
           type="button"
           onClick={reset}
-          className="ui-transition text-[11px] text-slate-400 hover:text-slate-800"
+          className="ui-transition text-[11px] text-slate-500 hover:text-slate-800"
         >
           Reset
         </button>
       </div>
-      <p className="text-[11px] text-slate-400 leading-relaxed">
+      <p className="text-[11px] text-slate-500 leading-relaxed">
         Reorder, rename, or switch off sections. Unticking keeps what you wrote —
         it only leaves the section out of the preview and the export.
       </p>
@@ -152,7 +152,7 @@ export default function SkynetSectionsPanel({
                   title="Rename"
                   className={
                     'flex-1 min-w-0 text-left truncate ui-transition hover:text-slate-900 ' +
-                    (isHidden ? 'text-slate-400 line-through' : 'text-slate-800')
+                    (isHidden ? 'text-slate-500 line-through' : 'text-slate-800')
                   }
                 >
                   {label}
@@ -164,7 +164,7 @@ export default function SkynetSectionsPanel({
                   type="button"
                   onClick={() => setEditing(key)}
                   aria-label={`Rename ${label}`}
-                  className="ui-transition w-6 h-6 flex items-center justify-center rounded text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+                  className="ui-transition w-6 h-6 flex items-center justify-center rounded text-slate-500 hover:bg-slate-100 hover:text-slate-700"
                 >
                   ✎
                 </button>
@@ -194,7 +194,7 @@ export default function SkynetSectionsPanel({
                     type="button"
                     onClick={() => removeSection(key)}
                     aria-label={`Delete ${label}`}
-                    className="ui-transition w-6 h-6 flex items-center justify-center rounded text-slate-400 hover:bg-red-50 hover:text-red-600"
+                    className="ui-transition w-6 h-6 flex items-center justify-center rounded text-slate-500 hover:bg-red-50 hover:text-red-600"
                   >
                     ×
                   </button>
@@ -216,7 +216,7 @@ export default function SkynetSectionsPanel({
       {Object.entries(data.sectionTitles ?? {}).some(
         ([k, v]) => !!v?.trim() && v.trim() !== SECTION_LABELS[k as keyof typeof SECTION_LABELS]
       ) ? (
-        <p className="text-[11px] text-slate-400 leading-relaxed">
+        <p className="text-[11px] text-slate-500 leading-relaxed">
           You have renamed a standard section. Placement resumes are usually
           expected to use the official headings — {SECTION_LABELS.positions} and
           the rest. Reset restores them.

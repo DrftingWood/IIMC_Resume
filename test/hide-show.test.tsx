@@ -195,21 +195,22 @@ describe('editor', () => {
     const data = resume();
     render(<PositionsForm data={data} onChange={onChange} />);
     fireEvent.click(screen.getByRole('button', { name: /position of responsibility/i }));
-    const hideButtons = screen.getAllByRole('button', { name: /hide from resume/i });
-    // Position 1, then its two bullets, then position 2 and its bullet.
-    fireEvent.click(hideButtons[2]);
+    fireEvent.click(screen.getByRole('button', { name: 'Hide bullet 2 in position 1 from resume' }));
     expect(onChange).toHaveBeenCalledWith({
       positions: [{ ...data.positions[0], hiddenBullets: [false, true] }, data.positions[1]],
     });
   });
 
-  it('shows a hidden point as hidden, with a show button', () => {
+  it('shows a hidden point as hidden, with its eye button pressed', () => {
     const data = resume();
     data.positions[0].hiddenBullets = [false, true];
     render(<PositionsForm data={data} onChange={vi.fn()} />);
     fireEvent.click(screen.getByRole('button', { name: /position of responsibility/i }));
-    const show = screen.getByRole('button', { name: /show on resume/i });
+    const show = screen.getByRole('button', { name: 'Hide bullet 2 in position 1 from resume' });
     expect(show.getAttribute('aria-pressed')).toBe('true');
+    expect(
+      screen.getByRole('button', { name: 'Hide bullet 1 in position 1 from resume' }).getAttribute('aria-pressed')
+    ).toBe('false');
     expect(within(show.closest('[data-hidden]') as HTMLElement).getByText(/hidden/i)).toBeTruthy();
   });
 
@@ -219,8 +220,7 @@ describe('editor', () => {
     data.positions[0].hiddenBullets = [true, false];
     render(<PositionsForm data={data} onChange={onChange} />);
     fireEvent.click(screen.getByRole('button', { name: /position of responsibility/i }));
-    // First "move down" belongs to position 1 itself; the second to its first bullet.
-    fireEvent.click(screen.getAllByRole('button', { name: /move row down/i })[1]);
+    fireEvent.click(screen.getByRole('button', { name: 'Move bullet 1 in position 1 down' }));
     expect(onChange).toHaveBeenCalledWith({
       positions: [
         { ...data.positions[0], bullets: ['Ran fest', 'Led 20 people'], hiddenBullets: [false, true] },
@@ -235,7 +235,7 @@ describe('editor', () => {
       fireEvent.click(screen.getByRole('button', { name: new RegExp(title, 'i') }));
     }
     // 2 education rows, 2 groups + 3 bullets, 2 entries + 2 sub-sections + 3 bullets, 2 positions + 3 bullets.
-    expect(screen.getAllByRole('button', { name: /hide from resume/i })).toHaveLength(19);
+    expect(screen.getAllByRole('button', { name: /^Hide .+ from resume$/ })).toHaveLength(19);
   });
 });
 

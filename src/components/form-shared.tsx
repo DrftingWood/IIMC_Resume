@@ -135,6 +135,7 @@ export function RowControls({
   onDelete,
   hidden,
   onToggleHidden,
+  label = 'row',
 }: {
   onUp?: () => void;
   onDown?: () => void;
@@ -143,6 +144,8 @@ export function RowControls({
   hidden?: boolean;
   /** Shows the eye button when given. */
   onToggleHidden?: () => void;
+  /** What the row is, for screen readers: "bullet 2 in Scholastic". */
+  label?: string;
 }) {
   const base =
     'ui-transition inline-flex items-center justify-center w-6 h-6 border rounded';
@@ -153,7 +156,9 @@ export function RowControls({
           type="button"
           onClick={onToggleHidden}
           aria-pressed={!!hidden}
-          aria-label={hidden ? 'Show on resume' : 'Hide from resume'}
+          // One fixed name; aria-pressed carries hidden/shown, so a screen
+          // reader never hears "Show on resume, pressed".
+          aria-label={`Hide ${label} from resume`}
           title={hidden ? 'Hidden from the resume. Click to show it again' : 'Hide from the resume without deleting it'}
           className={`${base} ${
             hidden
@@ -168,7 +173,7 @@ export function RowControls({
         type="button"
         onClick={onUp}
         disabled={!onUp}
-        aria-label="Move row up"
+        aria-label={`Move ${label} up`}
         className={`${base} border-slate-300 text-slate-600 disabled:opacity-30 hover:bg-slate-100 hover:border-slate-500`}
       >
         ↑
@@ -177,7 +182,7 @@ export function RowControls({
         type="button"
         onClick={onDown}
         disabled={!onDown}
-        aria-label="Move row down"
+        aria-label={`Move ${label} down`}
         className={`${base} border-slate-300 text-slate-600 disabled:opacity-30 hover:bg-slate-100 hover:border-slate-500`}
       >
         ↓
@@ -185,7 +190,7 @@ export function RowControls({
       <button
         type="button"
         onClick={onDelete}
-        aria-label="Delete row"
+        aria-label={`Delete ${label}`}
         className={`${base} border-red-200 text-red-700 hover:bg-red-50 hover:border-red-300`}
       >
         ✕
