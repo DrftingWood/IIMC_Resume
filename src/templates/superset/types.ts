@@ -1,3 +1,4 @@
+import type { Density } from '@/lib/density';
 export type ResumeType = 'ranked' | 'unranked';
 
 import type { CustomSectionKey } from '@/lib/customSections';
@@ -32,6 +33,9 @@ export const SECTION_LABELS: Record<BuiltInSectionKey, string> = {
 };
 
 export interface SupersetResumeData {
+  /** Row pitch. Absent or 'official' = the IIMC template; compact modes are
+      opt-in and labelled as not the official format. */
+  density?: Density;
   name: string;
   mbaId: string;
   taglines: [string, string, string];

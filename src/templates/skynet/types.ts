@@ -1,3 +1,4 @@
+import type { Density } from '@/lib/density';
 import type { CustomSectionKey } from '@/lib/customSections';
 import { isCustomKey, UNTITLED_SECTION } from '@/lib/customSections';
 
@@ -44,6 +45,9 @@ export interface CustomSection {
 }
 
 export interface SkynetResumeData {
+  /** Row pitch. Absent or 'official' = the IIMC template; compact modes are
+      opt-in and labelled as not the official format. */
+  density?: Density;
   name: string;
   mbaId: string;
   taglines: [string, string, string];

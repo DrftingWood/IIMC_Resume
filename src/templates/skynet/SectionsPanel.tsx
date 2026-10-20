@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { SkynetResumeData, SectionKey, CustomSection } from './types';
 import { DEFAULT_SECTION_ORDER, SECTION_LABELS, sectionLabel } from './types';
 import { isCustomKey, newCustomKey } from '@/lib/customSections';
+import { DensityControl } from '@/components/DensityControl';
 
 export default function SkynetSectionsPanel({
   data,
@@ -195,6 +196,7 @@ export default function SkynetSectionsPanel({
           the rest. Reset restores them.
         </p>
       ) : null}
+      <DensityControl value={data.density} onChange={(density) => onChange({ density })} />
     </div>
   );
 }

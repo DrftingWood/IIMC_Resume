@@ -345,3 +345,32 @@
     display: none;
   }
 }
+
+/* Compact density (src/lib/density.ts). Only the row pitch tightens: a row
+   is 9.75pt x line-height + 2 x padding + border, 13.8pt officially
+   (measured). 0.4pt padding gives ~12.6pt rows (+3 points, about 40);
+   line-height 1.07 with no padding gives ~11.2pt (+8, about 45); the last
+   ~0.8pt of each row is the collapsed gridlines. Measured
+   in the browser on the sample resume.
+   NOT the official format; the Sections panel says so. */
+.f1-page.density-compact40 .f1-table th,
+.f1-page.density-compact40 .f1-table td {
+  padding-top: 0.4pt;
+  padding-bottom: 0.4pt;
+}
+.f1-page.density-compact45 .f1-table th,
+.f1-page.density-compact45 .f1-table td {
+  padding-top: 0;
+  padding-bottom: 0;
+  line-height: 1.07;
+}
+/* The year cell forces 1pt vertical padding with !important and is often the
+   tallest cell in its row, so compact has to override it the same way. */
+.f1-page.density-compact40 .f1-cell-year {
+  padding-top: 0.4pt !important;
+  padding-bottom: 0.4pt !important;
+}
+.f1-page.density-compact45 .f1-cell-year {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}

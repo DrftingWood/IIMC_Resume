@@ -9,6 +9,7 @@ import { DEFAULT_SECTION_ORDER, sectionLabel } from './types';
 import { isCustomKey } from '@/lib/customSections';
 import { renderInline } from '@/lib/bold';
 import { withoutHidden } from '@/lib/visibility';
+import { densityClass } from '@/lib/density';
 
 interface Props {
   data: SkynetResumeData;
@@ -25,7 +26,7 @@ const ResumePreview = forwardRef<HTMLDivElement, Props>(({ data: draft }, ref) =
   ).filter((k) => !hidden.has(k));
 
   return (
-    <div ref={ref} className="skynet-page">
+    <div ref={ref} className={'skynet-page' + densityClass(data.density)}>
       <HeaderBand data={data} />
       <TaglineRow taglines={data.taglines} />
 

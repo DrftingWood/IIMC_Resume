@@ -2,6 +2,7 @@ import type { SkynetResumeData, SectionKey, CustomSection } from './types';
 import { emptySkynetResume, DEFAULT_SECTION_ORDER } from './types';
 import { isCustomKey } from '@/lib/customSections';
 import { sanitizeHidden } from '@/lib/visibility';
+import { isDensity } from '@/lib/density';
 
 export function hydrateSkynet(input: Partial<SkynetResumeData>): SkynetResumeData {
   const base = emptySkynetResume();
@@ -70,6 +71,9 @@ export function hydrateSkynet(input: Partial<SkynetResumeData>): SkynetResumeDat
       (k) => (contentOf[k] ?? []).length === 0
     );
   }
+
+  // Unknown values (a hand-edited or future draft) fall back to official.
+  if (!isDensity(merged.density)) delete merged.density;
 
   return sanitizeHidden(merged);
 }

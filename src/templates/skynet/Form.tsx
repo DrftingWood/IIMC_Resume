@@ -7,6 +7,7 @@ import { BulletGroupsForm } from './form-sections/BulletGroupsForm';
 import { IndustryForm } from './form-sections/IndustryForm';
 import { PositionsForm } from './form-sections/PositionsForm';
 import { FooterForm } from './form-sections/FooterForm';
+import { LayoutKeyContext } from '@/components/LineFill';
 
 export default function SkynetForm({
   data,
@@ -22,6 +23,8 @@ export default function SkynetForm({
   }
 
   return (
+    // Re-measure every line-fill meter when the row pitch changes.
+    <LayoutKeyContext.Provider value={data.density ?? 'official'}>
     <div className="space-y-2">
       <HeaderForm data={data} onChange={onChange} />
       <TaglineForm data={data} onChange={onChange} />
@@ -60,5 +63,6 @@ export default function SkynetForm({
       ))}
       <FooterForm data={data} onChange={onChange} />
     </div>
+    </LayoutKeyContext.Provider>
   );
 }
