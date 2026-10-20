@@ -5,6 +5,7 @@ import { friendlyPdfError } from '@/lib/pdfErrors';
 import { detectBrowser, printGuidance } from '@/lib/browser';
 import { TEMPLATES } from '@/templates/registry';
 import type { AnyTemplateConfig, TemplateKey } from '@/templates/types';
+import { WhatsNew } from './WhatsNew';
 import TemplateChooserModal from './TemplateChooserModal';
 
 const MAX_PDF_BYTES = 15 * 1024 * 1024;
@@ -110,6 +111,8 @@ export default function Landing({
             Made by Abhishek Acharya, Case Collective, IIM C
           </p>
         </div>
+
+        <WhatsNew />
 
         <div className="bg-white rounded-2xl shadow-[var(--shadow-card)] border border-slate-200/70 p-6 sm:p-8">
           <label
