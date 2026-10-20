@@ -28,8 +28,12 @@ const ANCHORS = [
 
 const BULLET_GLYPHS = '•·●▪‣◦∙⋅';
 const BULLET_GLYPH_RE = new RegExp('^[' + BULLET_GLYPHS + ']');
-const YEAR_TOKEN_RE = /^(?:(?:19|20)\d{2}|\d{2}\s*-\s*\d{2}|\d{2}\s*,\s*\d{2}|\d{2})$/;
-const YEAR_TAIL_RE = /\s+((?:19|20)\d{2}|\d{2}\s*-\s*\d{2}|\d{2}\s*,\s*\d{2}|\d{2})\s*$/;
+// One year: 2019, 19, or '19 (straight, curly or backtick apostrophe).
+const YEAR = String.raw`['’\`]?(?:(?:19|20)\d{2}|\d{2})`;
+// A year, or a range or pair of them: 2019-21, '19-'21, 2019–21, '19, '21, 2021-Present.
+const YEAR_SPAN = String.raw`${YEAR}(?:\s*[-–,]\s*(?:${YEAR}|Present))?`;
+const YEAR_TOKEN_RE = new RegExp(`^${YEAR_SPAN}$`, 'i');
+const YEAR_TAIL_RE = new RegExp(String.raw`\s+(${YEAR_SPAN})\s*$`, 'i');
 const DATE_RANGE_RE = /[A-Za-z]+\s*[`'’]\s*\d{2}\s*[-–]\s*[A-Za-z]+\s*[`'’]\s*\d{2}/;
 const MBA_ID_RE = /MBA\/\d+\/\d+/;
 const EMAIL_RE = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/;
@@ -318,20 +322,27 @@ function findYearX(lines: PdfLine[]): number {
   const robustEnd = ends[Math.floor(ends.length * 0.7)] ?? ends[ends.length - 1];
   const rightThreshold = robustEnd * 0.85;
 
-  // Year tokens at the right edge only. "10" / "12" / "18" inside bullet
-  // text also match YEAR_TOKEN_RE, so we filter by x >= rightThreshold.
+  // Only the LAST item on a line can be its year. Numbers inside a point
+  // ("all 23 IITs", "Top 50") also match YEAR_TOKEN_RE and can sit right of
+  // the threshold; taking the leftmost of every match once let one such
+  // number drag the boundary for the whole section ~40pt left, and every
+  // point lost its tail and its year with it (582 of 10,908 points across
+  // 450 real resumes).
   const yearXs: number[] = [];
   for (const l of lines) {
-    for (const it of l.items) {
-      if (YEAR_TOKEN_RE.test(it.str.trim()) && it.x >= rightThreshold) {
-        yearXs.push(it.x);
-      }
+    const content = l.items.filter((it) => it.str.trim().length > 0);
+    const last = content.reduce<TextItem | null>((a, it) => (!a || it.x > a.x ? it : a), null);
+    if (last && last.x >= rightThreshold && YEAR_TOKEN_RE.test(last.str.trim())) {
+      yearXs.push(last.x);
     }
   }
-  if (yearXs.length >= 1) {
-    return Math.min(...yearXs) - 4;
-  }
-  return Infinity;
+  if (!yearXs.length) return Infinity;
+  // Real years share one column; anchor on where most of them sit and ignore
+  // stragglers more than 12pt away from it.
+  const sorted = [...yearXs].sort((a, b) => a - b);
+  const median = sorted[Math.floor(sorted.length / 2)];
+  const column = sorted.filter((x) => Math.abs(x - median) <= 12);
+  return Math.min(...column) - 1;
 }
 
 function findLineHeight(lines: PdfLine[]): number {
@@ -365,6 +376,20 @@ interface RowParts {
 
 const ORPHAN_SUPERSCRIPT_RE = /^(?:nd|rd|th|st)(?:\s+(?:nd|rd|th|st))*$/i;
 
+/** Text right of the year boundary should be a year. When it is not, the
+ *  boundary landed inside the point, so return that text to the point rather
+ *  than drop it; a year at its end still goes to the year column. */
+function splitRightColumn(
+  midText: string,
+  rightItems: TextItem[],
+  boldFont: string | null
+): { midText: string; rightText: string } {
+  const right = joinItems(rightItems).trim();
+  if (!right || YEAR_TOKEN_RE.test(right)) return { midText, rightText: right };
+  const { text, year } = splitYearTail(joinItemsAsMarkdown(rightItems, boldFont));
+  return { midText: [midText, text].filter(Boolean).join(' '), rightText: year };
+}
+
 function classifyLines(
   lines: PdfLine[],
   bulletX: number,
@@ -388,8 +413,7 @@ function classifyLines(
       midItems,
       rightItems,
       leftText: joinItems(leftItems),
-      midText: joinItemsAsMarkdown(midItems, boldFont),
-      rightText: joinItems(rightItems),
+      ...splitRightColumn(joinItemsAsMarkdown(midItems, boldFont), rightItems, boldFont),
       hasBulletGlyph: startsWithBullet(midItems),
     };
   });

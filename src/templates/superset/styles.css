@@ -174,9 +174,11 @@
 .f1-bullet-cell {
   font-size: 9.75pt;
   vertical-align: middle;
-  text-align: justify;
-  text-justify: inter-word;
-  text-align-last: justify;
+  /* Left-aligned, as in the official template: its word gaps are a fixed
+     width (measured across 1,391 Industry lines in 120 real PDFs) and lines
+     end ragged at wherever the student's last word ends. Justifying here made
+     a half-filled point look as full as a finished one. */
+  text-align: left;
   hyphens: none;
   padding-left: 6pt !important;
 }

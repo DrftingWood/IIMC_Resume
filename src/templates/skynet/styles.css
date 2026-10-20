@@ -228,9 +228,11 @@
 .sk-bullet-cell {
   font-size: var(--body-size);
   vertical-align: middle;
-  text-align: justify;
-  text-justify: inter-word;
-  text-align-last: justify;
+  /* Left-aligned, as in the official template: its word gaps are a fixed
+     width (measured across 1,391 Industry lines in 120 real PDFs) and lines
+     end ragged at wherever the student's last word ends. Justifying here made
+     a half-filled point look as full as a finished one. */
+  text-align: left;
   hyphens: none;
   /* No horizontal padding: the bullet column is exactly the measured span
      (text x=113.2pt to the year column at x=552pt) and every point of
@@ -266,6 +268,15 @@
 }
 
 /* Industry experience specifics */
+/* The official template adds 0.15pt of character spacing to Industry
+   Experience text only (a Tc operator in the PDF content stream). Without it
+   Industry lines here ran ~3-5% narrower than the real thing, so a point that
+   fitted here could wrap in the official system. Stacks on the -0.01em
+   browser-width correction above. */
+.sk-industry .sk-bullet-cell {
+  letter-spacing: calc(-0.01em + 0.15pt);
+}
+
 .sk-vertical {
   /* 14.30pt: the rotated margin-label column runs from the content edge
      (16.1pt) to the measured gridline at x=30.40. */

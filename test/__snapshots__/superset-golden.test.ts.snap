@@ -7,16 +7,16 @@ exports[`superset parser (frozen) > matches its golden snapshot 1`] = `
       {
         "bullets": [
           {
-            "text": "**Secured** 99.99%ile/2.8L+ **candidates in CAT,** 100%ile in DILR; Admission Rank 4/4.8K+",
-            "year": "",
+            "text": "**Secured** 99.99%ile/2.8L+ **candidates in CAT,** 100%ile in DILR; Admission Rank 4/4.8K+ **at IIM Indore**",
+            "year": "2023",
           },
           {
-            "text": "**Achieved** AIR 1638/1.5L+ **candidates in** JEE (Advanced)**;** 99.84%ile/10.4L+ **candidates in**",
-            "year": "",
+            "text": "**Achieved** AIR 1638/1.5L+ **candidates in** JEE (Advanced)**;** 99.84%ile/10.4L+ **candidates in** JEE (Main)",
+            "year": "2018",
           },
           {
-            "text": "**Ranked** 7/1L+ **candidates in Maharashtra Talent Exam;** Bronze/75K+ **applicants in** Homi",
-            "year": "",
+            "text": "**Ranked** 7/1L+ **candidates in Maharashtra Talent Exam;** Bronze/75K+ **applicants in** Homi Bhaba **Exam**",
+            "year": "2015",
           },
         ],
         "category": "Competitive
@@ -25,16 +25,16 @@ Examinations",
       {
         "bullets": [
           {
-            "text": "**Recipient of** KVPY Fellowship **by** IISc Bangalore **with** AIR 192/90K+**, awarded a** fellowship",
-            "year": "",
+            "text": "**Recipient of** KVPY Fellowship **by** IISc Bangalore **with** AIR 192/90K+**, awarded a** fellowship of ₹4.6L+",
+            "year": "2017",
           },
           {
-            "text": "**Conferred the** NTSE Scholarship **by** NCERT, **given to** 0.1%/12L+, **received a** scholarship",
-            "year": "",
+            "text": "**Conferred the** NTSE Scholarship **by** NCERT, **given to** 0.1%/12L+, **received a** scholarship **worth** ₹1.2L+",
+            "year": "2016",
           },
           {
-            "text": "7/3L+ **Rao IIT Entrance Exam:** 100% waiver (₹5L+)**;** 11/4K+ **Pace IIT Ace of Pace:** 75%",
-            "year": "",
+            "text": "7/3L+ **Rao IIT Entrance Exam:** 100% waiver (₹5L+)**;** 11/4K+ **Pace IIT Ace of Pace:** 75% waiver (₹3L+)",
+            "year": "2016",
           },
         ],
         "category": "National
@@ -43,16 +43,16 @@ Scholarships",
       {
         "bullets": [
           {
-            "text": "**Managed equity portfolio of** INR 11L+ **with a** XIRR 105% **over the past year beating** Nifty",
-            "year": "",
+            "text": "**Managed equity portfolio of** INR 11L+ **with a** XIRR 105% **over the past year beating** Nifty 50 **by** 50%",
+            "year": "23-24",
           },
           {
-            "text": "Ntl’ Finalists, ITC Interrobang; Ntl’ Semis/35k+, Flipkart Wired 9.0; Top 30/3.5K+ **teams**",
-            "year": "",
+            "text": "Ntl’ Finalists, ITC Interrobang; Ntl’ Semis/35k+, Flipkart Wired 9.0; Top 30/3.5K+ **teams,** HUL **FinAce**",
+            "year": "2024",
           },
           {
-            "text": "**Top** 50/1.8K+ **teams,** Bajaj **Finserv Atom**; 2nd/2K+ **CFO Challenge, IIM B;** 3rd/80+ teams",
-            "year": "",
+            "text": "**Top** 50/1.8K+ **teams,** Bajaj **Finserv Atom**; 2nd/2K+ **CFO Challenge, IIM B;** 3rd/80+ teams **Joka Bulls,** IIM C",
+            "year": "2024",
           },
         ],
         "category": "Portfolio and
@@ -62,16 +62,16 @@ Competitions",
       {
         "bullets": [
           {
-            "text": "**Ranked** 1/70+ applicants **from 480 for** CEMs MiM (QS MiM #4) **in** Intl’ **Management** at",
-            "year": "",
+            "text": "**Ranked** 1/70+ applicants **from 480 for** CEMs MiM (QS MiM #4) **in** Intl’ **Management** at HEC Paris (#1)",
+            "year": "23-24",
           },
           {
-            "text": "**Coached** U15 Indian **squad for** Oxford ICYD **who were crowned** Champions **among** 48 global",
-            "year": "",
+            "text": "**Coached** U15 Indian **squad for** Oxford ICYD **who were crowned** Champions **among** 48 global teams",
+            "year": "2022",
           },
           {
-            "text": "**Trained** 100+ school debaters **in the** APAC **region at academies in Singapore, China and**",
-            "year": "",
+            "text": "**Trained** 100+ school debaters **in the** APAC **region at academies in Singapore, China and South Korea**",
+            "year": "21-24",
           },
         ],
         "category": "Certifications and
@@ -180,20 +180,20 @@ Finance",
       {
         "bullets": [
           {
-            "text": "3rd Rank **Team** (Highest Rank by an Indian Team ever) **&** 10th Best Speaker **at**",
-            "year": "",
+            "text": "3rd Rank **Team** (Highest Rank by an Indian Team ever) **&** 10th Best Speaker **at Asian Championships**",
+            "year": "2024",
           },
           {
-            "text": "**QF Judge at** Korea, Belgrade & Vietnam **World Championships with** 900+ **debaters**",
-            "year": "",
+            "text": "**QF Judge at** Korea, Belgrade & Vietnam **World Championships with** 900+ **debaters of** 42 countries",
+            "year": "21-24",
           },
           {
-            "text": "6 times National Champion; 10/180 teams **Shanghai ABP with** 500+ debaters **from**",
-            "year": "",
+            "text": "6 times National Champion; 10/180 teams **Shanghai ABP with** 500+ debaters **from** 12+ countries",
+            "year": "20-24",
           },
           {
-            "text": "**Judged Finals at** 30+ **Intl. competitions inc.** Yale, Tokyo, Oxford & Sydney **with remuneration**",
-            "year": "",
+            "text": "**Judged Finals at** 30+ **Intl. competitions inc.** Yale, Tokyo, Oxford & Sydney **with remuneration of** ₹7L+",
+            "year": "20-24",
           },
         ],
         "category": "International

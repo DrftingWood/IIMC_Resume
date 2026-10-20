@@ -223,7 +223,7 @@ function BulletGroupTable({ groups }: { groups: BulletGroup[] }) {
 
 function IndustryTable({ entries }: { entries: ExperienceEntry[] }) {
   if (!entries.length) {
-    return <table className="sk-table"><tbody></tbody></table>;
+    return <table className="sk-table sk-industry"><tbody></tbody></table>;
   }
 
   // Group consecutive entries by type so vertical Intern/Full-Time stays
@@ -299,7 +299,7 @@ function IndustryTable({ entries }: { entries: ExperienceEntry[] }) {
   });
 
   return (
-    <table className="sk-table">
+    <table className="sk-table sk-industry">
       {/* Industry has its own gridlines: the rotated margin-label column ends
           at x=30.40 and the category column at x=100.70, inside the same
           16.1-578.9pt content box - so 14.30pt / 70.30pt / 478.20pt. */}
